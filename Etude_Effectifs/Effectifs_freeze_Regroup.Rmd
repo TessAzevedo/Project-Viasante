@@ -1,0 +1,113 @@
+---
+title: "Effectif_freeze_Regroup"
+author: "Manon Santrisse"
+date: '2022-10-18'
+output: pdf_document
+---
+
+
+
+
+
+
+
+
+
+# Attribuation des valeurs pour chaque variable
+
+- Gp assurés : mettre majorité
+- Condition Vente : mettre majorité. Attention ! Lien entre Gp Assurés et Condition de vente ? des catégories proches, ne pas perdre le sens
+- Produit : Il y a plus de 2000 produits donc on ne peut pas faire une variable par produit. Une entreprise semble avoir au maximum 3 produits et chaque produit mène à une indexation différente donc il serait intéressant de garder les 3 produits les plus représenté par ordre et leur indexation
+- Date d'adhésion : pas d'intérêt / mettre année la plus vieille
+- Code APE :
+- Département : mettre majorité
+- Regroup 1 : mettre majorité
+- Regroup 4 : semble 1 entreprise = 1 regroup 4
+- Regroup 5 : Créer 4 catégories (Base, Option, Asso, Surcomp) et mettre la majorité
+- Num pers/ num Ind: calculer nombre de personnes et de famille. Attention ! Enlever les personnes radiées
+- Date adhésion pers : pas d'intérêt
+- Date radiation : voir précédement
+- Type assuré : 3 catégories = variables avec leurs effectifs
+- Sexe : 2 catégories = variables avec leurs effectifs
+- Date de naissance : pas d'intérêt / sinon tranche d'âge
+- R/RN : 2 catégories = variables avec leurs effectifs
+- Num contrat grandes entreprises: faire 1 variable oui/non
+- Indexation 2018/2019/2020 : faire par produit ou si 1 produit faire une moyenne ou plusieurs catégorie avec des intervalles
+- Renégo 2020/2021/2022 : variable oui/non
+
+
+## Récupération du nombre exacte d'entreprises
+```{r}
+print(max(Num_E))
+
+```
+
+
+## Création d'un dataframe pour récupérer ces nouvelles informations
+
+```{r}
+tab <- data.frame(Entreprise = integer(),
+                 Lien_E = integer(),
+                 Gp_ass = character(),
+                 Cd_vente = character(),
+                 Produit1= integer(),
+                 Porduit2= integer(),
+                 Produit3= integer(),
+                 Code_APE= character(),
+                 Département= character(),
+                 Regroup1= character(),
+                 Regroup4=character(),
+                 Regroup5=character(),
+                 Nb_adhérent = integer(),
+                 Nb_fam =integer(),
+                 Type_assures = character(),
+                 Sexe = character(),
+                 R_RN =character(),
+                 VIP = logical(),
+                 Ind2018 = double(),
+                 Ind2019 = double(),
+                 Ind2020 = double(),
+                 Renégo2020 = logical(),
+                 Renégo2021 = logical(),
+                 Renégo2022= logical())
+
+```                 
+                 
+                 
+## Subdataset par num entreprise
+Création d'une liste qui pour chaque indice regroupe les lignes correspondant à la i eme entreprise.
+
+```{r}
+sub_entreprises <- lapply(1:3843, function(x) subset(data,Num_E==x)) 
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,231 @@
+---
+title: "Effectifs_freeze"
+author: "Manon Santrisse"
+date: "13/10/2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+```{r library, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+library(readxl)
+library(FactoMineR)
+library(factoextra)
+library(cowplot)
+library("NbClust")
+library(missForest)
+library(writexl)
+library("scales")
+```
+
+# Récupération du jeu Effectifs.xlsx
+```{r recup, echo=TRUE}
+data=read_excel('../Donnees/Effectifs_freeze.xlsx')
+head(data)
+```
+# Formatage
+## Simplifications des valeurs et typologie des variables
+
+```{r simple, include=FALSE }
+data$`Num Ctr Coll Anonyme` <- sapply(strsplit(data$`Num Ctr Coll Anonyme`,"-"),function(x){return (x[1])})
+data$`Lib Entreprise Anonyme`<- sapply(strsplit(data$`Lib Entreprise Anonyme`,"-"),function(x){return (x[1])})
+data$`Produit Anonyme`<- sapply(strsplit(data$`Produit Anonyme`,"-"),function(x){return (x[1])})
+data$`Num Personne Anonyme`<- sapply(strsplit(data$`Num Personne Anonyme`,"-"),function(x){return (x[1])})
+data$`Num Ctr Indiv Anonyme`<- sapply(strsplit(data$`Num Ctr Indiv Anonyme`,"-"),function(x){return (x[1])})
+data$`Lien entreprise Anonyme`<- sapply(strsplit(data$`Lien entreprise Anonyme`,"-"),function(x){return (x[1])})
+head(data)
+```
+
+
+
+```{r type, echo=FALSE }
+data$`Num Ctr Coll Anonyme`<-as.integer(data$`Num Ctr Coll Anonyme`)
+data$`Lib Entreprise Anonyme`<-as.integer(data$`Lib Entreprise Anonyme`)
+data$`Code Grp Assures`<-factor(data$`Code Grp Assures`)
+data$`Condition Vente`<-factor(data$`Condition Vente`)
+data$`Produit Anonyme`<-as.integer(data$`Produit Anonyme`)
+data$`Code Ape`<-factor(data$`Code Ape`)
+data$Departement<-factor(data$Departement)
+data$REGROUP_PROD_1<-factor(data$REGROUP_PROD_1)
+data$REGROUP_PROD_2<-factor(data$REGROUP_PROD_2)
+data$REGROUP_PROD_3<-factor(data$REGROUP_PROD_3)
+data$`REGROUP_PROD_4 Anonyme`<-factor(data$`REGROUP_PROD_4 Anonyme`)
+data$REGROUP_PROD_5<-factor(data$REGROUP_PROD_5)
+data$`Num Personne Anonyme`<- as.integer(data$`Num Personne Anonyme`)
+data$`Num Ctr Indiv Anonyme`<- as.integer(data$`Num Ctr Indiv Anonyme`)
+data$`Type Assure`<-factor(data$`Type Assure`)
+data$Sexe<-factor(data$Sexe)
+data$`R/NR`<-factor(data$`R/NR`)
+data$`Lien entreprise Anonyme`<-as.integer(data$`Lien entreprise Anonyme`)
+data$`Numéro contrat coll Grands Comptes`<-factor(data$`Numéro contrat coll Grands Comptes`)	
+data$`Indexation 2018` <-percent(data$`Indexation 2018`)
+data$`Indexation 2019` <-percent(data$`Indexation 2019`)
+data$`Indexation 2020` <-percent(data$`Indexation 2020`)
+data$`Indexation 2021` <-percent(data$`Indexation 2021`)
+data$`Indexation 2022` <-percent(data$`Indexation 2022`)
+data$`Indexation 2023` <-percent(data$`Indexation 2023`)
+data$`Renégo 2020`<-as.logical(data$`Renégo 2020`)
+data$`Renégo 2021`<-as.logical(data$`Renégo 2021`)
+data$`Renégo 2022`<-as.logical(data$`Renégo 2022`)
+
+
+head(data)
+
+```
+
+
+```{r regroup, include=FALSE}
+#levels(data$`REGROUP_PROD_1`)
+#levels(data$`REGROUP_PROD_2`)
+#levels(data$`REGROUP_PROD_3`)
+#levels(data$`REGROUP_PROD_4 Anonyme`)
+#levels(data$`REGROUP_PROD_5`)
+```
+Il y a une seule catégorie pour regroup_prod 2 et 3 donc on ne va pas les étudier.
+
+```{r supp, include=FALSE}
+data=data[,-c(11,12)]
+head(data)
+```
+  
+## Gestion du format date
+```{r date1, include=FALSE}
+data=transform(data,`Date Effet Adhesion Contrat Coll` =as.character(`Date Effet Adhesion Contrat Coll`),`Date Effet Radiation Contrat Coll` =as.character(`Date Effet Radiation Contrat Coll`),`Date Effet Adhesion Num Personne`=as.character(`Date Effet Adhesion Num Personne`), `Date Effet Radiation Num Personne`=as.character(`Date Effet Radiation Num Personne`), `Date Naissance`=as.character(`Date Naissance`))
+
+head(data)
+```
+
+```{r date2, echo=FALSE}
+data$Date.Effet.Adhesion.Contrat.Coll<-as.Date(data$Date.Effet.Adhesion.Contrat.Coll, format = "%Y%m%d")
+data$Date.Effet.Radiation.Contrat.Coll <-as.Date(data$Date.Effet.Radiation.Contrat.Coll, format = "%Y%m%d")
+data$Date.Effet.Adhesion.Num.Personne <- as.Date(data$Date.Effet.Adhesion.Num.Personne,  format = "%Y-%m-%d")
+data$Date.Effet.Radiation.Num.Personne <-as.Date(data$Date.Effet.Radiation.Num.Personne, format = "%Y%m%d")
+data$Date.Naissance <- as.Date(data$Date.Naissance,  format = "%Y-%m-%d")
+head(data)
+```
+
+
+## Racourcis noms variables
+```{r racourcis}
+Num_E=data$Num.Ctr.Coll.Anonyme
+Nom_E=data$Lib.Entreprise.Anonyme
+Gp_assures=data$Code.Grp.Assures
+cond_vente=data$Condition.Vente
+Prod=data$Produit.Anonyme
+Date_adh_coll=data$Date.Effet.Adhesion.Contrat.Coll
+Date_rad_coll=data$Date.Effet.Radiation.Contrat.Coll
+Secteur=data$Code.Ape
+REGROUP_PROD_4=data$REGROUP_PROD_4.Anonyme
+Num_P=data$Num.Personne.Anonyme
+Num_Fam=data$Num.Ctr.Indiv.Anonyme
+Date_adh_pers=data$Date.Effet.Adhesion.Num.Personne
+Date_rad_pers=data$Date.Effet.Radiation.Num.Personne
+Type=data$Type.Assure
+Date_Naissance=data$Date.Naissance
+Lien=data$Lien.entreprise.Anonyme
+Index2018=data$Indexation.2018
+Index2019=data$Indexation.2019
+Index2020=data$Indexation.2020
+Index2021=data$Indexation.2021
+Index2022=data$Indexation.2022
+Index2023=data$Indexation.2023
+Renego2020=data$Renégo.2020
+Renego2021=data$Renégo.2021
+Renego2022=data$Renégo.2022
+
+```
+
+
+# Summary
+Summary pour voir la tendance de répartition des variables.
+```{r summary, include=TRUE}
+summary(data)
+```
+
+
+On relève au total :\
+* 3843 entreprises\
+* 2927 produits\
+* 135458 personnes\
+* 87197 familles\
+* 1008 liens entreprises
+
+Il y a de nombreuses catégories pour les variables :\
+* Code.Grp.Assures
+* Condition.Vente
+* REGROUP_PROD_5.
+Nous allons rassembler certaines catégories ensembles.
+
+Dans type assurés on retrouve une catégorie Autre, celle-ci doit correspondre aux ascendants. Nous allons les ranger avec les conjoints.
+
+Dans Sexe, il y a une catégorie I avec 24 personnes, au vu du nombre peu élevé nous allons mettre 1é personnes de sexe féminin et 12 de sexe masculin.
+
+
+Dans indexation 2019 et 2020 on relève un pourcenatge négatif. En regardant à quelle entreprise et lien cela est lié on voit qu'il semble s'agir de CNN. Les CNN ont des contrats avec des particularités imposés par l'état ce que peut expliquer cette réduction d'indexation.
+
+Il y a tout de même de nombreuses donnnées manquantes dans les indexations entre 2018 et 2023 (voir pourcentage ci-dessous).
+
+```{r pourcentage, echo=FALSE}
+paste("Pourcenatge de données manquantes pour indexation 2018 : ",    
+      round(94200/nrow(data)*100,digit=2))
+
+paste("Pourcenatge de données manquantes pour indexation 2019 : ", 
+      round(67470/nrow(data)*100,digit=2))
+
+paste("Pourcenatge de données manquantes pour indexation 2020 : ",
+      round(108091/nrow(data)*100,digit=2))
+
+paste("Pourcenatge de données manquantes pour indexation 2021 : ",
+      round(94794/nrow(data)*100,digit=2))
+
+paste("Pourcenatge de données manquantes pour indexation 2022 : ",
+      round(60864/nrow(data)*100,digit=2))
+
+paste("Pourcenatge de données manquantes pour indexation 2023 : ",
+      round(14266/nrow(data)*100,digit=2))  
+ 
+```
+
+De plus quand nous n'avions pas de données pour les Renégociation nous avons défini la valeur à 'FALSE'.
+
+# Nettoyage
+
+
+## Code.Grp.Assures 
+
+## Condition.Vente  
+
+## Date.Effet.Adhesion.Contrat.Coll et Date.Effet.Radiation.Contrat.Coll
+
+
+## Code.Ape     
+
+## Departement     
+
+## REGROUP_PROD_1         
+
+## REGROUP_PROD_4.Anonyme        
+
+## REGROUP_PROD_5   
+
+## Date.Effet.Adhesion.Num.Personne et Date.Effet.Radiation.Num.Personne 
+
+## Type.Assure     
+
+## Sexe       
+
+## Date.Naissance     
+
+
+
+
+
+
+
+
+
+
