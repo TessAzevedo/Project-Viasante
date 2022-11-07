@@ -30,7 +30,7 @@ head(eff)
 ```
 
 
-# Attribuation des valeurs pour chaque variable
+# Définition du format pour chaque variable
 
 - Gp assurés : mettre majorité
 - Produit : Il y a plus de 2000 produits donc on ne peut pas faire une variable par produit. Une entreprise semble avoir au maximum 3 produits et chaque produit mène à une indexation différente donc il serait intéressant de garder les 3 produits les plus représenté par ordre et leur indexation
@@ -52,17 +52,12 @@ head(eff)
 - Renégo 2020/2021/2022 : variable oui/non
 
 
-# Fonction pour attribuer une ligne par entreprise
+# Fonctions pour attribuer une ligne par entreprise
 
-## Dataframe test
-```{r datatest}
+## Dataframes de test
+```{r datatest, echo=FALSE}
 df<-data.frame(c("a","a","b","b","b"))
 colnames(df)<-"nom"
-df
-```
-
-
-```{r}
 E1=subset(eff,Num.Ctr.Coll.Anonyme==1)
 E2=subset(eff,Num.Ctr.Coll.Anonyme==2)
 ```
@@ -75,7 +70,7 @@ Pour les variables :
 - Département
 - Regroup1
 - Regroup4
-- Regroup5
+
 
 ```{r fonct code ass}
 max_repr <- function(data,ind) {
@@ -88,8 +83,7 @@ max_repr <- function(data,ind) {
 
 Test unitaire de max_repr
 ```{r test_unit_max_repr }
-d=max_repr(df,1)
-d
+max_repr(df,1)
 ```
 
 ## Catégories et effectifs
@@ -97,13 +91,13 @@ Pour les varaibles suivantes :
 - Type assuré
 - Sexe
 - R/RN
+- Regroup5
 
-```{r fonct cat_eff}
-cat_freq<-function(data,ind){
-  frequences=as.data.frame(table(data[,ind]))
-   return (frequences)
-}
+
+```{r}
+transpose (aggregate(E2$Type.Assure,list(E2$Type.Assure),length))
 ```
+
 
 ## Effectif personnes et familles
 Pour les variables :
@@ -114,9 +108,15 @@ Pour les variables :
 effectif_pers_fam<-function(data){
   data_sub=subset(data, year(data[,15])=='2050')
   nb_pers=nrow(data_sub)
-  nb_fam=nrow(as.data.frame(table(data_sub[,13])))
+  data_sub=droplevels(data_sub)
+  nb_fam=length(levels(data_sub[,13]))
   return (c(nb_pers,nb_fam))
 }
+```
+
+Test unitaire
+```{r test_unit_pers_fam}
+effectif_pers_fam(E1)
 ```
 
 ## Date d'adhésion entreprise
@@ -143,7 +143,41 @@ temps_adh_E<-function(data){
   }else{
     temps=as.numeric(data[,6]-data[,5])
   }
-  return(temps)
+  return(as.integer(temps))
+}
+#retour en jours
+```
+
+## Temps d'adhésion
+
+```{r temps_adh_P}
+temps_moy_adh_P<-function(data){
+  adh=0
+  #calcul temps adhesion de toutes les personnes
+  for (i in 1:nrow(data)){
+    if(year(data[i,15])=='2050'){
+      adh=adh+as.numeric(Sys.Date()-data[i,14])
+    }else{
+      adh=adh+as.numeric(data[i,15]-data[i,14])
+    }
+    
+  }
+  #moyenne
+  adh=adh/nrow(data)
+  return (as.integer(adh))
+}
+```
+
+
+```{r test_unit_adh_moy}
+temps_moy_adh_P(E2)
+```
+## Ancienneté moyenne
+
+```{r ancienneté}
+ancien<-function(data){
+  anciennete=mean(year(data$Date.Effet.Adhesion.Num.Personne))
+  return (as.integer(anciennete))
 }
 ```
 
@@ -151,46 +185,17 @@ temps_adh_E<-function(data){
 
 ```{r boolean_gd_compte}
 gd_compte<-function(data){
-  if(is.na(data[1,21])){
-    compte=0
-  }else{
-    compte=1
-  }
-  return(compte)
+  return(data[1,21])
 }
 ```
 
 
 Test unitaire
 ```{r}
-gd_compte(eff[1:297,],21)
+gd_compte(E2)
 ```
 
-## Temps d'adhésion
-
-
-## Date.Effet.Adhesion.Contrat.Coll et Date.Effet.Radiation.Contrat.Coll
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Récupération du nombre exacte d'entreprises
+# Récupération du nombre exacte d'entreprises
 ```{r}
 print(max(Num_E))
 
