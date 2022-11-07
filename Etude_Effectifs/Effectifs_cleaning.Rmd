@@ -19,12 +19,13 @@ library(cowplot)
 library("NbClust")
 library(missForest)
 library(writexl)
+library(readr)
 ```
 
 # Récupération des données Effectifs entreprises
 
 ```{r}
-data=read_excel("../Donnees/Effectifs_cleaning.xlsx")
+data=read_excel("../Donnees/Effectifs_clean.xlsx")
 data
 ````
 
@@ -50,7 +51,7 @@ data
 
 
 ```{r}
-write_xlsx(data, './Donnees/Effectifs_freeze.xlsx')
+write_xlsx(data, '../Donnees/Effectifs_freeze.xlsx')
 ```
 
 

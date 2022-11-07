@@ -6,20 +6,36 @@ output: pdf_document
 ---
 
 
+```{r library, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+library(readxl)
+library(FactoMineR)
+library(factoextra)
+library(cowplot)
+library("NbClust")
+library(missForest)
+library(writexl)
+library("scales")
+library(readr)
+library(lubridate)
+```
 
 
-
-
-
+# Récupération du jeu Effectifs_freeze.Rdata
+```{r recup, echo=TRUE}
+eff=get(load('../Donnees/Effectifs_freeze.Rdata'))
+head(eff)
+```
 
 
 # Attribuation des valeurs pour chaque variable
 
 - Gp assurés : mettre majorité
-- Condition Vente : mettre majorité. Attention ! Lien entre Gp Assurés et Condition de vente ? des catégories proches, ne pas perdre le sens
 - Produit : Il y a plus de 2000 produits donc on ne peut pas faire une variable par produit. Une entreprise semble avoir au maximum 3 produits et chaque produit mène à une indexation différente donc il serait intéressant de garder les 3 produits les plus représenté par ordre et leur indexation
 - Date d'adhésion : pas d'intérêt / mettre année la plus vieille
-- Code APE :
+- Code APE : mettre majorité
 - Département : mettre majorité
 - Regroup 1 : mettre majorité
 - Regroup 4 : semble 1 entreprise = 1 regroup 4
@@ -34,6 +50,144 @@ output: pdf_document
 - Num contrat grandes entreprises: faire 1 variable oui/non
 - Indexation 2018/2019/2020 : faire par produit ou si 1 produit faire une moyenne ou plusieurs catégorie avec des intervalles
 - Renégo 2020/2021/2022 : variable oui/non
+
+
+# Fonction pour attribuer une ligne par entreprise
+
+## Dataframe test
+```{r datatest}
+df<-data.frame(c("a","a","b","b","b"))
+colnames(df)<-"nom"
+df
+```
+
+
+```{r}
+E1=subset(eff,Num.Ctr.Coll.Anonyme==1)
+E2=subset(eff,Num.Ctr.Coll.Anonyme==2)
+```
+
+
+## Garder le max représenté
+Pour les variables :
+- Code groupe assurés
+- Code APE
+- Département
+- Regroup1
+- Regroup4
+- Regroup5
+
+```{r fonct code ass}
+max_repr <- function(data,ind) {
+  frequences=as.data.frame(table(data[,ind]))
+  ind_level_max=which(table(data[,ind])==max(table(data[,ind])))
+  level_max=frequences[ind_level_max,1]
+  return (as.character(level_max))
+}
+```
+
+Test unitaire de max_repr
+```{r test_unit_max_repr }
+d=max_repr(df,1)
+d
+```
+
+## Catégories et effectifs
+Pour les varaibles suivantes :
+- Type assuré
+- Sexe
+- R/RN
+
+```{r fonct cat_eff}
+cat_freq<-function(data,ind){
+  frequences=as.data.frame(table(data[,ind]))
+   return (frequences)
+}
+```
+
+## Effectif personnes et familles
+Pour les variables :
+- Num pers
+- Num ind
+
+```{r fonct eff_pers_fam}
+effectif_pers_fam<-function(data){
+  data_sub=subset(data, year(data[,15])=='2050')
+  nb_pers=nrow(data_sub)
+  nb_fam=nrow(as.data.frame(table(data_sub[,13])))
+  return (c(nb_pers,nb_fam))
+}
+```
+
+## Date d'adhésion entreprise
+Pour la variable :
+Date d'adhésion
+```{r annee_adh_E}
+annee_adh_E<-function(data){
+  annee=year(data[,5])[1]
+  return(annee)
+}
+```
+
+Test unitaire
+```{r}
+annee_adh_E(E1)
+```
+
+## Temps d'adhésion entreprise
+
+```{r temps_adhe_E}
+temps_adh_E<-function(data){
+  if(year(data[,6])=='2050'){
+    temps=as.numeric(Sys.Date()-data[,5])
+  }else{
+    temps=as.numeric(data[,6]-data[,5])
+  }
+  return(temps)
+}
+```
+
+## 0/1 pour Grands comptes
+
+```{r boolean_gd_compte}
+gd_compte<-function(data){
+  if(is.na(data[1,21])){
+    compte=0
+  }else{
+    compte=1
+  }
+  return(compte)
+}
+```
+
+
+Test unitaire
+```{r}
+gd_compte(eff[1:297,],21)
+```
+
+## Temps d'adhésion
+
+
+## Date.Effet.Adhesion.Contrat.Coll et Date.Effet.Radiation.Contrat.Coll
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## Récupération du nombre exacte d'entreprises
@@ -81,10 +235,6 @@ Création d'une liste qui pour chaque indice regroupe les lignes correspondant �
 sub_entreprises <- lapply(1:3843, function(x) subset(data,Num_E==x)) 
 
 ```
-
-
-
-
 
 
 
