@@ -136,14 +136,20 @@ max3_repr(L9)
 
 ```{r index_prod}
 index_prod<-function(data,prod){
-  sub_prod=subset(data,Produit.Anonyme=prod)
-  indexation2018_2023=sub_prod[1,21:26]
+  if(!is.na(prod)){
+    sub_prod=subset(data,Produit.Anonyme=prod)
+    indexation2018_2023=sub_prod[1,21:26]
+    
+  }else{
+    indexation2018_2023=rep(NA,6)
+  }
   return(indexation2018_2023)
 }
 ```
 
 ```{r test_unit_index_prod}
 index_prod(L1,1)
+index_prod(L1,NA)
 index_prod(L1002,2828)
 index_prod(L1002,53)
 ```
@@ -415,7 +421,7 @@ tab <- data.frame(Lien_E = integer(nb_liens),
 ## Subdataset par lien entreprise
 
 ```{r sub_lien}
-for (i in 1:1){
+for (i in 1:2){
   sub_lien=subset(effectif,Lien.entreprise.Anonyme==i)
   sub_lien=droplevels(sub_lien)
   #Lien
