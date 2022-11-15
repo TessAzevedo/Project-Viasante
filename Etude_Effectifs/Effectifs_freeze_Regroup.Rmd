@@ -455,13 +455,13 @@ for (i in 1:1){
   tab$Max_code_ape[i]=max_repr(sub_lien,6)
   
   #departement le plus present
-  tab$Max_code_ape[i]=max_repr(sub_lien,7)
+  tab$Max_departement[i]=max_repr(sub_lien,7)
   
   # regroup1 le plus present
-  tab$Max_code_ape[i]=max_repr(sub_lien,8)
+  tab$Max_regroup1[i]=max_repr(sub_lien,8)
   
   #regroup4 le plus present
-  tab$Max_code_ape[i]=max_repr(sub_lien,9)
+  tab$Max_regroup4[i]=max_repr(sub_lien,9)
   
   #base et option (regroup5)
   regroup5=aggregate(sub_lien[,10],list(sub_lien[,10]),length)
