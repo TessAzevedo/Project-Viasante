@@ -77,7 +77,7 @@ Pour les variables :
 - Regroup4 (9)
 
 
-```{r fonct code ass}
+```{r max}
 max_repr <- function(data,ind){
   if (length(table(data[,ind]))!=0){
     frequences=as.data.frame(table(data[,ind]))
@@ -102,7 +102,7 @@ max_repr(L1,9)
 ### Garder les 3 produits les plus présents
 
 -Produits
-```{r fonct code ass}
+```{r max3}
 max3_repr <- function(data) {
   frequences=as.data.frame(table(data[,3]))
   ordre=tail(sort(frequences[,2]),3)
@@ -224,14 +224,16 @@ temps_adh_L<-function(data){
                  Effectif_Entreprise = integer(n))
   for (i in 1:n){
     sub_entreprise<-subset(data,Num.Ctr.Coll.Anonyme==as.integer(levels(data[,1])[i]))
-    
-    if(year(sub_entreprise[1,5])=='2050'){
+    if(year(sub_entreprise[1,5])==2050){
+      
       temps=as.numeric(Sys.Date()-sub_entreprise[1,4])
     }else{
       temps=as.numeric(sub_entreprise[1,5]-sub_entreprise[1,4])
     }
+    
     tab$Tmps_Entreprise[i]=as.integer(temps)
-    tab$Effectif_Entreprise[i]=nrow(sub_entreprise[i])
+    
+    tab$Effectif_Entreprise[i]=nrow(sub_entreprise)
   }
   
   adh=sum(tab$Tmps_Entreprise*tab$Effectif_Entreprise)/nrow(data)
@@ -255,7 +257,7 @@ Pour les variables :
 Avec retrait des personnes et familles radiées.
 ```{r fonct eff_pers_fam}
 effectif_pers_fam_actu<-function(data){
-  data_sub=subset(data, year(data[,14])=='2050')
+  data_sub=subset(data, year(data[,14])==2050)
   nb_pers=nrow(data_sub)
   data_sub=droplevels(data_sub)
   nb_fam=length(levels(data_sub[,12]))
@@ -346,13 +348,9 @@ gd_compte(L1)
 
 # Récupération du nombre d'entreprises et de liens
 ```{r}
-effectif$Num.Ctr.Coll.Anonyme<-as.integer(effectif$Num.Ctr.Coll.Anonyme)
-paste("Il y a ", max(effectif$Num.Ctr.Coll.Anonyme), "entreprises.")
-effectif$Num.Ctr.Coll.Anonyme<-as.factor(effectif$Num.Ctr.Coll.Anonyme)
-effectif$Lien.entreprise.Anonyme<-as.integer(effectif$Lien.entreprise.Anonyme)
-paste("Il y a ",max(effectif$Lien.entreprise.Anonyme)," liens")
-nb_liens=max(effectif$Lien.entreprise.Anonyme)
-effectif$Lien.entreprise.Anonyme<-as.factor(effectif$Lien.entreprise.Anonyme)
+paste("Il y a ", length(levels(effectif$Num.Ctr.Coll.Anonyme)), "entreprises.")
+paste("Il y a ",length(levels(effectif$Lien.entreprise.Anonyme))," liens")
+nb_liens=length(levels(effectif$Lien.entreprise.Anonyme))
 
 ```
 
@@ -372,8 +370,8 @@ tab <- data.frame(Lien_E = integer(nb_liens),
                  Max_departement= character(nb_liens),
                  Max_regroup1= character(nb_liens),
                  Max_regroup4=integer(nb_liens),
-                 BASE=numeric(nb_liens), # en pourcentage
-                 OPTION = numeric(nb_liens), # en pourcentage
+                 BASE_percent=numeric(nb_liens), # en pourcentage
+                 OPTION_percent = numeric(nb_liens), # en pourcentage
                  Nb_pers = integer(nb_liens),
                  Nb_fam =integer(nb_liens),
                  Anciennete_moy = integer(nb_liens),
@@ -421,11 +419,12 @@ tab <- data.frame(Lien_E = integer(nb_liens),
 ## Subdataset par lien entreprise
 
 ```{r sub_lien}
-for (i in 1:2){
-  sub_lien=subset(effectif,Lien.entreprise.Anonyme==i)
+for (i in 1:1007){
+  lien=levels(effectif$Lien.entreprise.Anonyme)[i]
+  sub_lien=subset(effectif,Lien.entreprise.Anonyme==lien)
   sub_lien=droplevels(sub_lien)
   #Lien
-  tab$Lien_E[i]=i
+  tab$Lien_E[i]=lien
   
   #Code groupe assures
   code_gp_as=aggregate(sub_lien[,2],list(sub_lien[,2]),length)
@@ -471,17 +470,18 @@ for (i in 1:2){
   
   #base et option (regroup5)
   regroup5=aggregate(sub_lien[,10],list(sub_lien[,10]),length)
+  regroup5_percent=pourcentage(sub_lien,regroup5)
   ind_base=which(regroup5=="BASE")
   ind_option=which(regroup5=="OPTION")
   if(length(ind_base)){
-    tab$BASE[i]=regroup5[ind_base,2]
+    tab$BASE_percent[i]=regroup5_percent[ind_base,2]
   }else{
-    tab$BASE[i]=0
+    tab$BASE_percent[i]=0
   }
   if(length(ind_option)){
-    tab$OPTION[i]=regroup5[ind_option,2]
+    tab$OPTION_percent[i]=regroup5_percent[ind_option,2]
   }else{
-    tab$OPTION[i]=0
+    tab$OPTION_percent[i]=0
   }
   
   #nb_pers et famille
@@ -579,4 +579,13 @@ for (i in 1:2){
 ```
 
 
+# Save en Effectif_final.Rdata
 
+```{r save}
+save(tab, file='../Donnees/Effectif_final.Rdata')
+```
+
+```{r}
+write.table(tab,file='../Donnees/Effectif_final.csv',sep=";",row.names = FALSE)
+```
+ 

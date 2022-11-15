@@ -28,6 +28,9 @@ library(readr)
 effectif=read_excel('../Donnees/Effectifs_freeze.xlsx')
 head(effectif)
 ```
+
+
+
 # Formatage
 ## Simplifications des valeurs et typologie des variables
 
@@ -236,6 +239,7 @@ effectif=droplevels(effectif)
 
 
 # Sexe
+Certains sexes sont définis comme I(Indéfini)
  I<- moitié M et moitié F
  
 ```{r}
@@ -264,7 +268,7 @@ summary(effectif$REGROUP_PROD_5)
 ```
 
 # Grands comptes
-
+TRUE quand c'est un compte VIP et FALSE sinon.
 ```{r Gds compts}
 for (i in 1:nrow(effectif)){
   if (!is.na(effectif$Numéro.contrat.coll.Grands.comptes[i])){
@@ -279,7 +283,7 @@ effectif$Numéro.contrat.coll.Grands.comptes<-as.logical(effectif$Numéro.contra
 
 
 # Code APE & Département
-
+Remplacer @ qui est une donnée manquante par NA.
 ```{r APE}
 for (i in 1:nrow(effectif)){
   if (effectif$Code.Ape[i]=='@'){
