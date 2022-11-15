@@ -495,7 +495,7 @@ for (i in 1:1){
   ind_enf=which(type_ass=="ENFANT")
   if(length(ind_as)){
     tab$Asspri[i]=type_ass[ind_as,2]
-    tab$Asspri[i]=type_ass_percent[ind_as,2]
+    tab$Asspri_percent[i]=type_ass_percent[ind_as,2]
   }else{
     tab$Asspri[i]=NA
     tab$Asspri_percent[i]=NA
@@ -516,17 +516,59 @@ for (i in 1:1){
   }
   
   #sexe
+  sexe=aggregate(sub_lien[,16],list(sub_lien[,16]),length)
+  sexe_percent=pourcentage(sub_lien,sexe)
+  ind_m=which(sexe=="M")
+  ind_f=which(sexe=="F")
+  if(length(ind_m)){
+    tab$Homme[i]=sexe[ind_m,2]
+    tab$Homme_percent[i]=sexe_percent[ind_m,2]
+  }else{
+    tab$Homme[i]=NA
+    tab$Homme_percent[i]=NA
+  }
+  if(length(ind_f)){
+    tab$Femme[i]=sexe[ind_f,2]
+    tab$Femme_percent[i]=sexe_percent[ind_f,2]
+  }else{
+    tab$Femme[i]=NA
+    tab$Femme_percent[i]=NA
+  }
   
   #r.rn
+  RNR=aggregate(sub_lien[,18],list(sub_lien[,18]),length)
+  RNR_percent=pourcentage(sub_lien,RNR)
+  ind_r=which(RNR=="R")
+  ind_rn=which(RNR=="RN")
+  if(length(ind_r)){
+    tab$Respo[i]=RNR[ind_r,2]
+    tab$Respo_percent[i]=RNR_percent[ind_r,2]
+  }else{
+    tab$Respo[i]=NA
+    tab$Respo_percent[i]=NA
+  }
+  if(length(ind_rn)){
+    tab$Non_respo[i]=RNR[ind_rn,2]
+    tab$Non_respo_percent[i]=RNR_percent[ind_rn,2]
+  }else{
+    tab$Non_respo[i]=NA
+    tab$Non_respo_percent[i]=NA
+  }
   
   #vip
+  tab$VIP[i]=gd_compte(sub_lien)
+  
   #index prod1
+  tab[i,35:40]=index_prod(sub_lien,tab[i,5])
   
   #indexation prod2
+  tab[i,41:46]=index_prod(sub_lien,tab[i,6])
   
   #indexation prod3
+  tab[i,47:52]=index_prod(sub_lien,tab[i,7])
   
   #renego
+  tab[i,53:55]=sub_lien[1,27:29]
 }
 ```
 
