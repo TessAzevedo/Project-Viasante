@@ -89,10 +89,10 @@ effectif=effectif[,-c(11,12)]
 head(effectif)
 ```
 
-On ne s'intéressera pas à la variable 'Condition de Vente'.
+On ne s'intéressera pas à la variable 'Condition de Vente' et lib entreprise
 
 ```{r supp cond vente, include=FALSE}
-effectif=effectif[,-4]
+effectif=effectif[,-c(2,4)]
 ```
 
 ## Gestion du format date
@@ -292,6 +292,7 @@ for (i in 1:nrow(effectif)){
 
 effectif=droplevels(effectif)
 ```
+
 
 
 # Save en Effectif.Rdata

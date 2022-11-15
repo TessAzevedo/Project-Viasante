@@ -49,7 +49,7 @@ head(effectif)
 - Date de naissance : pas d'intérêt / sinon tranche d'âge
 - R/RN : 2 catégories = variables avec leurs effectifs
 - Num contrat grandes entreprises: faire 1 variable oui/non
-- Indexation 2018/2019/2020 : faire par produit ou si 1 produit faire une moyenne ou plusieurs catégorie avec des intervalles
+- Indexation 2018/2019/2020 : faire pour les 3 produits
 - Renégo 2020/2021/2022 : variable oui/non
 
 
@@ -57,34 +57,95 @@ head(effectif)
 
 ## Dataframes de test
 ```{r datatest, echo=FALSE}
-df<-data.frame(c("a","a","b","b","b"))
-colnames(df)<-"nom"
-E1=subset(effectif,Num.Ctr.Coll.Anonyme==1)
-E2=subset(effectif,Num.Ctr.Coll.Anonyme==2)
+L1=subset(effectif,Lien.entreprise.Anonyme==1)
+L1=droplevels(L1)
+L2=subset(effectif,Lien.entreprise.Anonyme==2)
+L2=droplevels(L2)
+L9=subset(effectif,Lien.entreprise.Anonyme==9) #plusieurs entreprises dans le lien 9
+L9=droplevels(L9)
+L1002=subset(effectif,Lien.entreprise.Anonyme==1002) #plusieurs produits dans le lien 1002
+L1002=droplevels(L1002)
 ```
 
 
 ## Garder le max représenté
 Pour les variables :
-- Code groupe assurés
-- Code APE
-- Département
-- Regroup1
-- Regroup4
+
+- Code APE (6)
+- Département (7)
+- Regroup1 (8)
+- Regroup4 (9)
 
 
 ```{r fonct code ass}
-max_repr <- function(data,ind) {
-  frequences=as.data.frame(table(data[,ind]))
-  ind_level_max=which(table(data[,ind])==max(table(data[,ind])))
-  level_max=frequences[ind_level_max,1]
-  return (as.character(level_max))
+max_repr <- function(data,ind){
+  if (length(table(data[,ind]))!=0){
+    frequences=as.data.frame(table(data[,ind]))
+    ind_level_max=which(table(data[,ind])==max(table(data[,ind])))
+    level_max=frequences[ind_level_max,1]
+    return (as.character(level_max))
+  }else{
+    return (NA)
+  }
 }
 ```
 
 Test unitaire de max_repr
-```{r test_unit_max_repr }
-max_repr(df,1)
+
+```{r test_unit_max_repr}
+max_repr(L1,6)
+max_repr(L1,7)
+max_repr(L1,8)
+max_repr(L1,9)
+```
+
+### Garder les 3 produits les plus présents
+
+-Produits
+```{r fonct code ass}
+max3_repr <- function(data) {
+  frequences=as.data.frame(table(data[,3]))
+  ordre=tail(sort(frequences[,2]),3)
+  n=length(ordre)
+  ind_first=which(frequences[,2]==ordre[n])
+  first=as.integer(as.character(frequences[ind_first,1]))
+  if(length(ordre)>1){
+    ind_second=which(frequences[,2]==ordre[n-1])
+    second=as.integer(as.character(frequences[ind_second,1]))
+  }else{
+    second=NA
+  }
+  if(length(ordre)>2){
+    ind_third=which(frequences[,2]==ordre[n-2])
+    third=as.integer(as.character(frequences[ind_third,1]))
+  }else{
+    third=NA
+  }
+  return (c(first,second,third))
+}
+```
+
+
+
+```{r test_unit_max3_rep}
+max3_repr(L1)
+max3_repr(L1002)
+max3_repr(L9)
+```
+## Indexations correspondantes aux 3 produits
+
+```{r index_prod}
+index_prod<-function(data,prod){
+  sub_prod=subset(data,Produit.Anonyme=prod)
+  indexation2018_2023=sub_prod[1,21:26]
+  return(indexation2018_2023)
+}
+```
+
+```{r test_unit_index_prod}
+index_prod(L1,1)
+index_prod(L1002,2828)
+index_prod(L1002,53)
 ```
 
 ## Catégories et effectifs
@@ -93,45 +154,91 @@ Pour les varaibles suivantes :
 - Sexe
 - R/RN
 - Regroup5
+- Code groupe assuré
 
 
 ```{r}
-transpose(aggregate(E2$Type.Assure,list(E2$Type.Assure),length))
+#transpose(aggregate(L2$Type.Assure,list(L2$Type.Assure),length))
+type=aggregate(L2$Type.Assure,list(L2$Type.Assure),length)
+sexe=aggregate(L2$Sexe,list(L2$Sexe),length)
+r.rn=aggregate(L2$R.NR,list(L2$R.NR),length)
+type
+sexe
+r.rn
+```
+
+Mise en pourcentage
+```{r}
+pourcentage<-function(data,eff){
+  eff[,2]=eff[,2]/nrow(data)*100
+  return(eff)
+}
+```
+
+```{r test_unit_pourcentage}
+pourcentage(L2,type)
+pourcentage(L2,sexe)
+pourcentage(L2,r.rn)
 ```
 
 
-## Date d'adhésion entreprise
+## Date d'adhésion lien
 Pour la variable :
 Date d'adhésion
-```{r annee_adh_E}
-annee_adh_E<-function(data){
-  annee=year(data[,5])[1]
-  return(annee)
+```{r annee_adh_L}
+annee_adh_L<-function(data){
+  n=length(levels(data[,1]))
+  tab <- data.frame(Annee_Entreprise = integer(n),
+                 Effectif_Entreprise = integer(n))
+  for (i in 1:n){
+    sub_entreprise<-subset(data,Num.Ctr.Coll.Anonyme==as.integer(levels(data[,1])[i]))
+    tab$Annee_Entreprise[i]=year(sub_entreprise[,4])[1]
+    tab$Effectif_Entreprise[i]=nrow(sub_entreprise)
+    
+  }
+  annee=sum(tab$Annee_Entreprise*tab$Effectif_Entreprise)/nrow(data)
+  return(as.integer(annee))
 }
 ```
 
 Test unitaire
 ```{r}
-annee_adh_E(E1)
+annee_adh_L(L1)
+annee_adh_L(L9)
+annee_adh_L(L1002)
+annee_adh_L(L2)
 ```
 
-## Temps d'adhésion entreprise
-
+## Temps d'adhésion lien
+Calculer le temps moyen d'adhésion d'un lien en calculant le temps moyen d'adhésion des entreprises dans un lien en le pondérant par effectifs de l'entreprise
 ```{r temps_adhe_E}
-temps_adh_E<-function(data){
-  if(year(data[1,6])=='2050'){
-    temps=as.numeric(Sys.Date()-data[1,5])
-  }else{
-    temps=as.numeric(data[1,6]-data[1,5])
+temps_adh_L<-function(data){
+  n=length(levels(data[,1]))
+  tab <- data.frame(Tmps_Entreprise = integer(n),
+                 Effectif_Entreprise = integer(n))
+  for (i in 1:n){
+    sub_entreprise<-subset(data,Num.Ctr.Coll.Anonyme==as.integer(levels(data[,1])[i]))
+    
+    if(year(sub_entreprise[1,5])=='2050'){
+      temps=as.numeric(Sys.Date()-sub_entreprise[1,4])
+    }else{
+      temps=as.numeric(sub_entreprise[1,5]-sub_entreprise[1,4])
+    }
+    tab$Tmps_Entreprise[i]=as.integer(temps)
+    tab$Effectif_Entreprise[i]=nrow(sub_entreprise[i])
   }
-  return(as.integer(temps))
+  
+  adh=sum(tab$Tmps_Entreprise*tab$Effectif_Entreprise)/nrow(data)
+  
+  return(as.integer(adh))
 }
+
 #retour en jours
 ```
 
 ```{r test_unit_tps_adh_E}
-print(temps_adh_E(E1))
-print(temps_adh_E(E2))
+print(temps_adh_L(L1))
+print(temps_adh_L(L9))
 ```
 
 ## Effectif personnes et familles
@@ -141,59 +248,78 @@ Pour les variables :
 
 Avec retrait des personnes et familles radiées.
 ```{r fonct eff_pers_fam}
-effectif_pers_fam<-function(data){
-  data_sub=subset(data, year(data[,15])=='2050')
+effectif_pers_fam_actu<-function(data){
+  data_sub=subset(data, year(data[,14])=='2050')
   nb_pers=nrow(data_sub)
   data_sub=droplevels(data_sub)
-  nb_fam=length(levels(data_sub[,13]))
+  nb_fam=length(levels(data_sub[,12]))
   return (c(nb_pers,nb_fam))
 }
 ```
 
 Test unitaire
 ```{r test_unit_pers_fam}
-effectif_pers_fam(E1)
+effectif_pers_fam_actu(L1)
+effectif_pers_fam_actu(L9)
 #nb pers, nb_fam
 ```
 
 
 ## Temps d'adhésion moyenne des personnes
-
+Temps moyen d'adhésion des personnes à un lien en le pondérant par l'effectif dans l'entreprise.
 ```{r temps_adh_P}
 temps_moy_adh_P<-function(data){
   adh=0
-  #calcul temps adhesion de toutes les personnes
-  for (i in 1:nrow(data)){
-    if(year(data[i,15])=='2050'){
-      adh=adh+as.numeric(Sys.Date()-data[i,14])
+  
+  #calcul du nombre d'entrepise dans le lien
+  n=length(levels(data[,1]))
+  tab <- data.frame(Tmps_Entreprise = integer(n),
+                 Effectif_Entreprise = integer(n))
+  for (i in 1:n){
+    sub_entreprise<-subset(data,Num.Ctr.Coll.Anonyme==as.integer(levels(data[,1])[i]))
+#calcul temps adhesion de toutes les personnes dans  une entreprise
+    if(year(data[i,14])=='2050'){
+      adh=adh+as.numeric(Sys.Date()-data[i,13])
     }else{
-      adh=adh+as.numeric(data[i,15]-data[i,14])
+      adh=adh+as.numeric(data[i,14]-data[i,13])
     }
     
+    tab$Tmps_Entreprise[i]=adh
+    tab$Effectif_Entreprise[i]=nrow(sub_entreprise)
   }
-  #moyenne
-  adh=adh/nrow(data)
-  return (as.integer(adh))
+  #total
+  adh_moyenne=sum(tab$Tmps_Entreprise*tab$Effectif_Entreprise)/nrow(data)
+  return (as.integer(adh_moyenne))
 }
 #en jour
 ```
 
 
 ```{r test_unit_adh_moy}
-temps_moy_adh_P(E2)
+temps_moy_adh_P(L2)
+temps_moy_adh_P(L1002)
 ```
-## Ancienneté moyenne
+## Ancienneté moyenne de personne dans un lien
 
 ```{r ancienneté}
-ancien<-function(data){
-  anciennete=mean(year(data$Date.Effet.Adhesion.Num.Personne))
+ancien_pers<-function(data){
+  n=length(levels(data[,1]))
+  tab <- data.frame(Anciennete_Entreprise = integer(n),
+                 Effectif_Entreprise = integer(n))
+  for (i in 1:n){
+    sub_entreprise<-subset(data,Num.Ctr.Coll.Anonyme==as.integer(levels(data[,1])[i]))
+    tab$Anciennete_Entreprise[i]=mean(year(sub_entreprise$Date.Effet.Adhesion.Num.Personne))
+    tab$Effectif_Entreprise[i]=nrow(sub_entreprise)
+  } 
+  anciennete=sum(tab$Anciennete_Entreprise*tab$Effectif_Entreprise)/nrow(data)
   return (as.integer(anciennete))
 }
 ```
 
 ```{r}
-print(ancien(E1))
-print(ancien(E2))
+print(ancien_pers(L1))
+print(ancien_pers(L9))
+print(ancien_pers(L1002))
 ```
 
 ## 0/1 pour Grands comptes
@@ -201,14 +327,15 @@ print(ancien(E2))
 ```{r boolean_gd_compte} 
 # true or false
 gd_compte<-function(data){
-  return (data[1,21])
+  return (data[1,20])
 }
 ```
 
 
 Test unitaire
 ```{r}
-gd_compte(E2)
+gd_compte(L2)
+gd_compte(L1)
 ```
 
 # Récupération du nombre d'entreprises et de liens
@@ -218,58 +345,190 @@ paste("Il y a ", max(effectif$Num.Ctr.Coll.Anonyme), "entreprises.")
 effectif$Num.Ctr.Coll.Anonyme<-as.factor(effectif$Num.Ctr.Coll.Anonyme)
 effectif$Lien.entreprise.Anonyme<-as.integer(effectif$Lien.entreprise.Anonyme)
 paste("Il y a ",max(effectif$Lien.entreprise.Anonyme)," liens")
+nb_liens=max(effectif$Lien.entreprise.Anonyme)
 effectif$Lien.entreprise.Anonyme<-as.factor(effectif$Lien.entreprise.Anonyme)
+
 ```
 
 ## Création d'un dataframe pour récupérer ces nouvelles informations
 
 ```{r}
-tab <- data.frame(Entreprise = integer(),
-                 Lien_E = integer(),
-                 Actifs = integer(),
-                 Non_actifs = integer(),
-                 Portabilite = integer(),
-               #  Produit1= integer(),
-               #  Produit2= integer(),
-               #  Produit3= integer(),
-                 Annee_adhesion = integer(),
-                 Tps_adh_entreprise = integer(),
-                 Max_code_ape = character(),
-                 Max_departement= character(),
-                 Max_regroup1= character(),
-                 Max_regroup4=integer(),
-                 BASE=numeric(), # en pourcentage
-                 OPTION = numeric(), # en pourcentage
-                 Nb_pers = integer(),
-                 Nb_fam =integer(),
-                 Anciennete_moy = integer(),
-                 Tps_adh_moy_pers = integer(),
-                 Asspri = integer(),# effectif ou pourcentage
-                 Conjoint = integer(),
-                 Enfant = integer(),
-                 Femme = numeric(), # pourcentage
-                 Homme = numeric(), #pourcentage
-                 Respo = numeric(), # pourcentage
-                 Non_respo = numeric(), #pourcentage
-                 VIP = logical(),
-                 Ind2018 = double(),
-                 Ind2019 = double(),
-                 Ind2020 = double(),
-                 Ind2021 = double(),
-                 Ind2022 = double(),
-                 Ind2023 = double(),
-                 Renégo2020 = logical(),
-                 Renégo2021 = logical(),
-                 Renégo2022= logical())
+tab <- data.frame(Lien_E = integer(nb_liens),
+                 Actifs = integer(nb_liens),
+                 Non_actifs = integer(nb_liens),
+                 Portabilite = integer(nb_liens),
+                 Produit1= integer(nb_liens),
+                 Produit2= integer(nb_liens),
+                 Produit3= integer(nb_liens),
+                 Annee_adhesion = integer(nb_liens),
+                 Tps_adh_entreprise = integer(nb_liens),
+                 Max_code_ape = character(nb_liens),
+                 Max_departement= character(nb_liens),
+                 Max_regroup1= character(nb_liens),
+                 Max_regroup4=integer(nb_liens),
+                 BASE=numeric(nb_liens), # en pourcentage
+                 OPTION = numeric(nb_liens), # en pourcentage
+                 Nb_pers = integer(nb_liens),
+                 Nb_fam =integer(nb_liens),
+                 Anciennete_moy = integer(nb_liens),
+                 Tps_adh_moy_pers = integer(nb_liens),
+                 Asspri = integer(nb_liens),# effectif
+                 Asspri_percent= numeric(nb_liens),#pourcentage
+                 Conjoint = integer(nb_liens), #eff
+                 Conjoint_percent = numeric(nb_liens), # pourcentage
+                 Enfant = integer(nb_liens), #eff
+                 Enfant_percent = numeric(nb_liens), #pourcentage
+                 Femme = integer(nb_liens), # eff
+                 Femme_percent = numeric(nb_liens), # pourcentage
+                 Homme = integer(nb_liens), #eff
+                 Homme_percent = numeric(nb_liens), #pourcentage
+                 Respo = integer(nb_liens), # eff
+                 Respo_percent = numeric(nb_liens), # pourcentage
+                 Non_respo = integer(nb_liens), #eff
+                 Non_respo_percent = numeric(nb_liens), #pourcentage
+                 VIP = logical(nb_liens),
+                 Prod1_Ind2018 = double(nb_liens),
+                 Prod1_Ind2019 = double(nb_liens),
+                 Prod1_Ind2020 = double(nb_liens),
+                 Prod1_Ind2021 = double(nb_liens),
+                 Prod1_Ind2022 = double(nb_liens),
+                 Prod1_Ind2023 = double(nb_liens),
+                 Prod2_Ind2018 = double(nb_liens),
+                 Prod2_Ind2019 = double(nb_liens),
+                 Prod2_Ind2020 = double(nb_liens),
+                 Prod2_Ind2021 = double(nb_liens),
+                 Prod2_Ind2022 = double(nb_liens),
+                 Prod2_Ind2023 = double(nb_liens),
+                 Prod3_Ind2018 = double(nb_liens),
+                 Prod3_Ind2019 = double(nb_liens),
+                 Prod3_Ind2020 = double(nb_liens),
+                 Prod3_Ind2021 = double(nb_liens),
+                 Prod3_Ind2022 = double(nb_liens),
+                 Prod3_Ind2023 = double(nb_liens),
+                 Renégo2020 = logical(nb_liens),
+                 Renégo2021 = logical(nb_liens),
+                 Renégo2022= logical(nb_liens))
 
 ```                 
                  
                  
-## Subdataset par num entreprise
-Création d'une liste qui pour chaque indice regroupe les lignes correspondant à la i eme entreprise.
+## Subdataset par lien entreprise
 
-```{r}
-sub_entreprises <- lapply(1:3843, function(x) subset(effectif,Num.Ctr.Coll.Anonyme==x)) 
-
+```{r sub_lien}
+for (i in 1:1){
+  sub_lien=subset(effectif,Lien.entreprise.Anonyme==i)
+  sub_lien=droplevels(sub_lien)
+  #Lien
+  tab$Lien_E[i]=i
+  
+  #Code groupe assures
+  code_gp_as=aggregate(sub_lien[,2],list(sub_lien[,2]),length)
+  ind_actifs=which(code_gp_as=="ACTIFS")
+  ind_non_actifs=which(code_gp_as=="NON_ACTIFS")
+  ind_portabi=which(code_gp_as=="PORTABILITE")
+  if(length(ind_actifs)){
+    tab$Actifs[i]=code_gp_as[ind_actifs,2]
+  }else{
+    tab$Actifs[i]=NA
+  }
+  if(length(ind_non_actifs)){
+    tab$Non_actifs[i]=code_gp_as[ind_non_actifs,2]
+  }else{
+    tab$Non_actifs[i]=NA
+  }
+  if(length(ind_portabi)){
+    tab$Portabilite[i]=code_gp_as[ind_portabi,2]
+  }else{
+    tab$Portabilite[i]=NA
+  }
+    
+  #produits 1 à 3
+  tab[i,5:7]=max3_repr(sub_lien)
+  
+  #année d'adhésion du lien
+  tab$Annee_adhesion[i]=annee_adh_L(sub_lien)
+  
+  #temps adésien entreprise
+  tab$Tps_adh_entreprise[i]=temps_adh_L(sub_lien)
+  
+  #code ape le plus présent
+  tab$Max_code_ape[i]=max_repr(sub_lien,6)
+  
+  #departement le plus present
+  tab$Max_code_ape[i]=max_repr(sub_lien,7)
+  
+  # regroup1 le plus present
+  tab$Max_code_ape[i]=max_repr(sub_lien,8)
+  
+  #regroup4 le plus present
+  tab$Max_code_ape[i]=max_repr(sub_lien,9)
+  
+  #base et option (regroup5)
+  regroup5=aggregate(sub_lien[,10],list(sub_lien[,10]),length)
+  ind_base=which(regroup5=="BASE")
+  ind_option=which(regroup5=="OPTION")
+  if(length(ind_base)){
+    tab$BASE[i]=regroup5[ind_base,2]
+  }else{
+    tab$BASE[i]=NA
+  }
+  if(length(ind_option)){
+    tab$OPTION[i]=regroup5[ind_option,2]
+  }else{
+    tab$OPTION[i]=NA
+  }
+  
+  #nb_pers et famille
+  tab[i,16:17]=effectif_pers_fam_actu(sub_lien)
+  
+  #anciennete moyenne des personnes
+  tab$Anciennete_moy[i]=ancien_pers(sub_lien)
+  
+  #temps d'adhésion moyen des personnes
+  tab$Tps_adh_moy_pers[i]=temps_moy_adh_P(sub_lien)
+  
+  #assure conjoint enfant 
+  type_ass=aggregate(sub_lien[,15],list(sub_lien[,15]),length)
+  type_ass_percent=pourcentage(sub_lien,type_ass)
+  ind_as=which(type_ass=="ASSPRI")
+  ind_conj=which(type_ass=="CONJOI")
+  ind_enf=which(type_ass=="ENFANT")
+  if(length(ind_as)){
+    tab$Asspri[i]=type_ass[ind_as,2]
+    tab$Asspri[i]=type_ass_percent[ind_as,2]
+  }else{
+    tab$Asspri[i]=NA
+    tab$Asspri_percent[i]=NA
+  }
+  if(length(ind_conj)){
+    tab$Conjoint[i]=type_ass[ind_conj,2]
+    tab$Conjoint_percent[i]=type_ass_percent[ind_conj,2]
+  }else{
+    tab$Conjoint[i]=NA
+    tab$Conjoint_percent[i]=NA
+  }
+  if(length(ind_enf)){
+    tab$Enfant[i]=type_ass[ind_enf,2]
+    tab$Enfant_percent[i]=type_ass_percent[ind_enf,2]
+  }else{
+    tab$Enfant[i]=NA
+    tab$Enfant_percent[i]=NA
+  }
+  
+  #sexe
+  
+  #r.rn
+  
+  #vip
+  #index prod1
+  
+  #indexation prod2
+  
+  #indexation prod3
+  
+  #renego
+}
 ```
+
+
 
