@@ -429,17 +429,17 @@ for (i in 1:1){
   if(length(ind_actifs)){
     tab$Actifs[i]=code_gp_as[ind_actifs,2]
   }else{
-    tab$Actifs[i]=NA
+    tab$Actifs[i]=0
   }
   if(length(ind_non_actifs)){
     tab$Non_actifs[i]=code_gp_as[ind_non_actifs,2]
   }else{
-    tab$Non_actifs[i]=NA
+    tab$Non_actifs[i]=0
   }
   if(length(ind_portabi)){
     tab$Portabilite[i]=code_gp_as[ind_portabi,2]
   }else{
-    tab$Portabilite[i]=NA
+    tab$Portabilite[i]=0
   }
     
   #produits 1 à 3
@@ -470,12 +470,12 @@ for (i in 1:1){
   if(length(ind_base)){
     tab$BASE[i]=regroup5[ind_base,2]
   }else{
-    tab$BASE[i]=NA
+    tab$BASE[i]=0
   }
   if(length(ind_option)){
     tab$OPTION[i]=regroup5[ind_option,2]
   }else{
-    tab$OPTION[i]=NA
+    tab$OPTION[i]=0
   }
   
   #nb_pers et famille
@@ -497,22 +497,22 @@ for (i in 1:1){
     tab$Asspri[i]=type_ass[ind_as,2]
     tab$Asspri_percent[i]=type_ass_percent[ind_as,2]
   }else{
-    tab$Asspri[i]=NA
-    tab$Asspri_percent[i]=NA
+    tab$Asspri[i]=0
+    tab$Asspri_percent[i]=0
   }
   if(length(ind_conj)){
     tab$Conjoint[i]=type_ass[ind_conj,2]
     tab$Conjoint_percent[i]=type_ass_percent[ind_conj,2]
   }else{
-    tab$Conjoint[i]=NA
-    tab$Conjoint_percent[i]=NA
+    tab$Conjoint[i]=0
+    tab$Conjoint_percent[i]=0
   }
   if(length(ind_enf)){
     tab$Enfant[i]=type_ass[ind_enf,2]
     tab$Enfant_percent[i]=type_ass_percent[ind_enf,2]
   }else{
-    tab$Enfant[i]=NA
-    tab$Enfant_percent[i]=NA
+    tab$Enfant[i]=0
+    tab$Enfant_percent[i]=0
   }
   
   #sexe
@@ -524,15 +524,15 @@ for (i in 1:1){
     tab$Homme[i]=sexe[ind_m,2]
     tab$Homme_percent[i]=sexe_percent[ind_m,2]
   }else{
-    tab$Homme[i]=NA
-    tab$Homme_percent[i]=NA
+    tab$Homme[i]=0
+    tab$Homme_percent[i]=0
   }
   if(length(ind_f)){
     tab$Femme[i]=sexe[ind_f,2]
     tab$Femme_percent[i]=sexe_percent[ind_f,2]
   }else{
-    tab$Femme[i]=NA
-    tab$Femme_percent[i]=NA
+    tab$Femme[i]=0
+    tab$Femme_percent[i]=0
   }
   
   #r.rn
@@ -544,15 +544,15 @@ for (i in 1:1){
     tab$Respo[i]=RNR[ind_r,2]
     tab$Respo_percent[i]=RNR_percent[ind_r,2]
   }else{
-    tab$Respo[i]=NA
-    tab$Respo_percent[i]=NA
+    tab$Respo[i]=0
+    tab$Respo_percent[i]=0
   }
   if(length(ind_rn)){
     tab$Non_respo[i]=RNR[ind_rn,2]
     tab$Non_respo_percent[i]=RNR_percent[ind_rn,2]
   }else{
-    tab$Non_respo[i]=NA
-    tab$Non_respo_percent[i]=NA
+    tab$Non_respo[i]=0
+    tab$Non_respo_percent[i]=0
   }
   
   #vip
