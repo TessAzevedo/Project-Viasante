@@ -168,6 +168,7 @@ Pour les varaibles suivantes :
 type=aggregate(L2$Type.Assure,list(L2$Type.Assure),length)
 sexe=aggregate(L2$Sexe,list(L2$Sexe),length)
 r.rn=aggregate(L2$R.NR,list(L2$R.NR),length)
+r.rn=aggregate(L9$R.NR,list(L9$R.NR),length)
 type
 sexe
 r.rn
@@ -190,7 +191,7 @@ pourcentage(L2,r.rn)
 
 ## Date d'adhésion lien
 Pour la variable :
-Date d'adhésion
+annee moyen d'adhésion de l'entreprise au lien avec la ponderation en du nombre d'effectifs dans l'entreprise.
 ```{r annee_adh_L}
 annee_adh_L<-function(data){
   n=length(levels(data[,1]))
@@ -217,7 +218,7 @@ annee_adh_L(L2)
 
 ## Temps d'adhésion lien
 Calculer le temps moyen d'adhésion d'un lien en calculant le temps moyen d'adhésion des entreprises dans un lien en le pondérant par effectifs de l'entreprise
-```{r temps_adhe_E}
+```{r temps_adhe_L}
 temps_adh_L<-function(data){
   n=length(levels(data[,1]))
   tab <- data.frame(Tmps_Entreprise = integer(n),
@@ -274,7 +275,7 @@ effectif_pers_fam_actu(L9)
 
 
 ## Temps d'adhésion moyenne des personnes
-Temps moyen d'adhésion des personnes à un lien en le pondérant par l'effectif dans l'entreprise.
+Temps moyen d'adhésion des personnes à un lien en le pondérant par l'effectif dans chaque annee.
 ```{r temps_adh_P}
 temps_moy_adh_P<-function(data){
   adh=0
@@ -357,25 +358,25 @@ nb_liens=length(levels(effectif$Lien.entreprise.Anonyme))
 ## Création d'un dataframe pour récupérer ces nouvelles informations
 
 ```{r}
-tab <- data.frame(Lien_E = integer(nb_liens),
+tab <- data.frame(Lien_Entreprise = integer(nb_liens),
                  Actifs = integer(nb_liens),
                  Non_actifs = integer(nb_liens),
                  Portabilite = integer(nb_liens),
                  Produit1= integer(nb_liens),
                  Produit2= integer(nb_liens),
                  Produit3= integer(nb_liens),
-                 Annee_adhesion = integer(nb_liens),
-                 Tps_adh_entreprise = integer(nb_liens),
-                 Max_code_ape = character(nb_liens),
-                 Max_departement= character(nb_liens),
-                 Max_regroup1= character(nb_liens),
-                 Max_regroup4=integer(nb_liens),
+                 Annee_adh_E_au_L = integer(nb_liens),
+                 Tps_adh_E_au_L = integer(nb_liens),
+                 Code_ape = character(nb_liens),
+                 Departement= character(nb_liens),
+                 Regroup1= character(nb_liens),
+                 Regroup4=character(nb_liens),
                  BASE_percent=numeric(nb_liens), # en pourcentage
                  OPTION_percent = numeric(nb_liens), # en pourcentage
                  Nb_pers = integer(nb_liens),
                  Nb_fam =integer(nb_liens),
-                 Anciennete_moy = integer(nb_liens),
-                 Tps_adh_moy_pers = integer(nb_liens),
+                 Anciennete_pers_ds_L = integer(nb_liens),
+                 Tps_adh_moy_pers_ds_L = integer(nb_liens),
                  Asspri = integer(nb_liens),# effectif
                  Asspri_percent= numeric(nb_liens),#pourcentage
                  Conjoint = integer(nb_liens), #eff
@@ -424,7 +425,7 @@ for (i in 1:1007){
   sub_lien=subset(effectif,Lien.entreprise.Anonyme==lien)
   sub_lien=droplevels(sub_lien)
   #Lien
-  tab$Lien_E[i]=lien
+  tab$Lien_Entreprise[i]=lien
   
   #Code groupe assures
   code_gp_as=aggregate(sub_lien[,2],list(sub_lien[,2]),length)
@@ -451,22 +452,22 @@ for (i in 1:1007){
   tab[i,5:7]=max3_repr(sub_lien)
   
   #année d'adhésion du lien
-  tab$Annee_adhesion[i]=annee_adh_L(sub_lien)
+  tab$Annee_adh_E_au_L[i]=annee_adh_L(sub_lien)
   
   #temps adésien entreprise
-  tab$Tps_adh_entreprise[i]=temps_adh_L(sub_lien)
+  tab$Tps_adh_E_au_L[i]=temps_adh_L(sub_lien)
   
   #code ape le plus présent
-  tab$Max_code_ape[i]=max_repr(sub_lien,6)
+  tab$Code_ape[i]=max_repr(sub_lien,6)
   
   #departement le plus present
-  tab$Max_departement[i]=max_repr(sub_lien,7)
+  tab$Departement[i]=max_repr(sub_lien,7)
   
   # regroup1 le plus present
-  tab$Max_regroup1[i]=max_repr(sub_lien,8)
+  tab$Regroup1[i]=max_repr(sub_lien,8)
   
   #regroup4 le plus present
-  tab$Max_regroup4[i]=max_repr(sub_lien,9)
+  tab$Regroup4[i]=max_repr(sub_lien,9)
   
   #base et option (regroup5)
   regroup5=aggregate(sub_lien[,10],list(sub_lien[,10]),length)
@@ -488,10 +489,10 @@ for (i in 1:1007){
   tab[i,16:17]=effectif_pers_fam_actu(sub_lien)
   
   #anciennete moyenne des personnes
-  tab$Anciennete_moy[i]=ancien_pers(sub_lien)
+  tab$Anciennete_pers_ds_L[i]=ancien_pers(sub_lien)
   
   #temps d'adhésion moyen des personnes
-  tab$Tps_adh_moy_pers[i]=temps_moy_adh_P(sub_lien)
+  tab$Tps_adh_moy_pers_ds_L[i]=temps_moy_adh_P(sub_lien)
   
   #assure conjoint enfant 
   type_ass=aggregate(sub_lien[,15],list(sub_lien[,15]),length)
@@ -545,7 +546,7 @@ for (i in 1:1007){
   RNR=aggregate(sub_lien[,18],list(sub_lien[,18]),length)
   RNR_percent=pourcentage(sub_lien,RNR)
   ind_r=which(RNR=="R")
-  ind_rn=which(RNR=="RN")
+  ind_rn=which(RNR=="NR")
   if(length(ind_r)){
     tab$Respo[i]=RNR[ind_r,2]
     tab$Respo_percent[i]=RNR_percent[ind_r,2]
@@ -578,6 +579,13 @@ for (i in 1:1007){
 }
 ```
 
+```{r}
+tab$Code_ape<-as.factor(tab$Code_ape) 
+tab$Departement<-as.factor(tab$Departement) 
+tab$Regroup1<-as.factor(tab$Regroup1)
+tab$Regroup4<-as.factor(tab$Regroup4)
+  
+```
 
 # Save en Effectif_final.Rdata
 
