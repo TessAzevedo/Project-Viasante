@@ -2,7 +2,9 @@
 title: "Analyse_descriptive"
 author: "Manon Santrisse"
 date: "15/11/2022"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 ---
 
 
@@ -91,7 +93,7 @@ ggplot(df1, aes(x="", y=values, fill=ind)) +
     theme_void()+
   geom_text(aes(label = percent),
             position = position_stack(vjust = 0.8)) +
-   ggtitle("Type assurés-Lien 1")
+   ggtitle("Code groupe assurés-Lien 1")
 ```
 
 ```{r}
@@ -105,7 +107,7 @@ print(ggplot(df1, aes(x="", y=values, fill=ind)) +
     theme_void()+
   geom_text(aes(label = percent),
             position = position_stack(vjust = 0.8)) +
-   ggtitle("Type assurés-Lien ",i))
+   ggtitle("Departement-Lien ",i))
 }
 ```
 
@@ -122,7 +124,7 @@ for (i in 1:1007){
       theme_void()+
     geom_text(aes(label = percent),
             position = position_stack(vjust = 0.8)) +
-    ggtitle("Type assurés-Lien",i))
+    ggtitle("Baset et option -Lien",i))
 }
 ```
 
@@ -184,7 +186,7 @@ ggplot(df1, aes(x="", y=values, fill=ind)) +
     theme_void()+
   geom_text(aes(label = percent),
             position = position_stack(vjust = 0.8)) +
-   ggtitle("Type assurés-Lien 1")
+   ggtitle("Sexe-Lien 1")
 ```
 
 ### Type assurés
@@ -279,21 +281,6 @@ p1=fviz_contrib(res.acp, choice = "var", axes = 1)
 p2=fviz_contrib(res.acp, choice = "var", axes = 2)
 plot_grid(p1,p2)
 ```
-
-
-```{r fig.height=4}
-plot(res.acp,choix="ind", label="none", habillage = 1, axes = c(1,2))
-```
-
-
-
-```{r fig.height=10}
-fviz_pca_ind(res.acp, col.ind = "cos2", 
-             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             repel = TRUE # Avoid text overlapping (slow if many points)
-             )
-```
-
 
 
 
