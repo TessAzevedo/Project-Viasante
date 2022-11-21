@@ -1,0 +1,291 @@
+---
+title: "Analyse_descriptive"
+author: "Manon Santrisse"
+date: "15/11/2022"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r library, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+library(readxl)
+library(FactoMineR)
+library(factoextra)
+library(cowplot)
+library("NbClust")
+library(writexl)
+library("scales")
+library(readr)
+library(lubridate)
+library(data.table)
+```
+
+
+# Récupération du jeu Effectifs_freeze.Rdata
+```{r recup, echo=TRUE}
+load('Donnees/Effectif_final.Rdata')
+head(tab)
+```
+
+```{r}
+colnames(tab)[1]<-c("Lien.entreprise.Anonyme")
+```
+
+
+# Analyse descriptive
+
+## Boxplot
+
+
+### Annee d'adh de l'entreprise au lien
+
+
+
+```{r}
+df1 = stack(tab[,c(8,18)])
+ggplot(df1, aes(x=df1[,2],y=df1[,1],fill=df1[,2])) + 
+  geom_boxplot(alpha=.3,show.legend = FALSE) +
+  xlab('') + ylab('') + theme_minimal()
+```
+
+### Temps moyenne de l'entrepise dans le lien et des personne dans le lien
+
+```{r}
+df1 = stack(tab[,c(9,19)])
+ggplot(df1, aes(x=df1[,2],y=df1[,1],fill=df1[,2])) + 
+  geom_boxplot(alpha=.3,show.legend = FALSE) +
+  xlab('') + ylab('') + theme_minimal()
+```
+## Pie chart
+
+### Produit1
+
+
+```{r}
+ggplot(tab, aes(x="", y=Produit1, fill=Produit1)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()
+```
+### Annee E dans lien
+
+```{r}
+ggplot(tab, aes(x="", y=Annee_adh_E_au_L, fill=Annee_adh_E_au_L)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()
+```
+
+### Code groupe assurés
+
+
+```{r}
+df1 = stack(tab[1,c(2,3,4)])
+df1= subset(df1,values!=0)
+df1$percent=paste(as.character(round(df1$values/sum(df1$values)*100,2)),"%")
+ggplot(df1, aes(x="", y=values, fill=ind)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()+
+  geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8)) +
+   ggtitle("Code groupe assurés-Lien 1")
+```
+
+```{r}
+for (i in 1:1007){
+df1 = stack(tab[i,c(2,3,4)])
+df1= subset(df1,values!=0)
+df1$percent=paste(as.character(round(df1$values/sum(df1$values)*100,2)),"%")
+print(ggplot(df1, aes(x="", y=values, fill=ind)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()+
+  geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8)) +
+   ggtitle("Departement-Lien ",i))
+}
+```
+
+### Base et option
+
+```{r}
+for (i in 1:1007){
+  df1 = stack(tab[i,c(14,15)])
+  df1= subset(df1,values!=0)
+  df1$percent=paste(as.character(round(df1$values/sum(df1$values)*100,2)),"%")
+  print(ggplot(df1, aes(x="", y=values, fill=ind)) +
+    geom_bar(stat="identity", width=1) +
+    coord_polar("y", start=0)+
+      theme_void()+
+    geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8)) +
+    ggtitle("Baset et option -Lien",i))
+}
+```
+
+### Code APE
+
+```{r}
+sub_tab=subset(tab,Code_ape!="NA")
+print(nrow(sub_tab))
+```
+```{r }
+ggplot(sub_tab, aes(x="", y=Code_ape, fill=Code_ape)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0) +
+  theme(legend.position="none") 
+```
+### Departement
+```{r}
+sub_tab=subset(tab,Departement!="NA")
+print(nrow(sub_tab))
+```
+
+```{r}
+ggplot(sub_tab, aes(x="", y=Departement, fill=Departement)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()
+```
+
+
+### Regroup1
+
+```{r}
+ggplot(tab, aes(x="", y=Regroup1, fill=Regroup1)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()
+```
+
+### Regroup4
+
+
+```{r}
+ggplot(tab, aes(x="", y=Regroup4, fill=Regroup4)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0) +
+  theme(legend.position="none") +
+    theme_void()
+```
+### Sexe
+
+
+```{r}
+df1 = stack(tab[1,c(27,29)])
+df1= subset(df1,values!=0)
+df1$percent=paste(as.character(round(df1$values/sum(df1$values)*100,2)),"%")
+ggplot(df1, aes(x="", y=values, fill=ind)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()+
+  geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8)) +
+   ggtitle("Sexe-Lien 1")
+```
+
+### Type assurés
+
+
+```{r}
+df1 = stack(tab[1,c(21,23,25)])
+df1= subset(df1,values!=0)
+df1$percent=paste(as.character(round(df1$values/sum(df1$values)*100,2)),"%")
+ggplot(df1, aes(x="", y=values, fill=ind)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()+
+  geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8)) +
+   ggtitle("Type assurés-Lien 1")
+```
+
+
+## Histogramme
+
+
+```{r}
+#par(mfrow=c(3,2))
+hist(tab$BASE_percent,breaks =5,freq =TRUE, main = "score général",xlab = "score général",ylab = "effectifs")
+abline(v=c(20,40,60,80),col="red", lwd=3)
+
+```
+```{r}
+#par(mfrow=c(3,2))
+hist(tab$OPTION_percent,breaks =5,freq =TRUE, main = "score général",xlab = "score général",ylab = "effectifs")
+abline(v=c(20,40,60,80),col="red", lwd=3)
+
+```
+
+
+# ANALYSE BIDIMENSIONNELLE
+
+```{r fig.height=5}
+library(corrplot)
+ind.quanti=c(2:4,14:17,21,23,25,27,29,31,33)#,35:52)
+M=cor(tab[,ind.quanti])
+corrplot.mixed(M,upper="ellipse",tl.pos="lt")
+```
+
+
+
+## Analyse en composantes Principales (ACP)
+
+Ici on a pas besoin de centrer et réduire car on travaille avec des variables quantitatives ayant le même ordre de grandeur.
+
+on fait un graphe de pourcentage des inerties et on garde les dimensions tels que la somme des pourcentages est au moins supérieur à 80%. 
+
+Regarder à quelle dimension les variables sont liées.
+
+Faire analyse variable et individus
+
+RAPPEL COURS :
+les vecteurs propres sont les axes principaux
+Les composantes principales sont des combinaisons linéaires des variables initiales
+
+```{r}
+ind.quanti=c(2:4,14:17,20:31)
+tab=tab[,ind.quanti]
+res.acp <- PCA(tab,scale.unit=TRUE,ncp=5, graph=FALSE)
+
+
+cat("\nPourcentages d’inerties cumulées des axes principaux :\n")
+print(res.acp$eig[,"cumulative percentage of variance"]) 
+
+fviz_screeplot(res.acp, addlabels = TRUE, ylim = c(0, 80), main="Pourcentages d’inerties")
+```
+
+
+```{r}
+#autre représentation
+res.acp=PCA(tab, scale.unit= T, ncp=2,graph=F)
+barplot(res.acp$eig[,"cumulative percentage of variance"][1:5],main="Pourcentages d'inerties cumulées", col="lightgreen")
+
+```
+
+
+```{r fig.height=6}
+p1=fviz_pca_var(res.acp, col.var="contrib", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), repel = TRUE, axes=c(1,2))
+plot_grid(p1)
+```
+
+
+
+```{r fig.height=5}
+p1=fviz_contrib(res.acp, choice = "var", axes = 1)
+p2=fviz_contrib(res.acp, choice = "var", axes = 2)
+plot_grid(p1,p2)
+```
+
+
+
+
+
+
+
+
