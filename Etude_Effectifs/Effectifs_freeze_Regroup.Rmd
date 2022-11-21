@@ -358,7 +358,7 @@ nb_liens=length(levels(effectif$Lien.entreprise.Anonyme))
 ## Création d'un dataframe pour récupérer ces nouvelles informations
 
 ```{r}
-tab <- data.frame(Lien_Entreprise = integer(nb_liens),
+tab <- data.frame(Lien.entreprise.Anonyme = integer(nb_liens),
                  Actifs = integer(nb_liens),
                  Non_actifs = integer(nb_liens),
                  Portabilite = integer(nb_liens),
@@ -425,7 +425,7 @@ for (i in 1:1007){
   sub_lien=subset(effectif,Lien.entreprise.Anonyme==lien)
   sub_lien=droplevels(sub_lien)
   #Lien
-  tab$Lien_Entreprise[i]=lien
+  tab$Lien.entreprise.Anonyme[i]=lien
   
   #Code groupe assures
   code_gp_as=aggregate(sub_lien[,2],list(sub_lien[,2]),length)
@@ -580,11 +580,14 @@ for (i in 1:1007){
 ```
 
 ```{r}
+tab$Lien.entreprise.Anonyme<-as.factor(tab$Lien.entreprise.Anonyme)
 tab$Code_ape<-as.factor(tab$Code_ape) 
 tab$Departement<-as.factor(tab$Departement) 
 tab$Regroup1<-as.factor(tab$Regroup1)
 tab$Regroup4<-as.factor(tab$Regroup4)
-  
+tab$Produit1<-as.factor(tab$Produit1)
+tab$Produit2<-as.factor(tab$Produit2)
+tab$Produit3<-as.factor(tab$Produit3)
 ```
 
 # Save en Effectif_final.Rdata
