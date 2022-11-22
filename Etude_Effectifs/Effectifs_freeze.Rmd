@@ -1,0 +1,312 @@
+---
+title: "Effectifs_freeze"
+author: "Manon Santrisse"
+date: "13/10/2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+```{r library, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+library(readxl)
+library(FactoMineR)
+library(factoextra)
+library(cowplot)
+library("NbClust")
+library(missForest)
+library(writexl)
+library("scales")
+library(readr)
+```
+
+# Récupération du jeu Effectifs_freeze.xlsx
+```{r recup, echo=TRUE}
+effectif=read_excel('../Donnees/Effectifs/Effectifs_clean2.xlsx')
+head(effectif)
+```
+
+
+
+# Formatage
+## Simplifications des valeurs et typologie des variables
+
+```{r simple, include=FALSE }
+effectif$`Num Ctr Coll Anonyme` <- sapply(strsplit(effectif$`Num Ctr Coll Anonyme`,"-"),function(x){return (x[1])})
+effectif$`Lib Entreprise Anonyme`<- sapply(strsplit(effectif$`Lib Entreprise Anonyme`,"-"),function(x){return (x[1])})
+effectif$`Produit Anonyme`<- sapply(strsplit(effectif$`Produit Anonyme`,"-"),function(x){return (x[1])})
+effectif$REGROUP_PROD_1<- sapply(strsplit(effectif$REGROUP_PROD_1,"_"),function(x){return (x[2])})
+effectif$`REGROUP_PROD_4 Anonyme`<- sapply(strsplit(effectif$`REGROUP_PROD_4 Anonyme`,"-"),function(x){return (x[1])})
+effectif$REGROUP_PROD_5<- substr(effectif$REGROUP_PROD_5,3,nchar(effectif$REGROUP_PROD_5)) 
+effectif$`Num Personne Anonyme`<- sapply(strsplit(effectif$`Num Personne Anonyme`,"-"),function(x){return (x[1])})
+effectif$`Num Ctr Indiv Anonyme`<- sapply(strsplit(effectif$`Num Ctr Indiv Anonyme`,"-"),function(x){return (x[1])})
+effectif$`Lien entreprise Anonyme`<- sapply(strsplit(effectif$`Lien entreprise Anonyme`,"-"),function(x){return (x[1])})
+head(effectif)
+```
+
+
+```{r type, echo=FALSE }
+effectif$`Num Ctr Coll Anonyme`<-as.factor(effectif$`Num Ctr Coll Anonyme`)
+effectif$`Lib Entreprise Anonyme`<-as.factor(effectif$`Lib Entreprise Anonyme`)
+#effectif$`Code Grp Assures`<-factor(effectif$`Code Grp Assures`)
+#effectif$`Condition Vente`<-factor(effectif$`Condition Vente`)
+effectif$`Produit Anonyme`<-as.factor(effectif$`Produit Anonyme`)
+effectif$`Code Ape`<-factor(effectif$`Code Ape`)
+effectif$Departement<-factor(effectif$Departement)
+effectif$REGROUP_PROD_1<-factor(effectif$REGROUP_PROD_1)
+#effectif$REGROUP_PROD_2<-factor(effectif$REGROUP_PROD_2)
+#effectif$REGROUP_PROD_3<-factor(effectif$REGROUP_PROD_3)
+effectif$`REGROUP_PROD_4 Anonyme`<-factor(effectif$`REGROUP_PROD_4 Anonyme`)
+effectif$REGROUP_PROD_5<-factor(effectif$REGROUP_PROD_5)
+effectif$`Num Personne Anonyme`<- as.factor(effectif$`Num Personne Anonyme`)
+effectif$`Num Ctr Indiv Anonyme`<- as.factor(effectif$`Num Ctr Indiv Anonyme`)
+#effectif$`Type Assure`<-factor(effectif$`Type Assure`)
+#effectif$Sexe<-factor(effectif$Sexe)
+effectif$`R/NR`<-factor(effectif$`R/NR`)
+effectif$`Lien entreprise Anonyme`<-as.factor(effectif$`Lien entreprise Anonyme`)
+#effectif$`Numéro contrat coll Grands comptes`<-as.factor(effectif$`Numéro contrat coll Grands comptes`)	
+effectif$`Renégo 2020`<-as.logical(effectif$`Renégo 2020`)
+effectif$`Renégo 2021`<-as.logical(effectif$`Renégo 2021`)
+effectif$`Renégo 2022`<-as.logical(effectif$`Renégo 2022`)
+```
+
+```{r}
+head(effectif)
+```
+
+
+```{r regroup, include=FALSE}
+#levels(effectif$`REGROUP_PROD_1`)
+#levels(effectif$`REGROUP_PROD_2`)
+#levels(effectif$`REGROUP_PROD_3`)
+#levels(effectif$`REGROUP_PROD_4 Anonyme`)
+#levels(effectif$`REGROUP_PROD_5`)
+```
+Il y a une seule catégorie pour regroup_prod 2 et 3 donc on ne va pas les étudier.
+
+```{r supp, include=FALSE}
+effectif=effectif[,-c(11,12)]
+head(effectif)
+```
+
+On ne s'intéressera pas à la variable 'Condition de Vente' et lib entreprise
+
+```{r supp cond vente, include=FALSE}
+effectif=effectif[,-c(2,4)]
+```
+
+## Gestion du format date
+```{r date1, include=FALSE}
+effectif=transform(effectif,`Date Effet Adhesion Contrat Coll` =as.character(`Date Effet Adhesion Contrat Coll`),`Date Effet Radiation Contrat Coll` =as.character(`Date Effet Radiation Contrat Coll`),`Date Effet Adhesion Num Personne`=as.character(`Date Effet Adhesion Num Personne`), `Date Effet Radiation Num Personne`=as.character(`Date Effet Radiation Num Personne`), `Date Naissance`=as.character(`Date Naissance`))
+
+head(effectif)
+```
+
+```{r date2, echo=FALSE}
+effectif$Date.Effet.Adhesion.Contrat.Coll<-as.Date(effectif$Date.Effet.Adhesion.Contrat.Coll, format = "%Y%m%d")
+effectif$Date.Effet.Radiation.Contrat.Coll <-as.Date(effectif$Date.Effet.Radiation.Contrat.Coll, format = "%Y%m%d")
+effectif$Date.Effet.Adhesion.Num.Personne <- as.Date(effectif$Date.Effet.Adhesion.Num.Personne,  format = "%Y-%m-%d")
+effectif$Date.Effet.Radiation.Num.Personne <-as.Date(effectif$Date.Effet.Radiation.Num.Personne, format = "%Y%m%d")
+effectif$Date.Naissance <- as.Date(effectif$Date.Naissance,  format = "%Y-%m-%d")
+head(effectif)
+```
+
+
+## Racourcis noms variables
+```{r racourcis}
+Num_E=effectif$Num.Ctr.Coll.Anonyme
+Nom_E=effectif$Lib.Entreprise.Anonyme
+Gp_assures=effectif$Code.Grp.Assures
+cond_vente=effectif$Condition.Vente
+Prod=effectif$Produit.Anonyme
+Date_adh_coll=effectif$Date.Effet.Adhesion.Contrat.Coll
+Date_rad_coll=effectif$Date.Effet.Radiation.Contrat.Coll
+Secteur=effectif$Code.Ape
+REGROUP_PROD_4=effectif$REGROUP_PROD_4.Anonyme
+Num_P=effectif$Num.Personne.Anonyme
+Num_Fam=effectif$Num.Ctr.Indiv.Anonyme
+Date_adh_pers=effectif$Date.Effet.Adhesion.Num.Personne
+Date_rad_pers=effectif$Date.Effet.Radiation.Num.Personne
+Type=effectif$Type.Assure
+Date_Naissance=effectif$Date.Naissance
+Lien=effectif$Lien.entreprise.Anonyme
+Index2018=effectif$Indexation.2018
+Index2019=effectif$Indexation.2019
+Index2020=effectif$Indexation.2020
+Index2021=effectif$Indexation.2021
+Index2022=effectif$Indexation.2022
+Index2023=effectif$Indexation.2023
+Renego2020=effectif$Renégo.2020
+Renego2021=effectif$Renégo.2021
+Renego2022=effectif$Renégo.2022
+
+```
+
+
+# Summary
+Summary pour voir la tendance de répartition des variables.
+```{r summary, include=TRUE}
+summary(effectif)
+```
+
+
+On relève au total :\
+* 3843 entreprises\
+* 2927 produits\
+* 135458 personnes\
+* 87197 familles\
+* 1008 liens entreprises
+
+Il y a de nombreuses catégories pour les variables :\
+* Code.Grp.Assures
+* Condition.Vente
+* REGROUP_PROD_5.
+Nous allons rassembler certaines catégories ensembles.
+
+Dans type assurés on retrouve une catégorie Autre, celle-ci doit correspondre aux ascendants. Nous allons les ranger avec les conjoints.
+
+Dans Sexe, il y a une catégorie I avec 24 personnes, au vu du nombre peu élevé nous allons mettre 1é personnes de sexe féminin et 12 de sexe masculin.
+
+
+Dans indexation 2019 et 2020 on relève un pourcenatge négatif. En regardant à quelle entreprise et lien cela est lié on voit qu'il semble s'agir de CNN. Les CNN ont des contrats avec des particularités imposés par l'état ce que peut expliquer cette réduction d'indexation.
+
+Il y a tout de même de nombreuses donnnées manquantes dans les indexations entre 2018 et 2023 (voir pourcentage ci-dessous).
+
+```{r pourcentage, echo=FALSE}
+paste("Pourcenatge de données manquantes pour indexation 2018 : ",    
+      round(94200/nrow(effectif)*100,digit=2))
+
+paste("Pourcenatge de données manquantes pour indexation 2019 : ", 
+      round(67470/nrow(effectif)*100,digit=2))
+
+paste("Pourcenatge de données manquantes pour indexation 2020 : ",
+      round(108091/nrow(effectif)*100,digit=2))
+
+paste("Pourcenatge de données manquantes pour indexation 2021 : ",
+      round(94794/nrow(effectif)*100,digit=2))
+
+paste("Pourcenatge de données manquantes pour indexation 2022 : ",
+      round(60864/nrow(effectif)*100,digit=2))
+
+paste("Pourcenatge de données manquantes pour indexation 2023 : ",
+      round(14266/nrow(effectif)*100,digit=2))  
+ 
+```
+
+De plus quand nous n'avions pas de données pour les Renégociation nous avons défini la valeur à 'FALSE'.
+
+# Correspondance Code Groupe assurés
+
+On va utiliser le doc 'Recodage code groupe assure.xlsx' pour classer les codes groupes assurés
+
+```{r recup code assures, echo=TRUE}
+code_ass=read_excel('../Donnees/Recodage code groupe assure.xlsx')
+head(code_ass)
+```
+
+
+```{r corres}
+for (i in 1:nrow(effectif)){
+  j=1
+  while (effectif$Code.Grp.Assures[i]!=code_ass$`Code Grp Assures`[j]){
+    j=j+1
+  }
+  effectif$Code.Grp.Assures[i]=code_ass$`Code Grp Assures recodée`[j]
+}
+```
+
+```{r}
+effectif$Code.Grp.Assures<-as.factor(effectif$Code.Grp.Assures)
+levels(effectif$Code.Grp.Assures)
+```
+
+# Type assuré
+ Autre <- conjoint
+ 
+```{r}
+for (i in 1:nrow(effectif)){
+  if (effectif$Type.Assure[i]=='AUTRE'){
+    effectif$Type.Assure[i]='CONJOI'
+  }
+}
+effectif$Type.Assure<-as.factor(effectif$Type.Assure)
+effectif=droplevels(effectif)
+```
+
+
+
+# Sexe
+Certains sexes sont définis comme I(Indéfini)
+ I<- moitié M et moitié F
+ 
+```{r}
+for (i in 1:nrow(effectif)){
+  cpt=1
+  if (effectif$Sexe[i]=='I' & (cpt %% 2) == 0){
+    effectif$Sexe[i]='M'
+  }else if(effectif$Sexe[i]=='I' & (cpt %% 2) != 0){
+    effectif$Sexe[i]='F'
+  }
+}
+effectif$Sexe<-as.factor(effectif$Sexe)
+effectif=droplevels(effectif)
+```
+
+ 
+
+# Regroupe levels regroup 5
+Faire 2 catégories : base et le reste.
+Puis faudra les mettre en pourcentage d'effectif après.
+
+```{r rgp5}
+levels(effectif$REGROUP_PROD_5)[3]="BASE" 
+levels(effectif$REGROUP_PROD_5)[c(1,3:9)]="OPTION" 
+summary(effectif$REGROUP_PROD_5)
+```
+
+# Grands comptes
+TRUE quand c'est un compte VIP et FALSE sinon.
+```{r Gds compts}
+for (i in 1:nrow(effectif)){
+  if (!is.na(effectif$Numéro.contrat.coll.Grands.comptes[i])){
+    effectif$Numéro.contrat.coll.Grands.comptes[i]=TRUE
+  }else{
+    effectif$Numéro.contrat.coll.Grands.comptes[i]=FALSE
+  }
+}
+
+effectif$Numéro.contrat.coll.Grands.comptes<-as.logical(effectif$Numéro.contrat.coll.Grands.comptes)
+```
+
+
+# Code APE & Département
+Remplacer @ qui est une donnée manquante par NA.
+```{r APE}
+for (i in 1:nrow(effectif)){
+  if (effectif$Code.Ape[i]=='@'){
+    effectif$Code.Ape[i]=NA
+  }
+  if(effectif$Departement[i]=='@'){
+    effectif$Departement[i]=NA
+  }
+}
+
+effectif=droplevels(effectif)
+```
+
+
+
+# Save en Effectif.Rdata
+
+```{r save}
+save(effectif, file='../Donnees/Effectifs/Effectifs_freeze.Rdata')
+```
+
+
+```{r}
+effectif_freeze=effectif
+write_xlsx(effectif_freeze, '../Donnees/Effectifs/Effectifs_freeze.xlsx')
+```
