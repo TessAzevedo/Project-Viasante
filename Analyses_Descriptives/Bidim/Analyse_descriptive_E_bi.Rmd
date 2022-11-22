@@ -1,0 +1,79 @@
+---
+title: "Analyse_descriptive_bi"
+author: "Manon Santrisse"
+date: '2022-11-22'
+output: html_document
+---
+
+
+```{r library, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+library(readxl)
+library(FactoMineR)
+library(factoextra)
+library(cowplot)
+library("NbClust")
+library(writexl)
+library("scales")
+library(readr)
+library(lubridate)
+library(data.table)
+library(corrplot)
+```
+
+
+
+# Récupération du jeu Effectifs_freeze.Rdata
+```{r recup, echo=TRUE}
+load('../../Donnees/Effectifs/Effectif_1line+.Rdata')
+head(tab)
+```
+
+
+# Analyse descriptive bidimensionelle
+
+## Variables quantitatives
+
+
+```{r}
+plot(tab$Actifs,tab$Non_actifs, ylab="Non actifs", xlab="Actifs")
+plot(tab$Actifs,tab$Portabilite, ylab="Portabilite", xlab="Actifs")
+plot(tab$Portabilite,tab$Non_actifs, ylab="Non actifs", xlab="Portabilite")
+```
+
+
+
+```{r fig.height=6}
+ind.quanti=c(2:4,14:17,21,23,25,27,29,31,33,34)
+M=cor(tab[,ind.quanti])
+corrplot.mixed(M,upper="ellipse",tl.pos="lt")
+```
+
+### Indexation Produit1
+
+```{r fig.height=6}
+ind.indx.prod1=c(35:40)
+tab_bis=subset(tab, Prod1_Ind2018!=NA && Prod1_Ind2019!=NA && Prod1_Ind2020!=NA && Prod1_Ind2021!=NA && Prod1_Ind2022!=NA)
+M=cor(tab[,ind.indx.prod1])
+corrplot.mixed(M,upper="ellipse",tl.pos="lt")
+```
+```{r}
+pairs(tab[,c(35,36,37)])
+```
+
+
+## quantitative et qualitative
+```{r}
+boxplot(tab$Actifs ~tab$Departement)
+```
+
+
+```{r}
+
+for (i in ind.quanti){
+  plot(tab$Lien.entreprise.Anonyme,tab[,i], ylab=colnames(tab[i]), xlab="Lien Entreprise")
+}
+
+```
