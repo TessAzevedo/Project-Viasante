@@ -1,0 +1,185 @@
+
+
+
+
+```{r library, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+library(readxl)
+library(FactoMineR)
+library(factoextra)
+library(cowplot)
+library("NbClust")
+library(writexl)
+library("scales")
+library(readr)
+library(lubridate)
+library(data.table)
+```
+
+# Récupération du jeu Effectifs_freeze.Rdata
+```{r recup, echo=TRUE}
+load('cotisations.Rdata')
+```
+
+```{r}
+nb_tab <- nrow(tab)
+```
+
+
+### Code groupe assurés
+
+```{r}
+df1 = stack(tab[,c(9,10,11)])
+df1= subset(df1,values!=0)
+df1=aggregate(df1[,2],list(df1[,2]),length)
+df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
+colnames(df1)[1] <- c("Code_grp")
+ggplot(df1, aes(x="", y=x, fill=Code_grp)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+  geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8)) +
+   ggtitle("Code groupe assurés") +theme_void()
+```
+
+
+
+### Base et option
+
+```{r}
+#for (i in 1:nb_lien){
+  df1 = stack(tab[,c(7,8)])
+  df1= subset(df1,values!=0)
+  df1=aggregate(df1[,2],list(df1[,2]),length)
+  df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
+  print(ggplot(df1, aes(x="", y=x,fill=Group.1)) +
+    geom_bar(stat="identity", width=1) +
+    coord_polar("y", start=0)+
+      theme_void()+
+    geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8)) +
+    ggtitle("Base et option "))
+#}
+```
+
+
+
+
+
+### Regroup1
+
+```{r}
+t=aggregate(tab[,2],list(tab[,2]),length)
+colnames(t)[1]<-c("Regroup1")
+t= subset(t,x!=0)
+t$percent=paste(as.character(round(t$x/sum(t$x)*100,2)),"%")
+ggplot(t, aes(x="", y=x, fill=Regroup1)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+  theme_void()+
+  geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.4)) 
+```
+
+
+```{r}
+hist(tab)
+```
+
+
+
+
+
+
+
+### Regroup4
+
+
+```{r}
+ggplot(tab, aes(x=tab$Max_regroup4, y="", fill=
+      tab$Max_regroup4)) +
+  geom_bar(stat="identity", width=1) 
+ 
+```
+
+
+
+
+
+
+```{r}
+par(mfrow=c(1,1))
+hist(tab$Mnt_total)
+hist(tab$Taxe_totale)
+```
+
+```{r}
+hist(as.numeric(tab$Max_prod_mnt))
+hist(as.numeric(tab$Max_prod_taxe))
+
+```
+
+
+```{r}
+hist(tab$Base)
+hist(tab$Option)
+```
+
+```{r}
+hist(log10(tab$Base))
+hist(log10(tab$Option))
+```
+-
+```{r}
+#pie(as.numeric(tab$Max_prod_mnt))
+#pie(as.numeric(tab$Max_prod_taxe))
+
+```
+
+
+```{r}
+boxplot(tab[,c(13,15,16,18,21)])
+boxplot(log10(tab[,c(13,15,16,18,21)]))
+```
+
+
+```{r}
+boxplot(tab[,c(12,14,17,19,20)])
+boxplot(log10(tab[,c(12,14,17,19,20)]))
+```
+
+
+
+## Analyse bidimimensiolle 
+
+
+
+
+
+
+```{r}
+pairs()
+```
+
+
+
+pairs/pour les données 2 à 2 
+```{r}
+
+```
+
+
+
+à faire:
+P/C (voir bloc notes)
+reste à charge (dépense retenu - remb ro - remb rc) à noter RAC
+
+cotisation par PP (personne protegée)
+prestation par PP (personne protegée
+
+
+et faire des graphes par an , voir évolution
+variations des couts moyens 
+

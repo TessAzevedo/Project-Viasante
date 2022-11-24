@@ -1,0 +1,494 @@
+---
+title: "Projet"
+author: "Tess Azevedo"
+date: '2022-10-11'
+output: html_document
+---
+
+```{r , warning=FALSE}
+#library("tidyverse")
+library("dplyr")
+library("readxl")
+library("graphics")
+library('stringr')
+library('stats')
+```
+
+
+```{r}
+#setwd("C:\Users\tessw\OneDrive\Bureau\viasante")
+prestations <- read_excel("Prestations.xlsx")
+#attach(prestations)
+```
+
+
+
+```{r}
+correspondance <- read_excel("Recodage code groupe assuré.xlsx")
+```
+
+
+```{r}
+summary(prestations)
+summary(prestations$`Charge finale`)
+```
+
+
+
+On ne s'intéressera pas à la variable 'Condition de Vente'
+
+```{r}
+prestations <- prestations[,-c(4)]
+```
+
+On garde que le chiffre devant certains noms d'entreprises, produits, etc
+
+```{r}
+prestations$`Produit Anonyme` <- sapply(strsplit(prestations$`Produit Anonyme`,"-"),function(x){return (x[1])})
+prestations$`Num Ctr Coll Anonyme` <- sapply(strsplit(prestations$`Num Ctr Coll Anonyme`,"-"),function(x){return (x[1])})
+prestations$`REGROUP_PROD_4 Anonyme` <- sapply(strsplit(prestations$`REGROUP_PROD_4 Anonyme`,"-"),function(x){return (x[1])})
+prestations$`Lien entreprise Anonymisation` <- sapply(strsplit(prestations$`Lien entreprise Anonymisation`,"-"),function(x){return (x[1])})
+```
+
+
+On fait une copie de prestations qui permet de tester des choses sans modifier prestations- 
+
+```{r}
+p <-prestations
+```
+
+On fait un round, on sous estime peut etre un peu mais c'est mieux qu'avoir des actes qui n'ont pas ete faits 
+
+```{r}
+prestations$`Qte Acte Retenu` <- round(prestations$`Qte Acte Retenu`)
+```
+
+
+```{r}
+percent_zero_ro<-(sum(prestations$`Remb Ro Retenu`<0)/nrow(prestations))*100
+percent_zero_rc<-(sum(prestations$`Remb Rc`<0)/nrow(prestations))*100
+percent_zero_mnt<-(sum(prestations$`Mnt Depense Retenu`<0)/nrow(prestations))*100
+percent_zero_qt<-(sum(prestations$`Qte Acte Retenu`<0)/nrow(prestations))*100
+```
+
+
+```{r}
+prestations <- prestations %>% filter(prestations$`Remb Ro Retenu` >= 0 & prestations$`Remb Rc` >=0 & prestations$`Mnt Depense Retenu`>=0 &`Qte Acte Retenu` >=0)
+```
+
+
+
+```{r}
+prestations$`Regroup Acte 1` <- factor(prestations$`Regroup Acte 1`)
+prestations$`Num Ctr Coll Anonyme` <- factor (prestations$`Num Ctr Coll Anonyme`)
+prestations$`Produit Anonyme` <- factor (prestations$`Produit Anonyme`)
+prestations$`Remb Ro Retenu` <- as.numeric(prestations$`Remb Ro Retenu`)
+prestations$`Remb Rc` <- as.numeric(prestations$`Remb Rc`)
+prestations$`Mnt Depense Retenu` <- as.numeric(prestations$`Mnt Depense Retenu`)
+prestations$`Qte Acte Retenu` <- as.numeric(prestations$`Qte Acte Retenu`)
+prestations$`Num Ctr Coll Anonyme` <- as.numeric(prestations$`Num Ctr Coll Anonyme`)
+prestations$`Lien entreprise Anonymisation`<-as.factor(prestations$`Lien entreprise Anonymisation`)
+prestations$`REGROUP_PROD_4 Anonyme`<-factor(prestations$`REGROUP_PROD_4 Anonyme`)
+
+```
+
+```{r}
+table(`Regroup Acte 1`)
+table(`REGROUP_PROD_3`)
+table(`REGROUP_PROD_2`)
+table(`REGROUP_PROD_1`)
+table(`REGROUP_PROD_5`)
+```
+
+
+
+cHANGEMENT DES VARIABLES 
+
+
+
+
+```{r}
+prestations$`Année/mois soins`<- str_sub(as.character(prestations$`Année/mois soins`),1,4)
+prestations$`Année/mois paiement`<-str_sub(as.character(prestations$`Année/mois paiement`),1,4)
+```
+
+
+
+
+```{r}
+aggregate_list<- aggregate(cbind(prestations$`Qte Acte Retenu`, prestations$`Mnt Depense Retenu`,prestations$`Remb Rc`, prestations$`Remb Ro Retenu`), list(`Lien entreprise Anonymisation`=prestations$`Lien entreprise Anonymisation`,Annee=prestations$`Année/mois soins`),sum)
+colnames(aggregate_list) <- c("Lien entreprise Anonymisation","Annee","Qte_Acte","Mnt_Dep","Remb_Rc","Remb_ro")
+```
+
+
+
+Pour les variables :
+Regroup Prod 1 , 2, 3, 4,5
+
+```{r}
+#Pour avoir la categorie qui est plus representée 
+max_repr <- function(data,ind) {
+  frequences=as.data.frame(table(data[,ind]))
+  ind_level_max=which(table(data[,ind])==max(table(data[,ind])))
+  level_max=frequences[ind_level_max,1]
+  return (as.character(level_max))
+}
+```
+
+```{r}
+max_repr(prestations,3)
+```
+
+
+```{r}
+for (i in 1:nrow(prestations)){
+  j=1
+  while (prestations$`CODE_GRP_ASSURES`[i]!=correspondance$`Code Grp Assures`[j]){
+    j=j+1
+  }
+  prestations$`CODE_GRP_ASSURES`[i]=correspondance$`Code Grp Assures recodée`[j]
+}
+
+#faire plutot un mereg à tester
+```
+
+
+```{r}
+ prestations$`CODE_GRP_ASSURES`<-as.factor( prestations$`CODE_GRP_ASSURES`)
+levels( prestations$`CODE_GRP_ASSURES`)
+```
+
+
+```{r}
+regroup5 <- strsplit(prestations$`REGROUP_PROD_5`,"_",1)
+prestations$`REGROUP_PROD_5` <- sapply(regroup5,function(x){ifelse(x[2]=="BASE","BASE","OPTION")})
+```
+
+```{r}
+p<-prestations
+```
+
+
+
+# Traitement de la categorie Regroup 5
+
+
+
+```{r}
+soins <- aggregate(prestations$`Qte Acte Retenu`, list(prestations$`Lien entreprise Anonymisation`,prestations$`Regroup Acte 1`),sum)
+colnames(soins) <- c("Lien entreprise Anonymisation","Soin","Qte") 
+```
+
+```{r}
+join_soin <-right_join(prestations,soins,by="Lien entreprise Anonymisation")
+join_total <- right_join(join_soin,aggregate_list,by="Lien entreprise Anonymisation")
+```
+
+
+```{r}
+prestations <- join_total
+```
+
+
+
+# Récupération du nombre d'entreprises et de liens
+```{r}
+paste("Il y a ", length(levels(prestations$`Num Ctr Coll Anonyme`)), "entreprises.")
+paste("Il y a ",length(levels(prestations$`Lien entreprise Anonymisation`))," liens")
+nb_liens=length(levels(prestations$`Lien entreprise Anonymisation`))
+```
+
+
+```{r}
+tab <- data.frame(Lien_E = integer(nb_liens),
+                 Actifs = integer(nb_liens),
+                 Non_actifs = integer(nb_liens),
+                 Portabilite = integer(nb_liens), #pourcentage,
+                 Max_regroup1= character(nb_liens),
+                 Max_regroup4=integer(nb_liens),
+                 Max_regroup2=character(nb_liens),
+                 Max_regroup3=character(nb_liens),
+                 Base=numeric(nb_liens), 
+                 Option = numeric(nb_liens), 
+                 Mnt_dep_2018 = numeric(nb_liens),
+                 Remb_rc_2018 = numeric(nb_liens),
+                 Remb_ro_2018 = numeric(nb_liens),
+                 Qte_acte_2018 = numeric(nb_liens),
+                 Mnt_dep_2019 = numeric(nb_liens),
+                 Remb_rc_2019 = numeric(nb_liens),
+                 Remb_ro_2019 = numeric(nb_liens),
+                 Qte_acte_2019 = numeric(nb_liens),
+                 Mnt_dep_2020 = numeric(nb_liens),
+                 Remb_rc_2020 = numeric(nb_liens),
+                 Remb_ro_2020 = numeric(nb_liens),
+                 Qte_acte_2020 = numeric(nb_liens),
+                 Mnt_dep_2021 = numeric(nb_liens),
+                 Remb_rc_2021 = numeric(nb_liens),
+                 Remb_ro_2021 = numeric(nb_liens),
+                 Qte_acte_2021 = numeric(nb_liens),
+                 Mnt_dep_2022 = numeric(nb_liens),
+                 Remb_rc_2022 = numeric(nb_liens),
+                 Remb_ro_2022 = numeric(nb_liens),
+                 Qte_acte_2022 = numeric(nb_liens),
+                 Dentaire_2018 =numeric(nb_liens),
+                 Maladie_2018 =numeric(nb_liens),
+                 Vie_2018 =numeric(nb_liens),
+                 Hospitalisation_2018 =numeric(nb_liens),
+                 Optique_2018 =numeric(nb_liens),
+                 Dentaire_2019 =numeric(nb_liens),
+                 Maladie_2019 =numeric(nb_liens),
+                 Vie_2019 =numeric(nb_liens),
+                 Hospitalisation_2019 =numeric(nb_liens),
+                 Optique_2019 =numeric(nb_liens),
+                 Dentaire_2020 =numeric(nb_liens),
+                 Maladie_2020 =numeric(nb_liens),
+                 Vie_2020 =numeric(nb_liens),
+                 Hospitalisation_2020 =numeric(nb_liens),
+                 Optique_2020 =numeric(nb_liens),
+                 Dentaire_2021 =numeric(nb_liens),
+                 Maladie_2021 =numeric(nb_liens),
+                 Vie_2021 =numeric(nb_liens),
+                 Hospitalisation_2021 =numeric(nb_liens),
+                 Optique_2021 =numeric(nb_liens),
+                 Dentaire_2022 =numeric(nb_liens),
+                 Maladie_2022 =numeric(nb_liens),
+                 Vie_2022 =numeric(nb_liens),
+                 Hospitalisation_2022 =numeric(nb_liens),
+                 Optique_2022 =numeric(nb_liens)
+                )
+```
+
+
+## Subdataset par num entreprise
+Création d'une liste qui pour chaque indice regroupe les lignes correspondant à la i eme entreprise.
+
+On enleve les variables dont on a pas besoin de remplir une à une 
+```{r}
+#variables liees aux dates 
+prestations <- prestations[,-c(3,4,5,12,13,14,15)] #variables numeriques du montant
+```
+
+
+
+```{r sub_lien}
+
+for (i in 1:nb_liens){
+  lien=levels(prestations$`Lien entreprise Anonymisation`)[i]
+  sub_lien=subset(prestations,`Lien entreprise Anonymisation`==lien)
+  sub_lien=droplevels(sub_lien)
+  #Lien
+  tab$Lien_E[i]=lien
+  
+  #Code groupe assures
+
+  code_gp_as=aggregate(sub_lien$Qte, list(sub_lien$`Lien entreprise Anonymisation`,sub_lien$CODE_GRP_ASSURES),sum)
+  ind_actifs=which(code_gp_as[,2]=="ACTIFS")
+  ind_non_actifs=which(code_gp_as[,2]=="NON_ACTIFS")
+  ind_portabi=which(code_gp_as[,2]=="PORTABILITE")
+  if(length(ind_actifs)){
+    tab$Actifs[i]=code_gp_as[ind_actifs,3]
+  }else{
+    tab$Actifs[i]=0
+  }
+  if(length(ind_non_actifs)){
+    tab$Non_actifs[i]=code_gp_as[ind_non_actifs,3]
+  }else{
+    tab$Non_actifs[i]=0
+  }
+  if(length(ind_portabi)){
+    tab$Portabilite[i]=code_gp_as[ind_portabi,3]
+  }else{
+    tab$Portabilite[i]=0
+  }
+
+
+
+ #base et option (regroup5)
+
+regroup5=aggregate(sub_lien$Qte, list(sub_lien$`Lien entreprise Anonymisation`,sub_lien$REGROUP_PROD_5),sum)
+ind_base=which(regroup5[,2]=="BASE")
+ind_option=which(regroup5[,2]=="OPTION")
+if(length(ind_base)){
+    tab$Base[i]=regroup5[ind_base,3]
+}else{
+    tab$Base[i]=0
+}
+if(length(ind_option)){
+    tab$Option[i]=regroup5[ind_option,3]
+}else{
+    tab$Option[i]=0
+} 
+
+
+
+ #code 2 le plus présent
+tab$Max_regroup2 [i] = max_repr(sub_lien,4)
+
+#code 3 le plus présent
+tab$Max_regroup3[i] = max_repr(sub_lien,5)
+  
+ # regroup1 le plus present
+tab$Max_regroup1[i]=max_repr(sub_lien,3)
+  
+  #regroup4 le plus present
+tab$Max_regroup4[i]=max_repr(sub_lien,6)
+  
+
+
+
+
+#les variables numeriques de montant
+# on met le 1 car on recupere que le premier de la liste(toutes les valeurs sont identiques)
+
+sub2018 <- sub_lien %>% filter(sub_lien$Annee=="2018")
+tab$Mnt_dep_2018[i] <-ifelse(length(sub2018)==0,0,sub2018$Mnt_Dep)  
+tab$Remb_rc_2018[i] <- ifelse(length(sub2018)==0,0,sub2018$Remb_Rc)
+tab$Remb_ro_2018[i] <- ifelse(length(sub2018)==0,0,sub2018$Remb_ro)
+tab$Qte_acte_2018[i] <- ifelse(length(sub2018)==0,0,sub2018$Qte_Acte)
+
+ 
+sub2019 <- sub_lien %>% filter(sub_lien$Annee=="2019")
+tab$Mnt_dep_2019[i] <-ifelse(length(sub2019)==0,0,sub2019$Mnt_Dep)  
+tab$Remb_rc_2019[i] <- ifelse(length(sub2019)==0,0,sub2019$Remb_Rc)
+tab$Remb_ro_2019[i] <- ifelse(length(sub2019)==0,0,sub2019$Remb_ro)
+tab$Qte_acte_2019[i] <- ifelse(length(sub2019)==0,0,sub2019$Qte_Acte)
+
+sub2020 <- sub_lien %>% filter(sub_lien$Annee=="2020")
+tab$Mnt_dep_2020[i] <-ifelse(length(sub2020)==0,0,sub2020$Mnt_Dep)  
+tab$Remb_rc_2020[i] <- ifelse(length(sub2020)==0,0,sub2020$Remb_Rc)
+tab$Remb_ro_2020[i] <- ifelse(length(sub2020)==0,0,sub2020$Remb_ro)
+tab$Qte_acte_2020[i] <- ifelse(length(sub2020)==0,0,sub2020$Qte_Acte)
+
+
+
+sub2021 <- sub_lien %>% filter(sub_lien$Annee=="2021")
+tab$Mnt_dep_2021[i] <-ifelse(length(sub2021)==0,0,sub2021$Mnt_Dep)  
+tab$Remb_rc_2021[i] <- ifelse(length(sub2021)==0,0,sub2021$Remb_Rc)
+tab$Remb_ro_2021[i] <- ifelse(length(sub2021)==0,0,sub2021$Remb_ro)
+tab$Qte_acte_2021[i] <- ifelse(length(sub2021)==0,0,sub2021$Qte_Acte)
+
+
+
+
+sub2022 <- sub_lien %>% filter(sub_lien$Annee=="2022")
+tab$Mnt_dep_2022[i] <-ifelse(length(sub2022)==0,0,sub2022$Mnt_Dep)  
+tab$Remb_rc_2022[i] <- ifelse(length(sub2022)==0,0,sub2022$Remb_Rc)
+tab$Remb_ro_2022[i] <- ifelse(length(sub2022)==0,0,sub2022$Remb_ro)
+tab$Qte_acte_2022[i] <- ifelse(length(sub2022)==0,0,sub2022$Qte_Acte)
+
+
+
+
+
+# pour les categories de soins 
+
+dent <- sub_lien %>% filter(sub_lien$Soin=="Dentaire" & sub_lien$Annee=="2018")
+tab$Dentaire_2018[i] <- ifelse(length(dent)==0,0,dent$Qte[1])
+
+maladie <- sub_lien %>% filter(sub_lien$Soin=="Maladie" & sub_lien$Annee=="2018")
+tab$Maladie_2018[i] <-ifelse(length(maladie)==0,0,maladie$Qte[1])
+
+optique<- sub_lien %>% filter(sub_lien$Soin=="Optique" & sub_lien$Annee == "2018")
+tab$Optique_2018[i] <-ifelse(length(optique)==0,0,optique$Qte[1])
+
+vie<- sub_lien %>% filter(sub_lien$Soin=="Vie" &  sub_lien$Annee == "2018" )
+tab$Vie_2018[i] <- ifelse(length(vie)==0,0,vie$Qte[1])
+
+hosp <- sub_lien %>% filter(sub_lien$Soin=="Hospitalisation"&  sub_lien$Annee == "2018")
+tab$Hospitalisation_2018[i] <- ifelse(length(hosp)==0,0,hosp$Qte[1])
+
+
+
+
+dent <- sub_lien %>% filter(sub_lien$Soin=="Dentaire" & sub_lien$Annee=="2019")
+tab$Dentaire_2019[i] <- ifelse(length(dent)==0,0,dent$Qte[1])
+
+maladie <- sub_lien %>% filter(sub_lien$Soin=="Maladie" & sub_lien$Annee=="2019")
+tab$Maladie_2019[i] <-ifelse(length(maladie)==0,0,maladie$Qte[1])
+
+optique<- sub_lien %>% filter(sub_lien$Soin=="Optique" & sub_lien$Annee == "2019")
+tab$Optique_2019[i] <-ifelse(length(optique)==0,0,optique$Qte[1])
+
+vie<- sub_lien %>% filter(sub_lien$Soin=="Vie" &  sub_lien$Annee == "2019" )
+tab$Vie_2019[i] <- ifelse(length(vie)==0,0,vie$Qte[1])
+
+hosp <- sub_lien %>% filter(sub_lien$Soin=="Hospitalisation"&  sub_lien$Annee == "2019")
+tab$Hospitalisation_2019[i] <- ifelse(length(hosp)==0,0,hosp$Qte[1])
+
+
+
+
+dent <- sub_lien %>% filter(sub_lien$Soin=="Dentaire" & sub_lien$Annee=="2020")
+tab$Dentaire_2020[i] <- ifelse(length(dent)==0,0,dent$Qte[1])
+
+maladie <- sub_lien %>% filter(sub_lien$Soin=="Maladie" & sub_lien$Annee=="2020")
+tab$Maladie_2020[i] <-ifelse(length(maladie)==0,0,maladie$Qte[1])
+
+optique<- sub_lien %>% filter(sub_lien$Soin=="Optique" & sub_lien$Annee == "2020")
+tab$Optique_2020[i] <-ifelse(length(optique)==0,0,optique$Qte[1])
+
+vie<- sub_lien %>% filter(sub_lien$Soin=="Vie" &  sub_lien$Annee == "2020" )
+tab$Vie_2020[i] <- ifelse(length(vie)==0,0,vie$Qte[1])
+
+hosp <- sub_lien %>% filter(sub_lien$Soin=="Hospitalisation"&  sub_lien$Annee == "2020")
+tab$Hospitalisation_2020[i] <- ifelse(length(hosp)==0,0,hosp$Qte[1])
+
+
+
+dent <- sub_lien %>% filter(sub_lien$Soin=="Dentaire" & sub_lien$Annee=="2021")
+tab$Dentaire_2021[i] <- ifelse(length(dent)==0,0,dent$Qte[1])
+
+maladie <- sub_lien %>% filter(sub_lien$Soin=="Maladie" & sub_lien$Annee=="2021")
+tab$Maladie_2021[i] <-ifelse(length(maladie)==0,0,maladie$Qte[1])
+
+optique<- sub_lien %>% filter(sub_lien$Soin=="Optique" & sub_lien$Annee == "2021")
+tab$Optique_2021[i] <-ifelse(length(optique)==0,0,optique$Qte[1])
+
+vie<- sub_lien %>% filter(sub_lien$Soin=="Vie" &  sub_lien$Annee == "2021" )
+tab$Vie_2021[i] <- ifelse(length(vie)==0,0,vie$Qte[1])
+
+hosp <- sub_lien %>% filter(sub_lien$Soin=="Hospitalisation"&  sub_lien$Annee == "2021")
+tab$Hospitalisation_2021[i] <- ifelse(length(hosp)==0,0,hosp$Qte[1])
+
+
+
+
+dent <- sub_lien %>% filter(sub_lien$Soin=="Dentaire" & sub_lien$Annee=="2022")
+tab$Dentaire_2022[i] <- ifelse(length(dent)==0,0,dent$Qte[1])
+
+maladie <- sub_lien %>% filter(sub_lien$Soin=="Maladie" & sub_lien$Annee=="2022")
+tab$Maladie_2022[i] <-ifelse(length(maladie)==0,0,maladie$Qte[1])
+
+optique<- sub_lien %>% filter(sub_lien$Soin=="Optique" & sub_lien$Annee == "2022")
+tab$Optique_2022[i] <-ifelse(length(optique)==0,0,optique$Qte[1])
+
+vie<- sub_lien %>% filter(sub_lien$Soin=="Vie" &  sub_lien$Annee == "2022" )
+tab$Vie_2022[i] <- ifelse(length(vie)==0,0,vie$Qte[1])
+
+hosp <- sub_lien %>% filter(sub_lien$Soin=="Hospitalisation"&  sub_lien$Annee == "2022")
+tab$Hospitalisation_2022[i] <- ifelse(length(hosp)==0,0,hosp$Qte[1])
+}
+ 
+```
+
+
+```{r}
+tab[is.na(tab)] <-0
+```
+
+
+```{r save}
+save(prestations, file='../prestations.Rdata')
+```
+
+```{r save}
+save(tab, file='prestations.Rdata')
+```
+
+
+```{r}
+write.table(tab,file='Prestations_last.csv',sep=";",row.names = FALSE)
+```
+
+
+

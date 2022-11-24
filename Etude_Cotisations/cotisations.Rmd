@@ -1,0 +1,325 @@
+---
+title: "Cotisations"
+output: html_document
+date: "2022-11-14"
+---
+
+```{r message=FALSE , warning=FALSE}
+#library("tidyverse")
+library("dplyr")
+library("readxl")
+library("graphics")
+library('stringr')
+library('stats')
+```
+
+
+```{r}
+#setwd("")
+cotisations <- read_excel("Cotisations.xlsx")
+```
+```{r}
+correspondance <- read_excel("Recodage code groupe assuré.xlsx")
+colnames(correspondance) <- c("CODE_GRP_ASSURES","Code Grp Assures recodée")
+```
+
+
+```{r}
+summary(cotisations)
+```
+
+
+On ne s'intéressera pas à la variable 'Condition de Vente'
+
+```{r}
+cotisations <- cotisations[,-c(11)]
+colnames(cotisations)= c("Num Ctr Coll Anonyme","CODE_GRP_ASSURES","Produit Anonyme","Date Effet Adhesion","Date Effet Radiation","REGROUP_PROD_1","REGROUP_PROD_2","REGROUP_PROD_3", "REGROUP_PROD_4","REGROUP_PROD_5", "Mnt Cot Ht", "Mnt Taxe" ,"Lib Element Cot","Exercice" ,"Cot décla", "Lien entreprise Anonymisé")
+```
+
+
+```{r}
+cotisations$`Produit Anonyme` <- sapply(strsplit(cotisations$`Produit Anonyme`,"-"),function(x){return (x[1])})
+cotisations$`Num Ctr Coll Anonyme` <- sapply(strsplit(cotisations$`Num Ctr Coll Anonyme`,"-"),function(x){return (x[1])})
+cotisations$`REGROUP_PROD_4` <- sapply(strsplit(cotisations$`REGROUP_PROD_4`,"-"),function(x){return (x[1])})
+cotisations$`Lien entreprise Anonymisé` <- sapply(strsplit(cotisations$`Lien entreprise Anonymisé`,"-"),function(x){return (x[1])})
+```
+
+
+
+
+```{r}
+cotisations$`Num Ctr Coll Anonyme` <- factor ( cotisations$`Num Ctr Coll Anonyme`)
+cotisations$`Produit Anonyme` <- factor (cotisations$`Produit Anonyme`)
+cotisations$`Mnt Cot Ht` <- as.numeric(cotisations$`Mnt Cot Ht`)
+cotisations$`Mnt Taxe` <- as.numeric(cotisations$`Mnt Taxe`)
+cotisations$`Cot décla` <- as.numeric(cotisations$`Cot décla`)
+cotisations$`Lib Element Cot` <-as.factor(cotisations$`Lib Element Cot`)
+cotisations$`Lien entreprise Anonymisé`<-as.factor(cotisations$`Lien entreprise Anonymisé`)
+cotisations$`REGROUP_PROD_4` <- factor(cotisations$`REGROUP_PROD_4`)
+cotisations$`REGROUP_PROD_1` <- factor(cotisations$`REGROUP_PROD_1`)
+cotisations$`REGROUP_PROD_2` <- factor(cotisations$`REGROUP_PROD_2`)
+cotisations$`REGROUP_PROD_3` <- factor(cotisations$`REGROUP_PROD_3`)
+cotisations$`REGROUP_PROD_5` <- factor(cotisations$`REGROUP_PROD_5`)
+cotisations$Exercice <- as.factor(cotisations$Exercice)
+#`REGROUP_PROD_5` <- substr(`REGROUP_PROD_5`,3,nchar(`REGROUP_PROD_5`)) 
+
+```
+
+
+```{r}
+cotisations$`Mnt` <- cotisations$`Mnt Cot Ht` + cotisations$`Cot décla`
+cotisations <- cotisations[,-c(11,15)]
+```
+
+Ici on aura les taxes et montants par an 
+
+```{r}
+aggregate_cot<- aggregate(cbind(cotisations$`Mnt`,cotisations$`Mnt Taxe`),list(Lien_E=cotisations$`Lien entreprise Anonymisé`,cotisations$`Exercice`),sum)
+colnames(aggregate_cot) <- c("Lien entreprise Anonymisé","Exercice","Mnt_annuel","Taxe_annuelle")
+```
+
+
+
+
+#Transformation code groupe assurés 
+
+```{r}
+for (i in 1:nrow(cotisations)){
+  j=1
+  while (cotisations$CODE_GRP_ASSURES[i]!=correspondance$`CODE_GRP_ASSURES`[j]){
+    j=j+1
+  }
+  cotisations$CODE_GRP_ASSURES[i]=correspondance$`Code Grp Assures recodée`[j]
+}
+```
+
+
+
+# Fonction max represeté 
+
+
+Pour les variables :
+Regroup Prod 1 , 2, 3, 4,5 et Lib Element Cote
+
+```{r}
+#Pour avoir la categorie qui est plus representée 
+max_repr <- function(data,ind) {
+  frequences=as.data.frame(table(data[,ind]))
+  ind_level_max=which(table(data[,ind])==max(table(data[,ind])))
+  level_max=frequences[ind_level_max,1]
+  return (as.character(level_max))
+}
+```
+
+Mise en pourcentage
+```{r}
+pourcentage<-function(data,eff){
+  eff[,2]=eff[,2]/nrow(data)*100
+  return(eff)
+}
+```
+
+# Transformation Regroup 5 
+
+```{r}
+cotisations$`REGROUP_PROD_5` <- as.character(cotisations$`REGROUP_PROD_5`)
+regroup5_cot<- strsplit(cotisations$`REGROUP_PROD_5`,"_",1)
+cotisations$`REGROUP_PROD_5` <- sapply(regroup5_cot,function(x){ifelse(x[2]=="BASE","BASE","OPTION")})
+```
+
+
+
+On enleve certaines variables deja presentes dans effectifs
+
+```{r}
+cotisations <- cotisations[,-c(4,5)]
+C<-cotisations
+```
+
+
+
+
+
+# Récupération du nombre d'entreprises et de liens
+```{r}
+paste("Il y a ", length(levels(cotisations$`Num Ctr Coll Anonyme`)), "entreprises.")
+paste("Il y a ",length(levels(cotisations$`Lien entreprise Anonymisé`))," liens")
+nb_lien_cot=length(levels(cotisations$`Lien entreprise Anonymisé`))
+```
+
+
+```{r}
+
+join_montant <- right_join(cotisations,aggregate_cot,by="Lien entreprise Anonymisé")
+```
+
+```{r}
+cotisations <- join_montant
+```
+
+
+```{r}
+tab <- data.frame(Lien_E = integer(nb_lien_cot),
+                #pourcentage
+                 Max_regroup1= character(nb_lien_cot),
+                 Max_regroup4=numeric(nb_lien_cot),
+                 Max_regroup2=character(nb_lien_cot),
+                 Max_regroup3=character(nb_lien_cot),
+                 Lib_el_cot =character(nb_lien_cot),
+                 Base= numeric(nb_lien_cot),
+                 Option = numeric(nb_lien_cot),
+                 Actifs= numeric(nb_lien_cot),
+                 Non_actifs = numeric(nb_lien_cot),
+                 Portabilite = numeric(nb_lien_cot),
+                 Taxe_2018 = numeric(nb_lien_cot),
+                 Mnt_2018 = numeric(nb_lien_cot),
+                 Taxe_2019 = numeric(nb_lien_cot),
+                 Mnt_2019 = numeric(nb_lien_cot),
+                 Mnt_2020 = numeric(nb_lien_cot),
+                 Taxe_2020 = numeric(nb_lien_cot),
+                 Mnt_2021 = numeric(nb_lien_cot),
+                 Taxe_2021 = numeric(nb_lien_cot),
+                 Taxe_2022 = numeric(nb_lien_cot),
+                 Mnt_2022 = numeric(nb_lien_cot),
+                 Mnt_total =numeric(nb_lien_cot),
+                 Taxe_totale = numeric(nb_lien_cot),
+                 Max_prod_mnt =numeric(nb_lien_cot),
+                 Max_prod_taxe = numeric(nb_lien_cot) 
+                 )
+```
+
+
+
+```{r}
+
+for (i in 1:nb_lien_cot){
+  lien=levels(cotisations$`Lien entreprise Anonymisé`)[i]
+  sub_lien=subset(cotisations,`Lien entreprise Anonymisé`==lien)
+  sub_lien=droplevels(sub_lien)
+  #Lien
+  tab$Lien_E[i]=lien
+  
+  #Code groupe assures
+
+  code_gp_as=aggregate(sub_lien$Mnt, list(sub_lien$`Lien entreprise Anonymisé`,sub_lien$CODE_GRP_ASSURES),sum)
+  ind_actifs=which(code_gp_as[,2]=="ACTIFS")
+  ind_non_actifs=which(code_gp_as[,2]=="NON_ACTIFS")
+  ind_portabi=which(code_gp_as[,2]=="PORTABILITE")
+  if(length(ind_actifs)){
+    tab$Actifs[i]=code_gp_as[ind_actifs,3]
+  }else{
+    tab$Actifs[i]=0
+  }
+  if(length(ind_non_actifs)){
+    tab$Non_actifs[i]=code_gp_as[ind_non_actifs,3]
+  }else{
+    tab$Non_actifs[i]=0
+  }
+  if(length(ind_portabi)){
+    tab$Portabilite[i]=code_gp_as[ind_portabi,3]
+  }else{
+    tab$Portabilite[i]=0
+  }
+
+
+
+ #base et option (regroup5)
+
+regroup5=aggregate(sub_lien$Mnt, list(sub_lien$`Lien entreprise Anonymisé`,sub_lien$REGROUP_PROD_5),sum)
+ind_base=which(regroup5[,2]=="BASE")
+ind_option=which(regroup5[,2]=="OPTION")
+if(length(ind_base)){
+    tab$Base[i]=regroup5[ind_base,3]
+}else{
+    tab$Base[i]=0
+}
+if(length(ind_option)){
+    tab$Option[i]=regroup5[ind_option,3]
+}else{
+    tab$Option[i]=0
+} 
+
+
+
+ #code 2 le plus présent
+tab$Max_regroup2[i] = max_repr(sub_lien,5)
+
+#code 3 le plus présent
+tab$Max_regroup3[i] = max_repr(sub_lien,6)
+  
+ # regroup1 le plus present
+tab$Max_regroup1[i]=max_repr(sub_lien,4)
+  
+  #regroup4 le plus present
+tab$Max_regroup4[i]=max_repr(sub_lien,7)
+  
+
+  #lib cot element
+tab$Lib_el_cot[i]=max_repr(sub_lien,10)
+  
+
+
+
+
+
+
+
+#mettre en pourcentage apres 
+
+sub2018<- sub_lien %>% filter(sub_lien$Exercice.y=="2018")
+
+tab$Mnt_2018[i] <-ifelse(length(sub2018)==0,0,sub2018$Mnt_annuel)  
+tab$"Taxe_2018"[i] <- ifelse(length(sub2018)==0,0,sub2018$Taxe_annuelle)
+
+
+sub2019 <- sub_lien %>% filter(sub_lien$Exercice.y=="2019")
+tab$"Mnt_2019"[i] <-ifelse(length(sub2019)==0,0,sub2019$Mnt_annuel)  
+tab$"Taxe_2019"[i] <- ifelse(length(sub2019)==0,0,sub2019$Taxe_annuelle)
+
+
+
+sub2020<- sub_lien %>% filter(sub_lien$Exercice.y=="2020")
+tab$"Mnt_2020"[i] <-ifelse(length(sub2020)==0,0,sub2020$Mnt_annuel)  
+tab$"Taxe_2020"[i] <- ifelse(length(sub2020)==0,0,sub2020$Taxe_annuelle)
+
+sub2021<- sub_lien %>% filter(sub_lien$Exercice.y=="2021")
+tab$"Mnt_2021"[i] <-ifelse(length(sub2021)==0,0,sub2021$Mnt_annuel)  
+tab$"Taxe_2021"[i] <- ifelse(length(sub2021)==0,0,sub2021$Taxe_annuelle)
+
+sub2022<- sub_lien %>% filter(sub_lien$Exercice.y=="2022")
+tab$"Mnt_2022"[i] <-ifelse(length(sub2022)==0,0,sub2022$Mnt_annuel)  
+tab$"Taxe_2022"[i] <- ifelse(length(sub2022)==0,0,sub2022$Taxe_annuelle)
+
+#montants et taxes totaux 
+
+tab$Mnt_total[i] <-sum(sub_lien$Mnt)
+tab$Taxe_totale[i] <-sum(sub_lien$`Mnt Taxe`)
+
+
+## Produit plus taxé et don montant est plus élevé  par lien
+ind <- which(sub_lien$Mnt_annuel==max(sub_lien$Mnt_annuel))[1]
+indt<- which(sub_lien$Taxe_annuelle==max(sub_lien$Taxe_annuelle) )[1]
+tab$Max_prod_mnt[i] <- sub_lien[ind,3]
+tab$Max_prod_taxe[i]<- sub_lien[indt,3]
+
+
+}
+ 
+```
+
+
+
+```{r}
+tab[is.na(tab)] <-0
+```
+
+```{r}
+save(tab,file='cotisations.Rdata')
+```
+
+
+```{r}
+write.csv(tab,file='Cotisations_final.csv',sep=";",row.names = FALSE)
+```
+
+

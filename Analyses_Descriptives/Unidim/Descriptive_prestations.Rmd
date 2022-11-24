@@ -1,0 +1,213 @@
+---
+title: "Descriptive_prestations"
+output: html_document
+date: "2022-11-21"
+---
+
+
+```{r library, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+library(readxl)
+library(FactoMineR)
+library(factoextra)
+library(cowplot)
+library("NbClust")
+library(writexl)
+library("scales")
+library(readr)
+library(lubridate)
+library(data.table)
+```
+
+# Récupération du jeu Effectifs_freeze.Rdata
+```{r recup, echo=TRUE}
+prest <- read.csv2('Prestations_final.csv')
+```
+
+```{r}
+nb_lien <- nrow(prest)
+```
+
+
+### Code groupe assurés
+
+```{r}
+df1 = stack(prest[,c(2,3,4)])
+df1= subset(df1,values!=0)
+df1=aggregate(df1[,2],list(df1[,2]),length)
+df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
+ggplot(df1, aes(x="", y=x, fill=Group.1)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()+
+  geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8)) +
+   ggtitle("Code groupe assurés")
+```
+
+
+
+
+
+
+
+```{r}
+for (i in 1:nb_lien){
+df1 = stack(prest[i,c(2,3,4)])
+df1= subset(df1,values!=0)
+df1$percent=paste(as.character(round(df1$values/sum(df1$values)*100,2)),"%")
+print(ggplot(df1, aes(x="", y=values, fill=ind)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()+
+  geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8)) +
+   ggtitle("Departement-Lien ",i))
+}
+```
+
+
+### Base et option
+
+```{r}
+#for (i in 1:nb_lien){
+  df1 = stack(prest[,c(14,15)])
+  df1= subset(df1,values!=0)
+  df1=aggregate(df1[,2],list(df1[,2]),length)
+  df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
+  print(ggplot(df1, aes(x="", y=x, fill=Group.1)) +
+    geom_bar(stat="identity", width=1) +
+    coord_polar("y", start=0)+
+      theme_void()+
+    geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8)) +
+    ggtitle("Baset et option"))
+#}
+```
+
+
+
+
+## Type de soins
+
+```{r}
+df1 = stack(prest[,c(5,6,7,8)])
+df1= subset(df1,values!=0)
+df1=aggregate(df1[,2],list(df1[,2]),length)
+df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
+ggplot(df1, aes(x="", y=x, fill=Group.1)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()+
+  geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8)) +
+   ggtitle("Type de soins")
+
+
+#essayer la cumsum  cumsum(col2)[-length(col2)]),
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Regroup1
+
+```{r}
+ggplot(prest, aes(x="", y=prest$Max_regroup1, fill=prest$Max_regroup1)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()
+```
+
+### Regroup4
+
+
+
+
+```{r}
+hist(prest$Max_regroup4)
+```
+
+```{r}
+prest$Mnt_dep_retenu <-as.numeric(prest$Mnt_dep_retenu)
+prest$Remb_ro_retenu <-as.numeric(prest$Remb_ro_retenu)
+prest$Remb_rc <- as.numeric(prest$Remb_rc)
+prest$Qte_acte <-as.numeric(prest$Qte_acte)
+```
+
+
+unname(quantile(x))                     # Get only the quantile values
+ou quantile(x,probs=0.75)
+
+```{r}
+par(mfrow=c(2,2))
+#chercher le quantile 
+hist(prest$Mnt_dep_retenu,xlim=c(0,quantile(prest$Mnt_dep_retenu),probs=c(0.75)),breaks='Sturges')
+hist(prest$Remb_rc)
+hist(prest$Remb_ro_retenu)
+hist(prest$Qte_acte)
+#On pourrait donc appliquer le log 
+```
+
+```{r}
+par(mfrow=c(2,2))
+boxplot(prest$Mnt_dep_retenu)
+boxplot(prest$Remb_rc)
+boxplot(prest$Remb_ro_retenu)
+boxplot(prest$Qte_acte)
+#On pourrait donc appliquer le log 
+```
+```{r}
+summary(prest)
+```
+
+
+
+```{r}
+par(mfrow=c(2,2))
+hist(log10(prest$Mnt_dep_retenu))
+hist(log10(prest$Remb_rc))
+hist(log10(prest$Remb_ro_retenu))
+hist(log10(prest$Qte_acte))
+#On pourrait donc appliquer le log 
+```
+```{r}
+par(mfrow=c(2,2))
+boxplot(log10(prest$Mnt_dep_retenu))
+boxplot(log10(prest$Remb_rc))
+boxplot(log10(prest$Remb_ro_retenu))
+```
+
+
+```{r}
+boxplot(log10(prest$Qte_acte))
+```
+
+Tracer la repartitions des remboursements par maladie/vie/optique
+et qte acte
+Le plus importanteeeesss
+On joint notre base pour melanger les variables 
+
+4/5 graphes sympas à montrer
+
+
+```{r}
+boxplot(prest$Remb_rc ~ prest$Dentaire,ylim=c(0,10000))
+
+```
