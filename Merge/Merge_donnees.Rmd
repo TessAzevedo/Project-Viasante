@@ -1,0 +1,167 @@
+---
+title: "Merge du jeu de donnees"
+author: "Manon Santrisse"
+date: '2022-11-26'
+output: html_document
+---
+
+```{r library, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+library(readxl)
+library(FactoMineR)
+library(factoextra)
+library(cowplot)
+library("NbClust")
+library(missForest)
+library(writexl)
+library("scales")
+library(readr)
+library(lubridate)
+library(data.table)
+```
+
+
+# Récupération des jeux de données
+
+## jeu Effectifs_final+.Rdata
+```{r recup eff, echo=TRUE}
+load('../Donnees/Effectifs/Effectif_final+.Rdata')
+head(tab_effectifs)
+```
+
+## jeu Cotisation.Rdata
+```{r recup coti, echo=TRUE}
+load('../Donnees/Cotisations/cotisations.Rdata')
+tab_cotisations=tab
+rm(tab)
+head(tab_cotisations)
+```
+
+### Formatage cotisations
+
+```{r}
+tab_cotisations$Lien_E=as.factor(tab_cotisations$Lien_E)
+
+tab_cotisations$Max_regroup1 <- sapply(strsplit(tab_cotisations$Max_regroup1,"_"),function(x){return (x[2])})
+tab_cotisations$Max_regroup1=as.factor(tab_cotisations$Max_regroup1)
+
+tab_cotisations$Max_regroup2 <- sapply(strsplit(tab_cotisations$Max_regroup2,"_"),function(x){return (x[1])})
+tab_cotisations$Max_regroup2=as.factor(tab_cotisations$Max_regroup2)
+
+tab_cotisations$Max_regroup3 <- sapply(strsplit(tab_cotisations$Max_regroup3,"_"),function(x){return (x[1])})
+tab_cotisations$Max_regroup3=as.factor(tab_cotisations$Max_regroup3)
+
+head(tab_cotisations)
+```
+
+## jeu Prestations_final.Rdata
+```{r recup presta, echo=TRUE}
+tab_prestations=read.table('../Donnees/Prestations/Prestations_final.csv',sep=";")
+colnames(tab_prestations)=tab_prestations[1,]
+tab_prestations=tab_prestations[-1,]
+head(tab_prestations)
+```
+
+### Formatage
+
+```{r}
+tab_prestations$Lien_E=as.factor(tab_prestations$Lien_E)
+
+tab_prestations$Actifs=as.numeric(tab_prestations$Actifs)
+tab_prestations$Non_actifs=as.numeric(tab_prestations$Non_actifs)
+tab_prestations$Portabilite=as.numeric(tab_prestations$Portabilite)
+
+tab_prestations$Max_regroup1 <- sapply(strsplit(tab_prestations$Max_regroup1,"_"),function(x){return (x[2])})
+
+tab_prestations$Max_regroup2 <- sapply(strsplit(tab_prestations$Max_regroup2,"_"),function(x){return (x[1])})
+
+tab_prestations$Max_regroup3 <- sapply(strsplit(tab_prestations$Max_regroup3,"_"),function(x){return (x[1])})
+
+tab_prestations$Max_regroup1=as.factor(tab_prestations$Max_regroup1)
+tab_prestations$Max_regroup4=as.factor(tab_prestations$Max_regroup4)
+tab_prestations$Max_regroup2=as.factor(tab_prestations$Max_regroup2)
+tab_prestations$Max_regroup3=as.factor(tab_prestations$Max_regroup3)
+
+tab_prestations$Base=as.numeric(tab_prestations$Base)
+tab_prestations$Option=as.numeric(tab_prestations$Option)
+
+tab_prestations$Mnt_dep_2018=as.numeric(tab_prestations$Mnt_dep_2018)
+tab_prestations$Remb_rc_2018=as.numeric(tab_prestations$Remb_rc_2018)
+tab_prestations$Remb_ro_2018=as.numeric(tab_prestations$Remb_ro_2018)
+tab_prestations$Qte_acte_2018=as.numeric(tab_prestations$Qte_acte_2018)
+
+tab_prestations$Mnt_dep_2019=as.numeric(tab_prestations$Mnt_dep_2019)
+tab_prestations$Remb_rc_2019=as.numeric(tab_prestations$Remb_rc_2019)
+tab_prestations$Remb_ro_2019=as.numeric(tab_prestations$Remb_ro_2019)
+tab_prestations$Qte_acte_2019=as.numeric(tab_prestations$Qte_acte_2019)
+
+tab_prestations$Mnt_dep_2020=as.numeric(tab_prestations$Mnt_dep_2020)
+tab_prestations$Remb_rc_2020=as.numeric(tab_prestations$Remb_rc_2020)
+tab_prestations$Remb_ro_2020=as.numeric(tab_prestations$Remb_ro_2020)
+tab_prestations$Qte_acte_2020=as.numeric(tab_prestations$Qte_acte_2020)
+
+tab_prestations$Mnt_dep_2021=as.numeric(tab_prestations$Mnt_dep_2021)
+tab_prestations$Remb_rc_2021=as.numeric(tab_prestations$Remb_rc_2021)
+tab_prestations$Remb_ro_2021=as.numeric(tab_prestations$Remb_ro_2021)
+tab_prestations$Qte_acte_2021=as.numeric(tab_prestations$Qte_acte_2021)
+
+tab_prestations$Mnt_dep_2022=as.numeric(tab_prestations$Mnt_dep_2022)
+tab_prestations$Remb_rc_2022=as.numeric(tab_prestations$Remb_rc_2022)
+tab_prestations$Remb_ro_2022=as.numeric(tab_prestations$Remb_ro_2022)
+tab_prestations$Qte_acte_2022=as.numeric(tab_prestations$Qte_acte_2022)
+
+tab_prestations$Dentaire_2018=as.numeric(tab_prestations$Dentaire_2018)
+tab_prestations$Maladie_2018=as.numeric(tab_prestations$Maladie_2018)
+tab_prestations$Vie_2018=as.numeric(tab_prestations$Vie_2018)
+tab_prestations$Hospitalisation_2018=as.numeric(tab_prestations$Hospitalisation_2018)
+tab_prestations$Optique_2018=as.numeric(tab_prestations$Optique_2018)
+
+tab_prestations$Dentaire_2019=as.numeric(tab_prestations$Dentaire_2019)
+tab_prestations$Maladie_2019=as.numeric(tab_prestations$Maladie_2019)
+tab_prestations$Vie_2019=as.numeric(tab_prestations$Vie_2019)
+tab_prestations$Hospitalisation_2019=as.numeric(tab_prestations$Hospitalisation_2019)
+tab_prestations$Optique_2019=as.numeric(tab_prestations$Optique_2019)
+
+tab_prestations$Dentaire_2020=as.numeric(tab_prestations$Dentaire_2020)
+tab_prestations$Maladie_2020=as.numeric(tab_prestations$Maladie_2020)
+tab_prestations$Vie_2020=as.numeric(tab_prestations$Vie_2020)
+tab_prestations$Hospitalisation_2020=as.numeric(tab_prestations$Hospitalisation_2020)
+tab_prestations$Optique_2020=as.numeric(tab_prestations$Optique_2020)
+
+tab_prestations$Dentaire_2021=as.numeric(tab_prestations$Dentaire_2021)
+tab_prestations$Maladie_2021=as.numeric(tab_prestations$Maladie_2021)
+tab_prestations$Vie_2021=as.numeric(tab_prestations$Vie_2021)
+tab_prestations$Hospitalisation_2021=as.numeric(tab_prestations$Hospitalisation_2021)
+tab_prestations$Optique_2021=as.numeric(tab_prestations$Optique_2021)
+
+tab_prestations$Dentaire_2022=as.numeric(tab_prestations$Dentaire_2022)
+tab_prestations$Maladie_2022=as.numeric(tab_prestations$Maladie_2022)
+tab_prestations$Vie_2022=as.numeric(tab_prestations$Vie_2022)
+tab_prestations$Hospitalisation_2022=as.numeric(tab_prestations$Hospitalisation_2022)
+tab_prestations$Optique_2022=as.numeric(tab_prestations$Optique_2022)
+
+
+head(tab_prestations)
+```
+
+
+# Merge les jeux de données
+
+
+```{r merge}
+dataset_total <- merge(tab_effectifs, tab_cotisations[,c(1,12:25)], by = 'Lien_E')
+```
+
+```{r merge}
+dataset_total <- merge(dataset_total, tab_prestations[,c(1,11:55)], by = 'Lien_E')
+```
+
+# Save
+
+
+```{r save}
+save(dataset_total, file='../Donnees/Dataset_total.Rdata')
+```
+
