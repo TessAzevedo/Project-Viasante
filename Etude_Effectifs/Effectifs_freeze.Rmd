@@ -302,11 +302,11 @@ effectif=droplevels(effectif)
 # Save en Effectif.Rdata
 
 ```{r save}
-save(effectif, file='../Donnees/Effectifs/Effectifs_freeze.Rdata')
+effectif_freeze=effectif
+save(effectif_freeze, file='../Donnees/Effectifs/Effectifs_freeze.Rdata')
 ```
 
 
 ```{r}
-effectif_freeze=effectif
 write_xlsx(effectif_freeze, '../Donnees/Effectifs/Effectifs_freeze.xlsx')
 ```

@@ -359,7 +359,7 @@ nb_liens=length(levels(effectif_freeze$Lien.entreprise.Anonyme))
 ## Création d'un dataframe pour récupérer ces nouvelles informations
 
 ```{r}
-tab <- data.frame(Lien.entreprise.Anonyme = integer(nb_liens),
+tab <- data.frame(Lien_E = integer(nb_liens),
                  Actifs = integer(nb_liens),
                  Non_actifs = integer(nb_liens),
                  Portabilite = integer(nb_liens),
@@ -426,7 +426,7 @@ for (i in 1:1007){
   sub_lien=subset(effectif_freeze,Lien.entreprise.Anonyme==lien)
   sub_lien=droplevels(sub_lien)
   #Lien
-  tab$Lien.entreprise.Anonyme[i]=lien
+  tab$Lien_E[i]=lien
   
   #Code groupe assures
   code_gp_as=aggregate(sub_lien[,2],list(sub_lien[,2]),length)
@@ -581,7 +581,7 @@ for (i in 1:1007){
 ```
 
 ```{r}
-tab$Lien.entreprise.Anonyme<-as.factor(tab$Lien.entreprise.Anonyme)
+tab$Lien_E<-as.factor(tab$Lien_E)
 tab$Code_ape<-as.factor(tab$Code_ape) 
 tab$Departement<-as.factor(tab$Departement) 
 tab$Regroup1<-as.factor(tab$Regroup1)
@@ -594,10 +594,11 @@ tab$Produit3<-as.factor(tab$Produit3)
 # Save en Effectif_final.Rdata
 
 ```{r save}
-save(tab, file='../Donnees/Effectifs/Effectif_1line.Rdata')
+tab_eff=tab
+save(tab_eff, file='../Donnees/Effectifs/Effectif_final.Rdata')
 ```
 
 ```{r}
-write.table(tab,file='../Donnees/Effectifs/Effectif_1line.csv',sep=";",row.names = FALSE)
+write.table(tab_eff,file='../Donnees/Effectifs/Effectif_final.csv',sep=";",row.names = FALSE)
 ```
  
