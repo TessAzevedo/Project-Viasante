@@ -234,7 +234,7 @@ summary(BIC)
 ```
 
 ```{r}
-mod<-Mclust(dataset_2022_ACP,G=4,modelName = "VVV")
+mod<-Mclust(dataset_2022_ACP,G=7,modelName = "VVV")
 plot(mod, what = "classification")
 ```
 

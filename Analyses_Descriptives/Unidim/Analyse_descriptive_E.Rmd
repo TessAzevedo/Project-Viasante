@@ -45,7 +45,7 @@ Actifs, non actifs et portabilités
 ```{r}
 df1 = stack(tab_eff[,c(2,3,4)])
 df1= subset(df1,values!=0)
-df1=aggregate(df1[,2],list(df1[,2]),length)
+df1=aggregate(df1[,1],list(df1[,2]),sum)
 colnames(df1)[1]=c("Code_groupe_ass")
 df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
 ggplot(df1, aes(x="", y=x, fill=Code_groupe_ass)) +
@@ -405,7 +405,7 @@ hist(tab_eff$Nb_fam_2020,breaks=c(0,2000,5000,10000,12000), xlab='Nombre de fami
 abline(v=c(0,2000,5000,10000,12000),col="red", lwd=3)
 hist(tab_eff$Nb_fam_2021,breaks=c(0,2000,5000,10000,12000), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
 abline(v=c(0,2000,5000,10000,12000),col="red", lwd=3)
-hist(tab_eff$Nb_fam_2022,breaks=c(0,2000,5000,10000,12000), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
+hist(tab_eff$Nb_fam_2022,breaks=10000, xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme',xlim=c(0,quantile(tab_eff$Nb_fam_2022)))
 abline(v=c(0,2000,5000,10000,12000),col="red", lwd=3)
 ``` 
 
