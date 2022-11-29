@@ -25,7 +25,7 @@ library(readr)
 
 # Récupération du jeu Effectifs_freeze.xlsx
 ```{r recup, echo=TRUE}
-effectif=read_excel('../Donnees/Effectifs/Effectifs_clean2.xlsx')
+effectif=read_excel('../Donnees/Effectifs/Effectifs_28_11_clean2.xlsx')
 head(effectif)
 ```
 

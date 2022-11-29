@@ -25,7 +25,7 @@ library(readr)
 # Récupération des données Effectifs entreprises
 
 ```{r}
-data=read_excel("../Donnees/Effectifs/Effectifs_clean.xlsx")
+data=read_excel("../Donnees/Effectifs/Effectifs entreprises_28_11_clean.xlsx")
 data
 ````
 
@@ -51,7 +51,7 @@ data
 
 
 ```{r}
-write_xlsx(data, '../Donnees/Effectifs/Effectifs_clean2.xlsx')
+write_xlsx(data, '../Donnees/Effectifs/Effectifs_28_11_clean2.xlsx')
 ```
 
 
