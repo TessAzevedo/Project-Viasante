@@ -5,26 +5,252 @@ date: '2022-11-22'
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+
+```{r library, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(corrplot)
+library(readxl)
+library(FactoMineR)
+library(factoextra)
+library(cowplot)
+library("NbClust")
+library(missForest)
+library(writexl)
+library("scales")
+library(readr)
+library(lubridate)
+library(data.table)
+```
+ 
+# Récupération des jeux de données
+
+```{r recup eff, echo=TRUE}
+load('../Donnees/Dataset_total.Rdata')
+head(dataset_total)
 ```
 
-## R Markdown
+# Choix var
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r}
+#type ass en %
+ind_var_2022=c(1:8,10,12:15,24:26,29,31,33,35,37,39,41,42,47,53,59,63,68,96:101,118:121,142:146)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+dataset_2022=dataset_total[,ind_var_2022]
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+# ACP
+
+```{r}
+library(FactoMineR)
+ind_num=c(2:4,8,12:23,25:27,30:33,36:44)
+dataset_2022_num=dataset_2022[,ind_num]
+res.acp <- PCA(dataset_2022_num, scale.unit = TRUE, graph=FALSE)
+options(repr.plot.width = 15, repr.plot.height = 6)
+par(mfrow = c(1, 3))
+barplot(res.acp$eig[1:10, 2], ylab = "Percentage", main = "Proportion de l'inertie par composante")
+boxplot(res.acp$ind$coord, main = "Coordonnées des individus par composantes")
+plot(cumsum(res.acp$eig[1:10,2 ]),type="b", main = "Somme cumulée de l'inertie expliquée")
+abline(h=75, col = "cyan4")
+abline(h=85, col = "lightsalmon3", lty=2)
+legend(7, 40, legend=c("75%", "85%"),
+       col=c("cyan4", "lightsalmon3"), lty=1:2, cex=1)
+
+cumsum(res.acp$eig[1:10, 2])
+```
+
+
+```{r}
+options(repr.plot.width = 15, repr.plot.height = 10)
+par(mfrow = c(2, 1))
+for (i in 1:2){
+    plot(res.acp$svd$V[, i], type = "o", main = paste("Comp. ", i), xlab = "Time", ylab = "",
+         ylim = c(-0.6, 0.6), col = "blue")
+    abline(h = 0, lty = "dotted")
+}
+```
+```{r}
+options(repr.plot.width =8 , repr.plot.height = 6)
+acp <- PCA(dataset_2022[,ind_num], scale.unit = TRUE, graph = F)
+plot(acp, axes = c(1, 2), choix = "var")
+
+
+```
+
+```{r}
+options(repr.plot.width = 10, repr.plot.height = 10)
+plot(res.acp)
+```
+
+```{r}
+options(repr.plot.width =8 , repr.plot.height = 6)
+
+fviz_pca_ind(res.acp, col.ind = dataset_2022$VIP,repel = TRUE ,title="graphe des individus avec distinction vip/no vip")
+```
+
+
+# Clustering
+```{r}
+
+library(cluster)
+library(car)
+library(mdendro)
+d <- dist(dataset_2022, method = "euclidean")
+arbre <- hclust(d, method = "ward")
+inertie <- sort(arbre$height, decreasing = TRUE)
+par(mfrow=c(1,2))
+options(repr.plot.width =12 , repr.plot.height = 6)
+plot(inertie[1:12], type = "s", xlab = "Nombre de classes", ylab = "Inertie")
+plot(arbre, labels = FALSE, main = "Dendrogramme")
+
+```
+Saut à 4 ou 6.
+
+```{r}
+C = res.acp$var$coord[,1:2]
+C = res.acp$ind$coord[,1:2]
+dataset_2022_ACP = C
+```
+
+```{r}
+options(repr.plot.width = 4, repr.plot.height = 4)
+arbre_clust = cutree(arbre,k=4)
+plot(dataset_2022_ACP, pch=20, asp=1, col=arbre_clust)
+legend("topright",legend=c(0:4), col=1:4,lty=1)
+```
+
+```{r}
+options(repr.plot.width = 4, repr.plot.height = 4)
+arbre_clust = cutree(arbre,k=6)
+plot(dataset_2022_ACP, pch=20, asp=1, col=arbre_clust)
+legend("topright",legend=c(0:6), col=1:6,lty=1)
+```
+
+```{r}
+options(repr.plot.width = 12, repr.plot.height = 8)
+par(mfrow=c(3,2))
+for (i in 1:6){
+    indice<-which(arbre_clust==i)
+    boxplot(dataset_2022_num[indice,] ,main=i )
+}
+ 
+```
+
+
+```{r}
+#options(repr.plot.width = 12, repr.plot.height = 8)
+#centroid_CAH<-matrix(0, ncol=168, nrow=6)
+##for (i in 1:6){
+#    indice<-which(arbre_clust==i)
+#    centroid_CAH[i,]=colMeans(dataset_2022_num[indice,])
+#}
+#
+#matplot(t(centroid_CAH),type="l",lwd=2, main="Chargement des #centroïds des 6 clusters")
+#     
+```
+# Kmeans
+
+```{r}
+options(repr.plot.width = 10, repr.plot.height = 8)
+resKM <- kmeans(as.matrix(dataset_2022), centers=6,nstart=20)
+fviz_cluster(resKM, dataset_2022, repel=TRUE) #l'argument repel évite le chevauchement des textes
+```
+
+```{r}
+options(repr.plot.width = 12, repr.plot.height = 8)
+par(mfrow=c(3,2))
+for (i in 1:6){
+    indice<-which(resKM$cluster==i)
+    boxplot(x[indice,], main=i)
+}
+         
+```
+
+```{r}
+table(arbre_clust, resKM$cluster)
+```
+
+## clustering sur données ACP
+
+```{r}
+options(repr.plot.width = 8, repr.plot.height = 6)
+d <- dist(dataset_2022_ACP, method = "euclidean")
+arbreACP <- hclust(d, method = "ward")
+inertieACP <- sort(arbreACP$height, decreasing = TRUE)
+par(mfrow=c(1,2))
+options(repr.plot.width =12 , repr.plot.height = 6)
+plot(inertieACP[1:12], type = "s", xlab = "Nombre de classes", ylab = "Inertie")
+plot(arbreACP, labels = FALSE, main = "Dendrogramme")
+
+```
+Saut à 7
+
+### CAH
+
+```{r}
+options(repr.plot.width = 8, repr.plot.height = 6)
+arbre_clustACP = cutree(arbreACP,k=7)
+plot(dataset_2022_ACP, pch=20, asp=1, col=arbre_clustACP)
+legend("topright",legend=c(0:7), col=1:7,lty=1)
+```
+
+```{r}
+options(repr.plot.width = 20, repr.plot.height = 20)
+par(mfrow=c(3,2))
+for (i in 1:7){
+    indice<-which(arbre_clustACP==i)
+    boxplot(dataset_2022_ACP[indice,], main=i)
+}
+       
+```
+
+# Kmeans
+```{r}
+options(repr.plot.width = 8, repr.plot.height = 6)
+resKMACP <- kmeans(dataset_2022_ACP, centers=7,nstart=20)
+fviz_cluster(resKMACP, dataset_2022_ACP,axes = c(2,3), repel=TRUE) #l'argument repel évite le chevauchement des textes
+
+
+```
+
+```{r}
+options(repr.plot.width = 12, repr.plot.height = 8)
+par(mfrow=c(3,2))
+for (i in 1:7){
+    indice<-which(resKMACP$cluster==i)
+    boxplot(dataset_2022_num[indice,], main=i)
+}
+
+```
+
+```{r}
+library(mclust)
+BIC <- mclustBIC(dataset_2022_ACP)
+plot(BIC)
+summary(BIC)
+```
+
+```{r}
+mod<-Mclust(dataset_2022_ACP,G=4,modelName = "VVV")
+plot(mod, what = "classification")
+```
+
+```{r}
+options(repr.plot.width = 16, repr.plot.height = 12)
+par(mfrow=c(2,2))
+for (i in 1:4){
+    indice<-which(mod$classification==i)
+    boxplot(dataset_2022_num[indice,], main=i)
+}
+
+```
+
+```{r}
+table(arbre_clustACP, resKMACP$cluster)
+table(resKMACP$cluster, mod$classification)
+table(arbre_clustACP, mod$classification)
+```
+
