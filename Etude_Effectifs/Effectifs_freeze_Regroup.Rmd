@@ -258,19 +258,29 @@ Pour les variables :
 
 Avec retrait des personnes et familles radiées.
 ```{r fonct eff_pers_fam}
-effectif_pers_fam_actu<-function(data){
-  data_sub=subset(data, year(data[,14])==2050)
-  nb_pers=nrow(data_sub)
-  data_sub=droplevels(data_sub)
-  nb_fam=length(levels(data_sub[,12]))
-  return (c(nb_pers,nb_fam))
+effectif_pers_fam<-function(data){
+  n=5
+  tab <- data.frame(Annnee = c(2018,2019,2020,2021,2022),Nb_pers = integer(n), Nb_fam =integer(n))
+
+  an=c(2018,2019,2020,2021,2022)
+  j=1
+  for(i in an){ 
+    data_sub=subset(data, year(data[,13])<=i & year(data[,14])>=i)
+    data_sub=droplevels(data_sub)
+    tab$Nb_pers[j]=length(levels(data_sub[,11]))
+    tab$Nb_fam[j]=length(levels(data_sub[,12]))
+    j=j+1
+  }
+
+  return (tab)
 }
 ```
 
 Test unitaire
 ```{r test_unit_pers_fam}
-effectif_pers_fam_actu(L1)
-effectif_pers_fam_actu(L9)
+effectif_pers_fam(L1)
+effectif_pers_fam(L9)
+effectif_pers_fam(L1002)
 #nb pers, nb_fam
 ```
 
@@ -374,8 +384,16 @@ tab <- data.frame(Lien_E = integer(nb_liens),
                  Regroup4=character(nb_liens),
                  BASE_percent=numeric(nb_liens), # en pourcentage
                  OPTION_percent = numeric(nb_liens), # en pourcentage
-                 Nb_pers = integer(nb_liens),
-                 Nb_fam =integer(nb_liens),
+                 Nb_pers_2018 = integer(nb_liens),
+                 Nb_fam_2018 =integer(nb_liens),
+                 Nb_pers_2019 = integer(nb_liens),
+                 Nb_fam_2019 =integer(nb_liens),
+                 Nb_pers_2020 = integer(nb_liens),
+                 Nb_fam_2020 =integer(nb_liens),
+                 Nb_pers_2021 = integer(nb_liens),
+                 Nb_fam_2021 =integer(nb_liens),
+                 Nb_pers_2022 = integer(nb_liens),
+                 Nb_fam_2022 =integer(nb_liens),
                  Anciennete_pers_ds_L = integer(nb_liens),
                  Tps_adh_moy_pers_ds_L = integer(nb_liens),
                  Asspri = integer(nb_liens),# effectif
@@ -487,7 +505,9 @@ for (i in 1:1007){
   }
   
   #nb_pers et famille
-  tab[i,16:17]=effectif_pers_fam_actu(sub_lien)
+  x=effectif_pers_fam(sub_lien)
+  tab[i,c(16,18,20,22,24)]=x$Nb_pers
+  tab[i,c(17,19,21,23,25)]=x$Nb_fam
   
   #anciennete moyenne des personnes
   tab$Anciennete_pers_ds_L[i]=ancien_pers(sub_lien)
