@@ -32,6 +32,10 @@ load('../../Donnees/Effectifs/Effectif_final.Rdata')
 head(tab_eff)
 ```
 
+```{r}
+summary(tab_eff)
+```
+
 
 # Analyse descriptive unidimensionelle
 
@@ -191,28 +195,24 @@ ggplot(tab_bis, aes(x="", y=Produit3, fill=Produit3)) +
   theme(legend.position="none") 
 ```
 
-## Annee d'adhesion de l'entreprise au lien
+## Temps d'adhesion de l'entreprise au lien en années
 
 
 ```{r}
-boxplot(tab_eff$Annee_adh_E_au_L)
+boxplot(tab_eff$Tps_adh_E_au_L)
 ```
 ```{r}
-hist(tab_eff$Annee_adh_E_au_L, breaks=15, xlab='Annee d adhésion de l entreprise au lien ', main='Histogramme')
+hist(tab_eff$Tps_adh_E_au_L, breaks=15, xlab='Temps d adhésion de l entreprise au lien ', main='Histogramme')
 ```
-```{r}
-hist(2022-tab_eff$Annee_adh_E_au_L,breaks=15, xlab='Nombre d annees d adhésion de l entreprise au lien ', main='Histogramme') 
-``` 
-Cela revient à regarder la variable Tps_adh_E_au_L qui elle était en jour et pas en année.
 
 ```{r}
-tab_eff$Annee_adh_E_au_L.f=cut(tab_eff$Annee_adh_E_au_L, include.lowest = FALSE, right = TRUE,
-  breaks = c(1899,1950,2000,2010,max(tab_eff$Annee_adh_E_au_L)))
+tab_eff$Tps_adh_E_au_L.f=cut(tab_eff$Tps_adh_E_au_L, include.lowest = FALSE, right = TRUE,
+  breaks = c(-0.1,10,20,50,max(tab_eff$Tps_adh_E_au_L)))
 ``` 
 
 
 ```{r}
-ggplot(tab_eff, aes(x="", y=Annee_adh_E_au_L.f, fill=Annee_adh_E_au_L.f)) +
+ggplot(tab_eff, aes(x="", y=Tps_adh_E_au_L.f, fill=Tps_adh_E_au_L.f)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
     theme_void()
@@ -409,31 +409,26 @@ hist(tab_eff$Nb_fam_2022,breaks=c(0,2000,5000,10000,12000), xlab='Nombre de fami
 abline(v=c(0,2000,5000,10000,12000),col="red", lwd=3)
 ``` 
 
-## Annnée moyenne d'adhésion des personnes dans le lien
+## Temps moyenne d'adhésion des personnes dans le lien
 
 
 
 ```{r}
-boxplot(tab_eff$Anciennete_pers_ds_L)
+boxplot(tab_eff$Tps_adh_moy_pers_ds_L)
 ```
 ```{r}
-hist(tab_eff$Anciennete_pers_ds_L, breaks=c(1970, 1990,2000,2010, max(tab_eff$Anciennete_pers_ds_L)), xlab='Ancienneté moyenne des personnes dans les liens', main='Histogramme')
-abline(v=c(1970, 1990,2000,2010, max(tab_eff$Anciennete_pers_ds_L)),col="red", lwd=3)
+hist(tab_eff$Tps_adh_moy_pers_ds_L, breaks=c( 0,10,20,50, max(tab_eff$Tps_adh_moy_pers_ds_L)), xlab='Ancienneté moyenne des personnes dans les liens', main='Histogramme')
+abline(v=c(0,10,20,50,max(tab_eff$Tps_adh_moy_pers_ds_L)),col="red", lwd=3)
 ```
-```{r}
-hist(2022-tab_eff$Anciennete_pers_ds_L,breaks=c(0,10,20,30,50), xlab='Nombre moyen d annees d adhésion des personnes aux liens', main='Histogramme') 
-abline(v=c(0,10,20,30,50),col="red", lwd=3)
-``` 
-Cela revient à regarder la variable Tps_adh_moy_pers_ds_L qui elle était en jour et pas en année.
 
 ```{r}
-tab_eff$Anciennete_pers_ds_L.f=cut(tab_eff$Anciennete_pers_ds_L, include.lowest = FALSE, right = TRUE,
-  breaks = c(1970, 1990,2000,2010, max(tab_eff$Anciennete_pers_ds_L)))
+tab_eff$Tps_adh_moy_pers_ds_L.f=cut(tab_eff$Tps_adh_moy_pers_ds_L, include.lowest = FALSE, right = TRUE,
+  breaks = c(-0.1,10,20,50, max(tab_eff$Tps_adh_moy_pers_ds_L)))
 ``` 
 
 
 ```{r}
-ggplot(tab_eff, aes(x="", y=Anciennete_pers_ds_L.f, fill=Anciennete_pers_ds_L.f)) +
+ggplot(tab_eff, aes(x="", y=Tps_adh_moy_pers_ds_L.f, fill=Tps_adh_moy_pers_ds_L.f)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
     theme_void()
@@ -548,10 +543,7 @@ print(ggplot(df1, aes(x="", y=x, fill=Responsabilite)) +
 ## VIP
 
 ```{r}
-barplot(table(tab_eff$VIP))
-```
-```{r}
-df1=aggregate(tab_eff[,34],list(tab_eff[,34]),length)
+df1=aggregate(tab_eff$VIP,list(tab_eff$VIP),length)
 colnames(df1)[1]=c("VIP")
 df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
 print(ggplot(df1, aes(x="", y=x, fill=VIP)) +
