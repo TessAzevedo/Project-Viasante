@@ -381,16 +381,33 @@ print(ggplot(df1, aes(x="", y=x, fill=Regroup5)) +
 
 ### Personnes 
 ```{r}
-hist(tab_eff$Nb_pers,breaks=c(0,2000,5000,10000,12000), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
+par(mfrow=c(2,3))
+hist(tab_eff$Nb_pers_2018,breaks=c(0,2000,5000,10000,12000), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
+abline(v=c(0,2000,5000,10000,12000),col="red", lwd=3)
+hist(tab_eff$Nb_pers_2019,breaks=c(0,2000,5000,10000,12000), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
+abline(v=c(0,2000,5000,10000,12000),col="red", lwd=3)
+hist(tab_eff$Nb_pers_2020,breaks=c(0,2000,5000,10000,12000), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
+abline(v=c(0,2000,5000,10000,12000),col="red", lwd=3)
+hist(tab_eff$Nb_pers_2021,breaks=c(0,2000,5000,10000,12000), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
+abline(v=c(0,2000,5000,10000,12000),col="red", lwd=3)
+hist(tab_eff$Nb_pers_2022,breaks=c(0,2000,5000,10000,12000), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
 abline(v=c(0,2000,5000,10000,12000),col="red", lwd=3)
 ``` 
 
 ### Nombre de familles
-
 ```{r}
-hist(tab_eff$Nb_fam,breaks=c(0,500,1000,2000,max(tab_eff$Nb_fam)),xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
-abline(v=c(0,500,1000,2000,max(tab_eff$Nb_fam)),col="red", lwd=3)
-```
+par(mfrow=c(2,3))
+hist(tab_eff$Nb_fam_2018,breaks=c(0,2000,5000,10000,12000), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
+abline(v=c(0,2000,5000,10000,12000),col="red", lwd=3)
+hist(tab_eff$Nb_fam_2019,breaks=c(0,2000,5000,10000,12000), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
+abline(v=c(0,2000,5000,10000,12000),col="red", lwd=3)
+hist(tab_eff$Nb_fam_2020,breaks=c(0,2000,5000,10000,12000), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
+abline(v=c(0,2000,5000,10000,12000),col="red", lwd=3)
+hist(tab_eff$Nb_fam_2021,breaks=c(0,2000,5000,10000,12000), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
+abline(v=c(0,2000,5000,10000,12000),col="red", lwd=3)
+hist(tab_eff$Nb_fam_2022,breaks=c(0,2000,5000,10000,12000), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
+abline(v=c(0,2000,5000,10000,12000),col="red", lwd=3)
+``` 
 
 ## Annnée moyenne d'adhésion des personnes dans le lien
 
