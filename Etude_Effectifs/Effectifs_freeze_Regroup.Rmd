@@ -169,7 +169,7 @@ Pour les varaibles suivantes :
 type=aggregate(L2$Type.Assure,list(L2$Type.Assure),length)
 sexe=aggregate(L2$Sexe,list(L2$Sexe),length)
 r.rn=aggregate(L2$R.NR,list(L2$R.NR),length)
-r.rn=aggregate(L9$R.NR,list(L9$R.NR),length)
+#r.rn=aggregate(L9$R.NR,list(L9$R.NR),length)
 type
 sexe
 r.rn
@@ -189,7 +189,7 @@ pourcentage(L2,sexe)
 pourcentage(L2,r.rn)
 ```
 
-
+PARTIR PLUS UTILISEE
 ## Date d'adhésion lien
 Pour la variable :
 annee moyen d'adhésion de l'entreprise au lien avec la ponderation en du nombre d'effectifs dans l'entreprise.
@@ -216,7 +216,9 @@ annee_adh_L(L9)
 annee_adh_L(L1002)
 annee_adh_L(L2)
 ```
-
+ 
+ 
+ 
 ## Temps d'adhésion lien
 Calculer le temps moyen d'adhésion d'un lien en calculant le temps moyen d'adhésion des entreprises dans un lien en le pondérant par effectifs de l'entreprise
 ```{r temps_adhe_L}
@@ -240,7 +242,7 @@ temps_adh_L<-function(data){
   
   adh=sum(tab$Tmps_Entreprise*tab$Effectif_Entreprise)/nrow(data)
   
-  return(as.integer(adh))
+  return(round(as.integer(adh)/365,digit=1))
 }
 
 #retour en jours
@@ -309,7 +311,7 @@ temps_moy_adh_P<-function(data){
   }
   #total
   adh_moyenne=sum(tab$Tmps_Entreprise*tab$Effectif_Entreprise)/nrow(data)
-  return (as.integer(adh_moyenne))
+  return (round(as.integer(adh_moyenne)/365,digit=1))
 }
 #en jour
 ```
@@ -569,17 +571,13 @@ for (i in 1:1007){
   ind_r=which(RNR=="R")
   ind_rn=which(RNR=="NR")
   if(length(ind_r)){
-    tab$Respo[i]=RNR[ind_r,2]
     tab$Respo_percent[i]=RNR_percent[ind_r,2]
   }else{
-    tab$Respo[i]=0
     tab$Respo_percent[i]=0
   }
   if(length(ind_rn)){
-    tab$Non_respo[i]=RNR[ind_rn,2]
     tab$Non_respo_percent[i]=RNR_percent[ind_rn,2]
   }else{
-    tab$Non_respo[i]=0
     tab$Non_respo_percent[i]=0
   }
   
@@ -614,7 +612,7 @@ tab$Produit3<-as.factor(tab$Produit3)
 ## Supprimer les lignes où ASSPRI =0%
 
 ```{r asspri}
-tab=subset(tab, tab$Asspri_percent==0.0)
+tab=subset(tab, tab$Asspri_percent !=0.0)
 ```
 
 # Save en Effectif_final.Rdata
