@@ -51,13 +51,13 @@ dataset_total$PC_2022 <- ifelse(dataset_total$Mnt_2022==0,0,dataset_total$Remb_r
 # Variation de P/C en %
 
 ```{r}
-dataset_total$VAR_PC2221 <-  ifelse(dataset_total$PC_2021==0,0,dataset_total$PC_2022 /dataset_total$PC_2021 *100)
+dataset_total$VAR_PC2221 <-  ifelse(dataset_total$PC_2021==0,0,(dataset_total$PC_2022 /dataset_total$PC_2021 -1) *100)
 
-dataset_total$VAR_PC2120 <-  ifelse(dataset_total$PC_2020==0,0,dataset_total$PC_2021 /dataset_total$PC_2020 *100)
+dataset_total$VAR_PC2120 <-  ifelse(dataset_total$PC_2020==0,0, (dataset_total$PC_2021 /dataset_total$PC_2020 -1) *100)
 
-dataset_total$VAR_PC2019 <-  ifelse(dataset_total$PC_2019==0,0,dataset_total$PC_2020 /dataset_total$PC_2019 *100)
+dataset_total$VAR_PC2019 <-  ifelse(dataset_total$PC_2019==0,0,(dataset_total$PC_2020 /dataset_total$PC_2019 -1)*100)
 
-dataset_total$Var_PC1918 <-  ifelse(dataset_total$PC_2018==0,0,dataset_total$PC_2019 /dataset_total$PC_2018 *100)
+dataset_total$Var_PC1918 <-  ifelse(dataset_total$PC_2018==0,0,(dataset_total$PC_2019 /dataset_total$PC_2018 -1) *100)
 ```
 
 
@@ -78,13 +78,13 @@ dataset_total$Prest_PP_2022 <- ifelse( dataset_total$Nb_pers_2022==0,0,dataset_t
 # Variation de prestations par PP 
 
 ```{r}
-dataset_total$VAR_Pr2221 <-  ifelse(dataset_total$Prest_PP_2021==0,0,dataset_total$Prest_PP_2022 /dataset_total$Prest_PP_2021 *100)
+dataset_total$VAR_Pr2221 <-  ifelse(dataset_total$Prest_PP_2021==0,0, (dataset_total$Prest_PP_2022 /dataset_total$Prest_PP_2021 -1) *100)
 
-dataset_total$VAR_Pr2120 <-  ifelse(dataset_total$Prest_PP_2020==0,0,dataset_total$Prest_PP_2021 /dataset_total$Prest_PP_2020*100)
+dataset_total$VAR_Pr2120 <-  ifelse(dataset_total$Prest_PP_2020==0,0, (dataset_total$Prest_PP_2021 /dataset_total$Prest_PP_2020 -1) *100)
 
-dataset_total$VAR_Pr2019 <-  ifelse(dataset_total$Prest_PP_2019==0,0,dataset_total$Prest_PP_2020 /dataset_total$Prest_PP_2019 *100)
+dataset_total$VAR_Pr2019 <-  ifelse(dataset_total$Prest_PP_2019==0,0, (dataset_total$Prest_PP_2020 /dataset_total$Prest_PP_2019 -1)*100)
 
-dataset_total$Var_Pr1918 <-  ifelse(dataset_total$Prest_PP_2018==0,0,dataset_total$Prest_PP_2019 /dataset_total$Prest_PP_2018 *100)
+dataset_total$Var_Pr1918 <-  ifelse(dataset_total$Prest_PP_2018==0,0, (dataset_total$Prest_PP_2019 /dataset_total$Prest_PP_2018  -1)*100)
 
 ```
 
@@ -101,13 +101,13 @@ dataset_total$Cot_PP_2022 <- ifelse( dataset_total$Nb_pers_2022==0,0,dataset_tot
 
 
 ```{r}
-dataset_total$VAR_Cot2221 <-  ifelse(dataset_total$Cot_PP_2021,0,dataset_total$Cot_PP_2022 /dataset_total$Cot_PP_2021 *100)
+dataset_total$VAR_Cot2221 <-  ifelse(dataset_total$Cot_PP_2021,0, (dataset_total$Cot_PP_2022 /dataset_total$Cot_PP_2021 -1)*100)
 
-dataset_total$VAR_Cot2120 <-  ifelse(dataset_total$Cot_PP_2020==0,0,dataset_total$Cot_PP_2021 /dataset_total$Cot_PP_2020*100)
+dataset_total$VAR_Cot2120 <-  ifelse(dataset_total$Cot_PP_2020==0,0,(dataset_total$Cot_PP_2021 /dataset_total$Cot_PP_2020 -1)*100)
 
-dataset_total$VAR_Cot2019 <-  ifelse(dataset_total$Cot_PP_2019==0,0,dataset_total$Cot_PP_2020 /dataset_total$Cot_PP_2019 *100)
+dataset_total$VAR_Cot2019 <-  ifelse(dataset_total$Cot_PP_2019==0,0,(dataset_total$Cot_PP_2020 /dataset_total$Cot_PP_2019 -1) *100)
 
-dataset_total$Var_Cot1918 <-  ifelse(dataset_total$Cot_PP_2018==0,0,dataset_total$Cot_PP_2019 /dataset_total$Cot_PP_2018 *100)
+dataset_total$Var_Cot1918 <-  ifelse(dataset_total$Cot_PP_2018==0,0,(dataset_total$Cot_PP_2019 /dataset_total$Cot_PP_2018 -1)*100)
 
 ```
 
