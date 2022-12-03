@@ -169,7 +169,7 @@ Pour les varaibles suivantes :
 type=aggregate(L2$Type.Assure,list(L2$Type.Assure),length)
 sexe=aggregate(L2$Sexe,list(L2$Sexe),length)
 r.rn=aggregate(L2$R.NR,list(L2$R.NR),length)
-r.rn=aggregate(L9$R.NR,list(L9$R.NR),length)
+#r.rn=aggregate(L9$R.NR,list(L9$R.NR),length)
 type
 sexe
 r.rn
@@ -189,7 +189,7 @@ pourcentage(L2,sexe)
 pourcentage(L2,r.rn)
 ```
 
-
+PARTIR PLUS UTILISEE
 ## Date d'adhésion lien
 Pour la variable :
 annee moyen d'adhésion de l'entreprise au lien avec la ponderation en du nombre d'effectifs dans l'entreprise.
@@ -216,7 +216,9 @@ annee_adh_L(L9)
 annee_adh_L(L1002)
 annee_adh_L(L2)
 ```
-
+ 
+ 
+ 
 ## Temps d'adhésion lien
 Calculer le temps moyen d'adhésion d'un lien en calculant le temps moyen d'adhésion des entreprises dans un lien en le pondérant par effectifs de l'entreprise
 ```{r temps_adhe_L}
@@ -240,7 +242,7 @@ temps_adh_L<-function(data){
   
   adh=sum(tab$Tmps_Entreprise*tab$Effectif_Entreprise)/nrow(data)
   
-  return(as.integer(adh))
+  return(round(as.integer(adh)/365,digit=1))
 }
 
 #retour en jours
@@ -309,7 +311,7 @@ temps_moy_adh_P<-function(data){
   }
   #total
   adh_moyenne=sum(tab$Tmps_Entreprise*tab$Effectif_Entreprise)/nrow(data)
-  return (as.integer(adh_moyenne))
+  return (round(as.integer(adh_moyenne)/365,digit=1))
 }
 #en jour
 ```
@@ -376,13 +378,13 @@ tab <- data.frame(Lien_E = integer(nb_liens),
                  Produit1= integer(nb_liens),
                  Produit2= integer(nb_liens),
                  Produit3= integer(nb_liens),
-                 Annee_adh_E_au_L = integer(nb_liens),
+                 #Annee_adh_E_au_L = integer(nb_liens),
                  Tps_adh_E_au_L = integer(nb_liens),
                  Code_ape = character(nb_liens),
                  Departement= character(nb_liens),
                  Regroup1= character(nb_liens),
                  Regroup4=character(nb_liens),
-                 BASE_percent=numeric(nb_liens), # en pourcentage
+                 BASE=numeric(nb_liens), # en numerique
                  OPTION_percent = numeric(nb_liens), # en pourcentage
                  Nb_pers_2018 = integer(nb_liens),
                  Nb_fam_2018 =integer(nb_liens),
@@ -394,7 +396,7 @@ tab <- data.frame(Lien_E = integer(nb_liens),
                  Nb_fam_2021 =integer(nb_liens),
                  Nb_pers_2022 = integer(nb_liens),
                  Nb_fam_2022 =integer(nb_liens),
-                 Anciennete_pers_ds_L = integer(nb_liens),
+                 #Anciennete_pers_ds_L = integer(nb_liens),
                  Tps_adh_moy_pers_ds_L = integer(nb_liens),
                  Asspri = integer(nb_liens),# effectif
                  Asspri_percent= numeric(nb_liens),#pourcentage
@@ -406,9 +408,9 @@ tab <- data.frame(Lien_E = integer(nb_liens),
                  Femme_percent = numeric(nb_liens), # pourcentage
                  Homme = integer(nb_liens), #eff
                  Homme_percent = numeric(nb_liens), #pourcentage
-                 Respo = integer(nb_liens), # eff
+                 #Respo = integer(nb_liens), # eff
                  Respo_percent = numeric(nb_liens), # pourcentage
-                 Non_respo = integer(nb_liens), #eff
+                 #Non_respo = integer(nb_liens), #eff
                  Non_respo_percent = numeric(nb_liens), #pourcentage
                  VIP = logical(nb_liens),
                  Prod1_Ind2018 = double(nb_liens),
@@ -471,7 +473,7 @@ for (i in 1:1007){
   tab[i,5:7]=max3_repr(sub_lien)
   
   #année d'adhésion du lien
-  tab$Annee_adh_E_au_L[i]=annee_adh_L(sub_lien)
+  #tab$Annee_adh_E_au_L[i]=annee_adh_L(sub_lien)
   
   #temps adésien entreprise
   tab$Tps_adh_E_au_L[i]=temps_adh_L(sub_lien)
@@ -494,9 +496,9 @@ for (i in 1:1007){
   ind_base=which(regroup5=="BASE")
   ind_option=which(regroup5=="OPTION")
   if(length(ind_base)){
-    tab$BASE_percent[i]=regroup5_percent[ind_base,2]
+    tab$BASE[i]=regroup5[ind_base,2]
   }else{
-    tab$BASE_percent[i]=0
+    tab$BASE[i]=0
   }
   if(length(ind_option)){
     tab$OPTION_percent[i]=regroup5_percent[ind_option,2]
@@ -506,11 +508,11 @@ for (i in 1:1007){
   
   #nb_pers et famille
   x=effectif_pers_fam(sub_lien)
-  tab[i,c(16,18,20,22,24)]=x$Nb_pers
-  tab[i,c(17,19,21,23,25)]=x$Nb_fam
+  tab[i,c(15,17,19,21,23)]=x$Nb_pers
+  tab[i,c(16,18,20,22,24)]=x$Nb_fam
   
   #anciennete moyenne des personnes
-  tab$Anciennete_pers_ds_L[i]=ancien_pers(sub_lien)
+  #tab$Anciennete_pers_ds_L[i]=ancien_pers(sub_lien)
   
   #temps d'adhésion moyen des personnes
   tab$Tps_adh_moy_pers_ds_L[i]=temps_moy_adh_P(sub_lien)
@@ -569,17 +571,13 @@ for (i in 1:1007){
   ind_r=which(RNR=="R")
   ind_rn=which(RNR=="NR")
   if(length(ind_r)){
-    tab$Respo[i]=RNR[ind_r,2]
     tab$Respo_percent[i]=RNR_percent[ind_r,2]
   }else{
-    tab$Respo[i]=0
     tab$Respo_percent[i]=0
   }
   if(length(ind_rn)){
-    tab$Non_respo[i]=RNR[ind_rn,2]
     tab$Non_respo_percent[i]=RNR_percent[ind_rn,2]
   }else{
-    tab$Non_respo[i]=0
     tab$Non_respo_percent[i]=0
   }
   
@@ -587,16 +585,16 @@ for (i in 1:1007){
   tab$VIP[i]=gd_compte(sub_lien)
   
   #index prod1
-  tab[i,35:40]=index_prod(sub_lien,tab[i,5])
+  tab[i,39:44]=index_prod(sub_lien,tab[i,5])
   
   #indexation prod2
-  tab[i,41:46]=index_prod(sub_lien,tab[i,6])
+  tab[i,45:50]=index_prod(sub_lien,tab[i,6])
   
   #indexation prod3
-  tab[i,47:52]=index_prod(sub_lien,tab[i,7])
+  tab[i,51:56]=index_prod(sub_lien,tab[i,7])
   
   #renego
-  tab[i,53:55]=sub_lien[1,27:29]
+  tab[i,57:59]=sub_lien[1,27:29]
 }
 ```
 
@@ -609,6 +607,12 @@ tab$Regroup4<-as.factor(tab$Regroup4)
 tab$Produit1<-as.factor(tab$Produit1)
 tab$Produit2<-as.factor(tab$Produit2)
 tab$Produit3<-as.factor(tab$Produit3)
+```
+
+## Supprimer les lignes où ASSPRI =0%
+
+```{r asspri}
+tab=subset(tab, tab$Asspri_percent !=0.0)
 ```
 
 # Save en Effectif_final.Rdata

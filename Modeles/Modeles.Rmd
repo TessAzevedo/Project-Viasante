@@ -26,47 +26,43 @@ library(data.table)
 # Récupération des jeux de données
 
 ```{r recup eff, echo=TRUE}
-load('../Donnees/Dataset_total.Rdata')
-head(dataset_total)
-```
-
-# Choix var
-
-```{r}
-#type ass en %
-ind_var_2022=c(1:8,10,12:15,24:26,29,31,33,35,37,39,41,42,47,53,59,63,68,96:101,118:121,142:146)
+load('../Donnees/Donnees_annnee/Dataset_2022.Rdata')
+head(dataset_2022)
 ```
 
 ```{r}
-dataset_2022=dataset_total[,ind_var_2022]
+for (i in 1:nrow(dataset_2022)){
+  if(dataset_2022$VAR_Cot2221[i]=='Inf'){
+    dataset_2022$VAR_Cot2221[i]=0.0
+  }
+}
 ```
-
 
 # ACP
 
 ```{r}
 library(FactoMineR)
-ind_num=c(2:4,8,12:23,25:27,30:33,36:44)
+ind_num=c(2:4,8,11:27,29:31,34:50)
 dataset_2022_num=dataset_2022[,ind_num]
 res.acp <- PCA(dataset_2022_num, scale.unit = TRUE, graph=FALSE)
-options(repr.plot.width = 15, repr.plot.height = 6)
+options(repr.plot.width = 12, repr.plot.height = 10)
 par(mfrow = c(1, 3))
 barplot(res.acp$eig[1:10, 2], ylab = "Percentage", main = "Proportion de l'inertie par composante")
 boxplot(res.acp$ind$coord, main = "Coordonnées des individus par composantes")
 plot(cumsum(res.acp$eig[1:10,2 ]),type="b", main = "Somme cumulée de l'inertie expliquée")
-abline(h=75, col = "cyan4")
-abline(h=85, col = "lightsalmon3", lty=2)
+abline(h=60, col = "lightsalmon3", lty=2)
 legend(7, 40, legend=c("75%", "85%"),
        col=c("cyan4", "lightsalmon3"), lty=1:2, cex=1)
 
 cumsum(res.acp$eig[1:10, 2])
 ```
 
+On garde 3 composantes pour avoir au moins 60% d'inertie cumulée.
 
 ```{r}
-options(repr.plot.width = 15, repr.plot.height = 10)
-par(mfrow = c(2, 1))
-for (i in 1:2){
+options(repr.plot.width = 15, repr.plot.height = 15)
+par(mfrow = c(3, 1))
+for (i in 1:3){
     plot(res.acp$svd$V[, i], type = "o", main = paste("Comp. ", i), xlab = "Time", ylab = "",
          ylim = c(-0.6, 0.6), col = "blue")
     abline(h = 0, lty = "dotted")
@@ -89,6 +85,10 @@ plot(res.acp)
 options(repr.plot.width =8 , repr.plot.height = 6)
 
 fviz_pca_ind(res.acp, col.ind = dataset_2022$VIP,repel = TRUE ,title="graphe des individus avec distinction vip/no vip")
+fviz_pca_ind(res.acp, col.ind = dataset_2022$Respo_percent,repel = TRUE ,title="graphe des individus avec distinction Respo/Non Respo")
+fviz_pca_ind(res.acp, col.ind = dataset_2022$Regroup1,repel = TRUE ,title="graphe des individus avec distinction Regroup1")
+#fviz_pca_ind(res.acp, col.ind = dataset_2022$Regroup4,repel = TRUE ,title="graphe des individus avec distinction Regroup4")
+#fviz_pca_ind(res.acp, col.ind = dataset_2022$Produit1,repel = TRUE ,title="graphe des individus avec distinction Regroup1")
 ```
 
 
@@ -96,10 +96,9 @@ fviz_pca_ind(res.acp, col.ind = dataset_2022$VIP,repel = TRUE ,title="graphe des
 ```{r}
 
 library(cluster)
-library(car)
 library(mdendro)
 d <- dist(dataset_2022, method = "euclidean")
-arbre <- hclust(d, method = "ward")
+arbre <- hclust(d, method = "ward.D2")
 inertie <- sort(arbre$height, decreasing = TRUE)
 par(mfrow=c(1,2))
 options(repr.plot.width =12 , repr.plot.height = 6)
@@ -110,36 +109,49 @@ plot(arbre, labels = FALSE, main = "Dendrogramme")
 Saut à 4 ou 6.
 
 ```{r}
-C = res.acp$var$coord[,1:2]
-C = res.acp$ind$coord[,1:2]
+C = res.acp$var$coord[,1:3]
+C = res.acp$ind$coord[,1:3]
 dataset_2022_ACP = C
 ```
+# Clustering sur toutes les données
 
+## CAH avec 4 clusters
 ```{r}
 options(repr.plot.width = 4, repr.plot.height = 4)
 arbre_clust = cutree(arbre,k=4)
 plot(dataset_2022_ACP, pch=20, asp=1, col=arbre_clust)
-legend("topright",legend=c(0:4), col=1:4,lty=1)
+legend("topright",legend=c(1:4), col=1:4,lty=1)
 ```
 
 ```{r}
-options(repr.plot.width = 4, repr.plot.height = 4)
-arbre_clust = cutree(arbre,k=6)
-plot(dataset_2022_ACP, pch=20, asp=1, col=arbre_clust)
-legend("topright",legend=c(0:6), col=1:6,lty=1)
-```
-
-```{r}
-options(repr.plot.width = 12, repr.plot.height = 8)
-par(mfrow=c(3,2))
-for (i in 1:6){
+options(repr.plot.width = 20, repr.plot.height = 20)
+Sdataset_2022_num=scale(dataset_2022_num)
+par(mfrow=c(2,2))
+for (i in 1:4){
     indice<-which(arbre_clust==i)
-    boxplot(dataset_2022_num[indice,] ,main=i )
+    boxplot(Sdataset_2022_num[indice,] ,main=i )
 }
  
 ```
 
+## CAH sur 6 clusters
+```{r}
+options(repr.plot.width = 4, repr.plot.height = 4)
+arbre_clust = cutree(arbre,k=6)
+plot(dataset_2022_ACP, pch=20, asp=1, col=arbre_clust)
+legend("topright",legend=c(1:6), col=1:6,lty=1)
+```
 
+```{r}
+options(repr.plot.width = 15, repr.plot.height = 15)
+for (i in 1:6){
+    indice<-which(arbre_clust==i)
+    boxplot(Sdataset_2022_num[indice,] ,main=i )
+}
+ 
+```
+
+Problème il y un lien tout seul.Les variantions se ressemblent entre clusrers. 4 clusters sont donc possiblement suffisant.
 ```{r}
 #options(repr.plot.width = 12, repr.plot.height = 8)
 #centroid_CAH<-matrix(0, ncol=168, nrow=6)
@@ -153,9 +165,11 @@ for (i in 1:6){
 ```
 # Kmeans
 
+student[!is.na(student$science),]
+
 ```{r}
 options(repr.plot.width = 10, repr.plot.height = 8)
-resKM <- kmeans(as.matrix(dataset_2022), centers=6,nstart=20)
+resKM <- kmeans(dataset_2022[complete.cases(dataset_2022),], centers=6,nstart=20)
 fviz_cluster(resKM, dataset_2022, repel=TRUE) #l'argument repel évite le chevauchement des textes
 ```
 
@@ -173,12 +187,12 @@ for (i in 1:6){
 table(arbre_clust, resKM$cluster)
 ```
 
-## clustering sur données ACP
+# Clustering sur données ACP
 
 ```{r}
 options(repr.plot.width = 8, repr.plot.height = 6)
 d <- dist(dataset_2022_ACP, method = "euclidean")
-arbreACP <- hclust(d, method = "ward")
+arbreACP <- hclust(d, method = "ward.D2")
 inertieACP <- sort(arbreACP$height, decreasing = TRUE)
 par(mfrow=c(1,2))
 options(repr.plot.width =12 , repr.plot.height = 6)
@@ -186,32 +200,51 @@ plot(inertieACP[1:12], type = "s", xlab = "Nombre de classes", ylab = "Inertie")
 plot(arbreACP, labels = FALSE, main = "Dendrogramme")
 
 ```
-Saut à 7
+Saut à 6 et à 3.
 
-### CAH
+## CAH à 6 clusters
 
 ```{r}
 options(repr.plot.width = 8, repr.plot.height = 6)
-arbre_clustACP = cutree(arbreACP,k=7)
+arbre_clustACP = cutree(arbreACP,k=6)
 plot(dataset_2022_ACP, pch=20, asp=1, col=arbre_clustACP)
-legend("topright",legend=c(0:7), col=1:7,lty=1)
+legend("topright",legend=c(1:6), col=1:6,lty=1)
+```
+
+```{r}
+par(mfrow=c(3,2))
+options(repr.plot.width = 20, repr.plot.height = 20)
+
+for (i in 1:6){
+    indice<-which(arbre_clustACP==i)
+    boxplot(dataset_2022_ACP[indice,], main=i)
+}
+       
+```
+## CAH à 3 clusters
+
+```{r}
+options(repr.plot.width = 8, repr.plot.height = 6)
+arbre_clustACP = cutree(arbreACP,k=3)
+plot(dataset_2022_ACP, pch=20, asp=1, col=arbre_clustACP)
+legend("topright",legend=c(1:3), col=1:3,lty=1)
 ```
 
 ```{r}
 options(repr.plot.width = 20, repr.plot.height = 20)
-par(mfrow=c(3,2))
-for (i in 1:7){
+par(mfrow=c(3,1))
+for (i in 1:3){
     indice<-which(arbre_clustACP==i)
     boxplot(dataset_2022_ACP[indice,], main=i)
 }
        
 ```
 
-# Kmeans
+## Kmeans à 6 cluster
 ```{r}
 options(repr.plot.width = 8, repr.plot.height = 6)
-resKMACP <- kmeans(dataset_2022_ACP, centers=7,nstart=20)
-fviz_cluster(resKMACP, dataset_2022_ACP,axes = c(2,3), repel=TRUE) #l'argument repel évite le chevauchement des textes
+resKMACP <- kmeans(dataset_2022_ACP, centers=6,nstart=20)
+fviz_cluster(resKMACP, dataset_2022_ACP,axes = c(1,2), repel=TRUE) #l'argument repel évite le chevauchement des textes
 
 
 ```
@@ -219,34 +252,74 @@ fviz_cluster(resKMACP, dataset_2022_ACP,axes = c(2,3), repel=TRUE) #l'argument r
 ```{r}
 options(repr.plot.width = 12, repr.plot.height = 8)
 par(mfrow=c(3,2))
-for (i in 1:7){
+for (i in 1:6){
     indice<-which(resKMACP$cluster==i)
-    boxplot(dataset_2022_num[indice,], main=i)
+    boxplot(Sdataset_2022_num[indice,], main=i)
 }
 
 ```
 
+
+## Kmeans à 3 cluster
+```{r}
+options(repr.plot.width = 8, repr.plot.height = 6)
+resKMACP <- kmeans(dataset_2022_ACP, centers=3,nstart=20)
+fviz_cluster(resKMACP, dataset_2022_ACP,axes = c(1,2), repel=TRUE) #l'argument repel évite le chevauchement des textes
+
+
+```
+
+```{r}
+options(repr.plot.width = 12, repr.plot.height = 8)
+par(mfrow=c(3,1))
+for (i in 1:3){
+    indice<-which(resKMACP$cluster==i)
+    boxplot(Sdataset_2022_num[indice,], main=i)
+}
+
+```
+## Choix modele pour Gaussian Mixture
 ```{r}
 library(mclust)
 BIC <- mclustBIC(dataset_2022_ACP)
 plot(BIC)
 summary(BIC)
 ```
-
+### Pour 6 clusters
 ```{r}
-mod<-Mclust(dataset_2022_ACP,G=7,modelName = "VVV")
+mod<-Mclust(dataset_2022_ACP,G=6,modelName = "VVV")
 plot(mod, what = "classification")
 ```
 
 ```{r}
 options(repr.plot.width = 16, repr.plot.height = 12)
-par(mfrow=c(2,2))
-for (i in 1:4){
+par(mfrow=c(3,2))
+for (i in 1:6){
     indice<-which(mod$classification==i)
-    boxplot(dataset_2022_num[indice,], main=i)
+    boxplot(Sdataset_2022_num[indice,], main=i)
 }
 
 ```
+## Pour 3 clusters
+
+
+```{r}
+mod<-Mclust(dataset_2022_ACP,G=3,modelName = "VVV")
+plot(mod, what = "classification")
+```
+
+
+```{r}
+options(repr.plot.width = 16, repr.plot.height = 12)
+par(mfrow=c(3,1))
+for (i in 1:3){
+    indice<-which(mod$classification==i)
+    boxplot(Sdataset_2022_num[indice,], main=i)
+}
+
+```
+
+# Table de confusion 
 
 ```{r}
 table(arbre_clustACP, resKMACP$cluster)

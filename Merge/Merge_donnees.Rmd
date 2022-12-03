@@ -27,8 +27,8 @@ library(data.table)
 
 ## jeu Effectifs_final+.Rdata
 ```{r recup eff, echo=TRUE}
-load('../Donnees/Effectifs/Effectif_final+.Rdata')
-head(tab_effectifs)
+load('../Donnees/Effectifs/Effectif_final.Rdata')
+head(tab_eff)
 ```
 
 ## jeu Cotisation.Rdata
@@ -47,20 +47,31 @@ tab_cotisations$Lien_E=as.factor(tab_cotisations$Lien_E)
 tab_cotisations$Max_regroup1 <- sapply(strsplit(tab_cotisations$Max_regroup1,"_"),function(x){return (x[2])})
 tab_cotisations$Max_regroup1=as.factor(tab_cotisations$Max_regroup1)
 
+
 tab_cotisations$Max_regroup2 <- sapply(strsplit(tab_cotisations$Max_regroup2,"_"),function(x){return (x[1])})
 tab_cotisations$Max_regroup2=as.factor(tab_cotisations$Max_regroup2)
 
 tab_cotisations$Max_regroup3 <- sapply(strsplit(tab_cotisations$Max_regroup3,"_"),function(x){return (x[1])})
 tab_cotisations$Max_regroup3=as.factor(tab_cotisations$Max_regroup3)
 
+colnames(tab_cotisations)[2:5]=c("Regroup1","Regroup4","Regroup2","Regroup3")
+
 head(tab_cotisations)
 ```
+
+
+
+```{r save}
+save(tab_cotisations, file='../Donnees/Cotisations/Cotisations_modif.Rdata')
+```
+
 
 ## jeu Prestations_final.Rdata
 ```{r recup presta, echo=TRUE}
 tab_prestations=read.table('../Donnees/Prestations/Prestations_final.csv',sep=";")
 colnames(tab_prestations)=tab_prestations[1,]
 tab_prestations=tab_prestations[-1,]
+colnames(tab_prestations)[5:8]=c("Regroup1","Regroup4","Regroup2","Regroup3")
 head(tab_prestations)
 ```
 
@@ -73,16 +84,16 @@ tab_prestations$Actifs=as.numeric(tab_prestations$Actifs)
 tab_prestations$Non_actifs=as.numeric(tab_prestations$Non_actifs)
 tab_prestations$Portabilite=as.numeric(tab_prestations$Portabilite)
 
-tab_prestations$Max_regroup1 <- sapply(strsplit(tab_prestations$Max_regroup1,"_"),function(x){return (x[2])})
+tab_prestations$Max_regroup1 <- sapply(strsplit(tab_prestations$Regroup1,"_"),function(x){return (x[2])})
 
-tab_prestations$Max_regroup2 <- sapply(strsplit(tab_prestations$Max_regroup2,"_"),function(x){return (x[1])})
+tab_prestations$Max_regroup2 <- sapply(strsplit(tab_prestations$Regroup2,"_"),function(x){return (x[1])})
 
-tab_prestations$Max_regroup3 <- sapply(strsplit(tab_prestations$Max_regroup3,"_"),function(x){return (x[1])})
+tab_prestations$Max_regroup3 <- sapply(strsplit(tab_prestations$Regroup3,"_"),function(x){return (x[1])})
 
-tab_prestations$Max_regroup1=as.factor(tab_prestations$Max_regroup1)
-tab_prestations$Max_regroup4=as.factor(tab_prestations$Max_regroup4)
-tab_prestations$Max_regroup2=as.factor(tab_prestations$Max_regroup2)
-tab_prestations$Max_regroup3=as.factor(tab_prestations$Max_regroup3)
+tab_prestations$Max_regroup1=as.factor(tab_prestations$Regroup1)
+tab_prestations$Max_regroup4=as.factor(tab_prestations$Regroup4)
+tab_prestations$Max_regroup2=as.factor(tab_prestations$Regroup2)
+tab_prestations$Max_regroup3=as.factor(tab_prestations$Regroup3)
 
 tab_prestations$Base=as.numeric(tab_prestations$Base)
 tab_prestations$Option=as.numeric(tab_prestations$Option)
@@ -147,11 +158,15 @@ head(tab_prestations)
 ```
 
 
+```{r save}
+save(tab_prestations, file='../Donnees/Prestations/Prestations.Rdata')
+```
+
 # Merge les jeux de données
-
-
+Retrait de code ape et départment dans effectifs.
+Retrait des taxes dans cotisations .
 ```{r merge}
-dataset_total <- merge(tab_effectifs, tab_cotisations[,c(1,12:25)], by = 'Lien_E')
+dataset_total <- merge(tab_eff[,-c(9,10)], tab_cotisations[,c(1,6,13,15,16,18,21)], by = 'Lien_E')
 ```
 
 ```{r merge}
