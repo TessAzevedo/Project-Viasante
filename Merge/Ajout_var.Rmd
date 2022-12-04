@@ -101,7 +101,7 @@ dataset_total$Cot_PP_2022 <- ifelse( dataset_total$Nb_pers_2022==0,0,dataset_tot
 
 
 ```{r}
-dataset_total$VAR_Cot2221 <-  ifelse(dataset_total$Cot_PP_2021,0, (dataset_total$Cot_PP_2022 /dataset_total$Cot_PP_2021 -1)*100)
+dataset_total$VAR_Cot2221 <-  ifelse(dataset_total$Cot_PP_2021==0,0, (dataset_total$Cot_PP_2022 /dataset_total$Cot_PP_2021 -1)*100)
 
 dataset_total$VAR_Cot2120 <-  ifelse(dataset_total$Cot_PP_2020==0,0,(dataset_total$Cot_PP_2021 /dataset_total$Cot_PP_2020 -1)*100)
 
