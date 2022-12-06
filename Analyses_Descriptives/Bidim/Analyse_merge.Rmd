@@ -66,6 +66,17 @@ hist(VAR_Pr2120)
 hist(VAR_Pr2221)
 ```
 
+```{r}
+par(mfrow=c(2,2))
+boxplot(Var_Pr1918,ylim=c(0,quantile(Var_Pr1918,0.90)),main="2019/2018")
+boxplot(VAR_Pr2019,ylim=c(0,quantile(VAR_Pr2019,0.90)),main="2020/2019")
+boxplot(VAR_Pr2120,ylim=c(0,quantile(VAR_Pr2120,0.90)),main="2021/2020")
+boxplot(VAR_Pr2221,ylim=c(0,quantile(VAR_Pr2221,0.90)),main="2022/2021")
+```
+
+
+
+
 
 ```{r}
 par(mfrow=c(3,2))
@@ -85,6 +96,21 @@ boxplot(Cot_PP_2018, Cot_PP_2019,Cot_PP_2020,Cot_PP_2021,Cot_PP_2022 )
 
 
 
+
+
+# Analyse bidimensionnelle 
+
+
+
+```{r}
+boxplot(PC_2022 ~ VIP,ylim=c(0,quantile(PC_2022,0.90)))
+```
+
+
+```{r}
+boxplot(c(dataset_total$PC_2022,dataset_total$PC_2021) ~ dataset_total$VIP)
+```
+
 ```{r}
 corrplot(cor(dataset_total[,c(109:140)]))
 ```
@@ -101,7 +127,7 @@ load('../../Donnees/Donnees_annnee/Dataset_2022.Rdata')
 dataset_2022$VAR_Cot2221 <- dataset_total$VAR_Cot2221
 ```
 
-34:50   11:27
+
 ```{r}
 pairs(dataset_2022[,c(1:4,8)])
 ```
@@ -114,9 +140,11 @@ corrplot(cor(dataset_2022[,c(11:27)]))
 ```
 
 
+
 ```{r}
 corrplot(cor(dataset_2022[,c(12,13,16,28,34:50)]))
 ```
+
 ```{r}
 cor(dataset_2022[,c(44:50)])
 ```
