@@ -166,7 +166,7 @@ save(tab_prestations, file='../Donnees/Prestations/Prestations.Rdata')
 Retrait de code ape et départment dans effectifs.
 Retrait des taxes dans cotisations .
 ```{r merge}
-dataset_total <- merge(tab_eff[,-c(9,10)], tab_cotisations[,c(1,6,13,15,16,18,21)], by = 'Lien_E')
+dataset_total <- merge(tab_eff, tab_cotisations[,c(1,6,13,15,16,18,21,22)], by = 'Lien_E')
 ```
 
 ```{r merge}

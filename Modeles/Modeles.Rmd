@@ -68,6 +68,16 @@ for (i in 1:3){
     abline(h = 0, lty = "dotted")
 }
 ```
+
+```{r fig.height=10}
+library(factoextra);library(cowplot)
+f1=fviz_contrib(res.acp, choice="var", axes=1, color="black", fill="lightgray")
+f2=fviz_contrib(res.acp, choice="var", axes=2, color="black", fill="lightgray")
+f3=fviz_contrib(res.acp, choice="var", axes=3, color="black", fill="lightgray")
+plot_grid(f1,f2,f3)
+```
+
+
 ```{r}
 options(repr.plot.width =8 , repr.plot.height = 6)
 acp <- PCA(dataset_2022[,ind_num], scale.unit = TRUE, graph = F)
