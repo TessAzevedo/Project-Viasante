@@ -52,7 +52,7 @@ Actifs, non actifs et portabilités
 ### code groupe assurés
 
 ```{r}
-df1 = stack(tab_eff[,c(2,3,4)])
+df1 = stack(tab_eff[,c(81,82,83)])
 df1= subset(df1,values!=0)
 df1=aggregate(df1[,1],list(df1[,2]),sum)
 colnames(df1)[1]=c("Code_groupe_ass")
