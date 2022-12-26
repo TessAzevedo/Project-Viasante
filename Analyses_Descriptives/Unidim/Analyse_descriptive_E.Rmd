@@ -41,244 +41,140 @@ Il y a énormément de données manquantes pour les variables suivantes :
 
 Nous allons donc faire une analyse descriptive rapide de ces variables mais elles ne seront potentiellement pas conservées dans le jeu de données total.
 
-Aussi un grand nombre de liens n'ont pas de produit 2 et 3. Est-ce dont pertinent de les conserver ?
 # Analyse descriptive unidimensionelle
 
 
-## Code groupe assurés
+## Type assurés
 
-Actifs, non actifs et portabilités
-
-### code groupe assurés
-
+Asspri, conjoint, enfant
 ```{r}
-df1 = stack(tab_eff[,c(81,82,83)])
-df1= subset(df1,values!=0)
+l2018=c(14:16)
+l2019=c(31:33)
+l2020=c(48:50)
+l2021=c(66:68)
+l2022=c(84:86)
+
+df1 = stack(tab_eff[,l2021])
+n=nrow(df1)
 df1=aggregate(df1[,1],list(df1[,2]),sum)
-colnames(df1)[1]=c("Code_groupe_ass")
-df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
-ggplot(df1, aes(x="", y=x, fill=Code_groupe_ass)) +
+colnames(df1)[1]=c("Type_assure")
+df1$percent=paste(as.character(round(df1$x/(n/3),2)),"%")
+ggplot(df1, aes(x="", y=x, fill=Type_assure)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
     theme_void()+
-   ggtitle("Code groupe assurés")+
+   ggtitle("Type_assure 2018")+
     geom_text(aes(label = percent),
             position = position_stack(vjust = 0.8))
+
 ```
+
 On remarque le nombre d'assuré principal est supérieur aux autres catégories ce qui semble logique.
+
+
+### Asspri
+
+
+```{r}
+hist(tab_eff$Asspri_2022_p,breaks=c(0,25,50,75,100),xlab='Assuré principal', ylab='Effectif en pourcentage', main='Histogramme')
+abline(v=c(0,25,50,75,100),col="red", lwd=3)
+``` 
+### Conjoint
+
+
+```{r}
+hist(tab_eff$Conjoint_2022_p,breaks=c(0,25,50,75,100),xlab='Conjoint', ylab='Effectif en pourcentage', main='Histogramme')
+abline(v=c(0,25,50,75,100),col="red", lwd=3)
+``` 
+
+### Enfants
+
+```{r}
+hist(tab_eff$Enfants_2022_p,breaks=c(0,25,50,75,100),xlab='Enfant', ylab='Effectif en pourcentage', main='Histogramme')
+abline(v=c(0,25,50,75,100),col="red", lwd=3)
+``` 
+
+## Code groupe assurés
+
+actif passif portabilite
+
+```{r}
+l2018=c(11:13)
+l2019=c(28:30)
+l2020=c(45:47)
+l2021=c(63:65)
+l2022=c(81:83)
+
+df1 = stack(tab_eff[,l2022])
+n=nrow(df1)
+df1=aggregate(df1[,1],list(df1[,2]),sum)
+colnames(df1)[1]=c("Code_groupe_assure")
+df1$percent=paste(as.character(round(df1$x/(n/3),2)),"%")
+ggplot(df1, aes(x="", y=x, fill=Code_groupe_assure)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()+
+   ggtitle("Code_groupe_assure ")+
+    geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8))
+
+```
+
 ### Actifs
 
 ```{r}
-boxplot(tab_eff$Actifs)
+boxplot(tab_eff$Actifs_2022_p)
 ```
 
 
 ```{r}
-hist(tab_eff$Actifs,breaks=10,freq =TRUE, main = "Histogramme",xlab = "Actifs",ylab = "Effectifs")
+hist(tab_eff$Actifs_2022_p,breaks=10,freq =TRUE, main = "Histogramme",xlab = "Actifs",ylab = "Effectifs")
 ```
-En génral, les liens comptent entre 0 et 2000.
-Nous allons créer des catégories subjectives pour mieux voir.
-
-```{r}
-tab_eff$Actifs.f=cut(tab_eff$Actifs, include.lowest = FALSE, right = TRUE,  breaks = c(-0.1,20,50,100,200,500,1000,max(tab_eff$Actifs)))
-```
-
-```{r}
-ggplot(tab_eff, aes(x="", y=Actifs.f, fill=Actifs.f)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()
-```
-La part la plus importante est la orange. Cela signie qu'en génral un lien a 20 employés actifs qui ont souscrit.
-
+Les entreprises ont en principe soit 10% soit 100% actifs.
 ### Non actifs
 
 ```{r}
-boxplot(tab_eff$Non_actifs)
+boxplot(tab_eff$Non_actifs_2022_p)
 ```
 
 
 ```{r}
-hist(tab_eff$Non_actifs,breaks =3,freq =TRUE, main = "Histogramme",xlab = "Non actifs",ylab = "effectifs")
+hist(tab_eff$Non_actifs_2022_p,breaks =10,freq =TRUE, main = "Histogramme",xlab = "Non actifs",ylab = "effectifs")
 
 ```
 
-```{r}
-tab_eff$Non_actifs.f=cut(tab_eff$Non_actifs, include.lowest = FALSE, right = TRUE,  breaks = c(-0.1,20,100,200,5000,1000,max(tab_eff$Non_actifs)))
-```
-
-```{r}
-ggplot(tab_eff, aes(x="", y=Non_actifs.f, fill=Non_actifs.f)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()
-```
-La part la plus importante est la orange. Cela signie qu'en génral un lien a 20 employés inactifs qui ont souscrit.
 
 ### Portabilité
 
 
 ```{r}
-boxplot(tab_eff$Portabilite)
+boxplot(tab_eff$Portabilite_2022_p)
 ```
 
 
 ```{r}
-hist(tab_eff$Portabilite,breaks =3,freq =TRUE, main = "Histogramme",xlab = "Portabilite",ylab = "effectifs")
+hist(tab_eff$Portabilite_2022_p,breaks =5,freq =TRUE, main = "Histogramme",xlab = "Portabilite",ylab = "effectifs")
 ```
 
-```{r}
-tab_eff$Portabilite.f=cut(tab_eff$Portabilite, include.lowest = FALSE, right = TRUE,  breaks = c(-0.1,20,100,200,500,1000,max(tab_eff$Portabilite)))
-```
-
-```{r}
-ggplot(tab_eff, aes(x="", y=Portabilite.f, fill=Portabilite.f)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()
-```
-La part la plus importante est la orange. Cela signie qu'en génral un lien a 20 employés portatifs qui ont souscrit.
 ## Produit
-### Produit1
 
 ```{r}
-barplot(table(tab_eff[,"Produit1"]))
+barplot(table(tab_eff[,"Produit_max"]))
 ``` 
 On ne pas analyser beaucoup de choses. Sauf que les liens ont souvent un produi premier différent.
 
 ```{r}
 options(repr.plot.width=2, repr.plot.height=2)
 
-ggplot(tab_eff, aes(x="", y=Produit1, fill=Produit1)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-  theme_void()+
-  theme(legend.position="none") 
-```
-### Produit2
-
-```{r}
-tab_bis=subset(tab_eff, Produit2!='produit_ NA')
-``` 
-
-```{r}
-barplot(table(tab_bis[,"Produit2"]))
-``` 
-On ne pas analyser beaucoup de choses
-
-```{r}
-options(repr.plot.width=2, repr.plot.height=2)
-
-ggplot(tab_bis, aes(x="", y=Produit2, fill=Produit2)) +
+ggplot(tab_eff, aes(x="", y=Produit_max, fill=Produit_max)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
   theme_void()+
   theme(legend.position="none") 
 ```
 
-### Produit3
-
-```{r}
-tab_bis=subset(tab_eff, Produit3!='produit_ NA')
-``` 
-
-```{r}
-barplot(table(tab_bis[,"Produit3"]))
-``` 
-On ne pas analyser beaucoup de choses
-
-```{r}
-options(repr.plot.width=2, repr.plot.height=2)
-
-ggplot(tab_bis, aes(x="", y=Produit3, fill=Produit3)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-  theme_void()+
-  theme(legend.position="none") 
-```
-
-## Temps d'adhesion de l'entreprise au lien en années
-
-
-```{r}
-boxplot(tab_eff$Tps_adh_E_au_L)
-```
-```{r}
-hist(tab_eff$Tps_adh_E_au_L, breaks=15, xlab='Temps d adhésion de l entreprise au lien ', main='Histogramme')
-```
-
-```{r}
-tab_eff$Tps_adh_E_au_L.f=cut(tab_eff$Tps_adh_E_au_L, include.lowest = FALSE, right = TRUE,
-  breaks = c(-0.1,10,20,50,max(tab_eff$Tps_adh_E_au_L)))
-``` 
-
-
-```{r}
-ggplot(tab_eff, aes(x="", y=Tps_adh_E_au_L.f, fill=Tps_adh_E_au_L.f)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()
-```
-Il y a eau beaucoup d'adhésion d'entreprises aux liens ces 20 dernières années.
-# Code APE
-
-
-```{r}
-barplot(table(tab_eff[,"Code_ape"]))
-``` 
-
-```{r}
-tab_bis=subset(tab_eff, Code_ape!='NA')
-t=aggregate(tab_bis$Code_ape,list(tab_bis$Code_ape),length)
-colnames(t)[1]<-c("Code_ape")
-t= subset(t,x!=0)
-t$percent=paste(as.character(round(t$x/sum(t$x)*100,2)),"%")
-
-ggplot(t, aes(x="", y=x, fill=Code_ape)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-  theme_void()+
-  theme(legend.position="none") 
-
-ggplot(t, aes(x="", y=x, fill=Code_ape)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-  theme_void()
-```
-
-Trop de données sont manquantes et trop de facteurs sont présents.
-
-# Département
-
-```{r}
-tab_bis=subset(tab_eff, Departement!='NA')
-barplot(table(tab_eff[,"Departement"]))
-levels(tab_eff$Departement)
-``` 
-Trop de données manquantes et de facteurs. 
-
-```{r}
-t=aggregate(tab_bis$Departement,list(tab_bis$Departement),length)
-colnames(t)[1]<-c("Departement")
-t= subset(t,x!=0)
-t$percent=paste(as.character(round(t$x/sum(t$x)*100,2)),"%")
-ggplot(t, aes(x="", y=x, fill=Departement)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-  theme_void()+
-  geom_text(aes(label = percent),
-            position = position_stack(vjust = 0.4)) 
-```
-
-Rergoupement de départements par régions
-
-```{r}
-levels(tab_eff$Departement)
-```
-
-https://delladata.fr/regrouper-regroupement-modalites/
-
-
+#Departement 
+Trop de levels création de la variable region. Mais il y atrop de données manquantes donc on n'étudira pas cette variable finalement.
 ```{r}
 tab_eff$Region=tab_eff$Departement
 levels(tab_eff$Region) <- factor(c("Occitanie", "Occitanie", "Auvergne", "Nouvelle-Aquitaine", "Nouvelle-Aquitaine","Occitanie","Nouvelle-Aquitaine","Occitanie","Occitanie","Nouvelle-Aquitaine","Occitanie","Pays de la Loire","Grand Est","Hauts-de-France","Occitanie","Grand Est","Ile de France","Normandie","Hauts-de-France","Nouvelle-Aquitaine","Ile de France","Ile de France"))
@@ -289,20 +185,6 @@ levels(tab_eff$Region) <- factor(c("Occitanie", "Occitanie", "Auvergne", "Nouvel
 table(tab_eff$Region)
 ```
 
-
-```{r}
-t=aggregate(tab_eff$Region,list(tab_eff$Region),length)
-colnames(t)[1]<-c("Region")
-t= subset(t,x!=0)
-t$percent=paste(as.character(round(t$x/sum(t$x)*100,2)),"%")
-ggplot(t, aes(x="", y=x, fill=Region)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-  theme_void()#+
-  #geom_text(aes(label = percent),
-      #      position = position_stack(vjust = 0.4)) 
-```
-Le regroupement des facteurs nous permet de voir que la majorité des liens sont issus d'Occitanie mais on ne peut pas le dire avec certitude car il y a trop de données manquantes.
 
 ## Regroup1
 
@@ -344,14 +226,22 @@ Regroup5 = Base et option
 ### Base
 
 ```{r}
-hist(tab_eff$BASE, breaks=5,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff$Base_2018, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff$Base_2019, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff$Base_2020, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff$Base_2021, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff$Base_2022, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
 ``` 
 ### Option
 
 ```{r}
-hist(tab_eff$OPTION_percent,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+#par(mfrow=c(3,2))
+hist(tab_eff$Option_2018_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff$Option_2019_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff$Option_2020_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff$Option_2021_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff$Option_2022_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
 ``` 
-
 
 ## Nombre de personnes et de familles dans un lien
 
@@ -364,6 +254,10 @@ hist(tab_eff$Nb_pers_2020,breaks=1000,xlim=c(0,quantile(tab_eff$Nb_pers_2020,0.8
 hist(tab_eff$Nb_pers_2021,breaks=1000,xlim=c(0,quantile(tab_eff$Nb_pers_2021,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
 hist(tab_eff$Nb_pers_2022,breaks=1000,xlim=c(0,quantile(tab_eff$Nb_pers_2022,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
 ``` 
+```{r}
+summary(tab_eff[,c(7,24,41,59,77)])
+```
+
 
 ### Nombre de familles
 ```{r}
@@ -374,83 +268,64 @@ hist(tab_eff$Nb_fam_2020,breaks=1000, xlim=c(0,quantile(tab_eff$Nb_fam_2020,0.8)
 hist(tab_eff$Nb_fam_2021,breaks=1000, xlim=c(0,quantile(tab_eff$Nb_fam_2021,0.8)), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
 hist(tab_eff$Nb_fam_2022,breaks=1000, xlim=c(0,quantile(tab_eff$Nb_fam_2022,0.8)), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
 ``` 
-
-## Temps moyenne d'adhésion des personnes dans le lien
-
-
-
 ```{r}
-boxplot(tab_eff$Tps_adh_moy_pers_ds_L)
-```
-```{r}
-hist(tab_eff$Tps_adh_moy_pers_ds_L, breaks=200, xlim=c(0,quantile(tab_eff$Tps_adh_E_au_L,0.8)), xlab='Ancienneté moyenne des personnes dans les liens', main='Histogramme')
+summary(tab_eff[,c(8,25,42,60,78)])
 ```
 
+
+
+## Temps d'adhesion de l'entreprise au lien en années
+
+### 2022
+
 ```{r}
-tab_eff$Tps_adh_moy_pers_ds_L.f=cut(tab_eff$Tps_adh_moy_pers_ds_L, include.lowest = FALSE, right = TRUE,
-  breaks = c(-0.1,10,20,50, max(tab_eff$Tps_adh_moy_pers_ds_L)))
+hist(tab_eff$Tps_adh_E_au_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
+```
+
+```{r}
+tab_eff$Tps_adh_E_au_L_2022.f=cut(tab_eff$Tps_adh_E_au_L_2022, include.lowest = FALSE, right = TRUE,
+  breaks = c(0,20,50,max(tab_eff$Tps_adh_E_au_L_2022)))
 ``` 
 
 
 ```{r}
-ggplot(tab_eff, aes(x="", y=Tps_adh_moy_pers_ds_L.f, fill=Tps_adh_moy_pers_ds_L.f)) +
+ggplot(tab_eff, aes(x="", y=Tps_adh_E_au_L_2022.f, fill=Tps_adh_E_au_L_2022.f)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
     theme_void()
 ```
-
-## Type assurés
-
-Asspri + Conjoint + Enfant
-
-
-### Asspri
+Il y a eau beaucoup d'adhésion d'entreprises aux liens ces 20 dernières années.
 
 ```{r}
-hist(tab_eff$Asspri,breaks=1000 , xlim=c(0,quantile(tab_eff$Asspri,0.8)),xlab='Assuré principal', ylab='Effectif ', main='Histogramme')
-``` 
-
-```{r}
-hist(tab_eff$Asspri_percent,breaks=c(0,25,50,75,100),xlab='Assuré principal', ylab='Effectif en pourcentage', main='Histogramme')
-abline(v=c(0,25,50,75,100),col="red", lwd=3)
-``` 
-### Conjoint
-
-```{r}
-hist(tab_eff$Conjoint,breaks=1000 , xlim=c(0,quantile(tab_eff$Conjoint,0.8)),xlab='Conjoint', ylab='Effectif ', main='Histogramme')
-``` 
-
-```{r}
-hist(tab_eff$Conjoint_percent,breaks=c(0,25,50,75,100),xlab='Conjoint', ylab='Effectif en pourcentage', main='Histogramme')
-abline(v=c(0,25,50,75,100),col="red", lwd=3)
-``` 
-
-### Enfants
-
-```{r}
-hist(tab_eff$Enfant,breaks=1000 , xlim=c(0,quantile(tab_eff$Enfant,0.8)),xlab='Enfants', ylab='Effectif ', main='Histogramme')
-``` 
-
-```{r}
-hist(tab_eff$Enfant_percent,breaks=c(0,25,50,75,100),xlab='Enfant', ylab='Effectif en pourcentage', main='Histogramme')
-abline(v=c(0,25,50,75,100),col="red", lwd=3)
-``` 
-
-
-```{r}
-df1 = stack(tab_eff[,c(26,28,30)])
-df1= subset(df1,values!=0)
-df1=aggregate(df1[,1],list(df1[,2]),sum)
-colnames(df1)[1]=c("type_assures")
-df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
-print(ggplot(df1, aes(x="", y=x, fill=type_assures)) +
-    geom_bar(stat="identity", width=1) +
-    coord_polar("y", start=0)+
-    geom_text(aes(label = percent),
-            position = position_stack(vjust = 0.8))+
-      theme_void())
+summary(tab_eff$Tps_adh_E_au_L_2022.f)
 ```
-Il y a une majorité d'assurés principaux.
+
+
+## Temps moyenne d'adhésion des personnes dans le lien
+
+
+### 2022
+
+```{r}
+hist(tab_eff$Tps_adh_P_au_L_2022, breaks=15, xlab='Mean subscription time of the individuals to the link in year', main='Histogramme')
+```
+
+```{r}
+tab_eff$Tps_adh_P_au_L_2022.f=cut(tab_eff$Tps_adh_P_au_L_2022, include.lowest = FALSE, right = TRUE,
+  breaks = c(0,20,50,max(tab_eff$Tps_adh_P_au_L_2022)))
+``` 
+
+
+```{r}
+ggplot(tab_eff, aes(x="", y=Tps_adh_P_au_L_2022.f, fill=Tps_adh_P_au_L_2022.f)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()
+```
+```{r}
+summary(tab_eff$Tps_adh_P_au_L_2022.f)
+```
+
 ## Sexe
 
 Femme et Homme
@@ -459,23 +334,25 @@ Femme et Homme
 ### Femme
 
 ```{r}
-hist(tab_eff$Femme_percent,breaks=c(0,25,50,75,100),xlab='Femmes', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff$Femmes_2022_p,breaks=c(0,25,50,75,100),xlab='Femmes', ylab='Effectif en pourcentage', main='Histogramme')
 abline(v=c(0,25,50,75,100),col="red", lwd=3)
 ``` 
 ### Hommes
 
 ```{r}
-hist(tab_eff$Homme_percent,breaks=c(0,25,50,75,100),xlab='Hommes', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff$Hommes_2022_p,breaks=c(0,25,50,75,100),xlab='Hommes', ylab='Effectif en pourcentage', main='Histogramme')
 abline(v=c(0,25,50,75,100),col="red", lwd=3)
 ``` 
 
 
 ```{r}
-df1 = stack(tab_eff[,c(32,34)])
-df1= subset(df1,values!=0)
+l2018=c(17,18)
+l2022=c(87,88)
+df1 = stack(tab_eff[,l2022])
+n=nrow(df1)
 df1=aggregate(df1[,1],list(df1[,2]),sum)
 colnames(df1)[1]=c("Sexe")
-df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
+df1$percent=paste(as.character(round(df1$x/(n/2),2)),"%")
 print(ggplot(df1, aes(x="", y=x, fill=Sexe)) +
     geom_bar(stat="identity", width=1) +
     coord_polar("y", start=0)+
@@ -493,11 +370,13 @@ Rspo et no respo
 
 
 ```{r}
-df1 = stack(tab_eff[,c(36,37)])
-df1= subset(df1,values!=0)
+l2018=c(19,20)
+l2022=c(89,90)
+df1 = stack(tab_eff[,l2018])
+n=nrow(df1)
 df1=aggregate(df1[,1],list(df1[,2]),sum)
 colnames(df1)[1]=c("Responsabilite")
-df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
+df1$percent=paste(as.character(round(df1$x/(n/2),2)),"%")
 print(ggplot(df1, aes(x="", y=x, fill=Responsabilite)) +
     geom_bar(stat="identity", width=1) +
     coord_polar("y", start=0)+
@@ -526,17 +405,17 @@ print(ggplot(df1, aes(x="", y=x, fill=VIP)) +
 ### 2018
 
 ```{r}
-table(tab_eff$Prod1_Ind2018)
+table(tab_eff$Index_2018)
 ```
 
 
 ```{r}
-tab_eff$Prod1_Ind2018.f=cut(tab_eff$Prod1_Ind2018, include.lowest = FALSE, right = TRUE,
+tab_eff$Index_2018.f=cut(tab_eff$Index_2018, include.lowest = FALSE, right = TRUE,
   breaks = c(0,0.05,0.1,0.2,0.3))
 ```
 
 ```{r}
-barplot(table(tab_eff$Prod1_Ind2018.f))
+barplot(table(tab_eff$Index_2018.f))
 ```
 
 
