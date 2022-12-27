@@ -20,7 +20,7 @@ library(data.table)
 
 # Récupération du jeu Effectifs_freeze.Rdata
 ```{r recup, echo=TRUE}
-load('cotisations.Rdata')
+load('../../Donnees/Cotisations/cotisations.Rdata')
 ```
 
 ```{r}
@@ -28,12 +28,12 @@ nb_tab <- nrow(tab)
 ```
 
 
-### Code groupe assurés
+# Code groupe assurés selon les cotisations
 
 ```{r}
 df1 = stack(tab[,c(9,10,11)])
 df1= subset(df1,values!=0)
-df1=aggregate(df1[,2],list(df1[,2]),length)
+df1=aggregate(df1[,1],list(df1[,2]),sum)
 df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
 colnames(df1)[1] <- c("Code_grp")
 ggplot(df1, aes(x="", y=x, fill=Code_grp)) +
@@ -46,13 +46,13 @@ ggplot(df1, aes(x="", y=x, fill=Code_grp)) +
 
 
 
-### Base et option
+# Base et option sellon les cotisations
 
 ```{r}
 #for (i in 1:nb_lien){
   df1 = stack(tab[,c(7,8)])
   df1= subset(df1,values!=0)
-  df1=aggregate(df1[,2],list(df1[,2]),length)
+  df1=aggregate(df1[,1],list(df1[,2]),sum)
   df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
   print(ggplot(df1, aes(x="", y=x,fill=Group.1)) +
     geom_bar(stat="identity", width=1) +
@@ -68,7 +68,7 @@ ggplot(df1, aes(x="", y=x, fill=Code_grp)) +
 
 
 
-### Regroup1
+# Regroup1
 
 ```{r}
 t=aggregate(tab[,2],list(tab[,2]),length)
@@ -84,27 +84,6 @@ ggplot(t, aes(x="", y=x, fill=Regroup1)) +
 ```
 
 
-```{r}
-hist(tab)
-```
-
-
-
-
-
-
-
-### Regroup4
-
-
-```{r}
-ggplot(tab, aes(x=tab$Max_regroup4, y="", fill=
-      tab$Max_regroup4)) +
-  geom_bar(stat="identity", width=1) 
- 
-```
-
-
 
 
 
@@ -116,70 +95,29 @@ hist(tab$Taxe_totale)
 ```
 
 ```{r}
-hist(as.numeric(tab$Max_prod_mnt))
-hist(as.numeric(tab$Max_prod_taxe))
+hist(as.numeric(tab$Max_prod_mnt),main = "Montant de cotisations")
+hist(as.numeric(tab$Max_prod_taxe) , main =" Montant des taxes")
 
 ```
 
-
 ```{r}
-hist(tab$Base)
-hist(tab$Option)
-```
-
-```{r}
-hist(log10(tab$Base))
-hist(log10(tab$Option))
-```
--
-```{r}
-#pie(as.numeric(tab$Max_prod_mnt))
-#pie(as.numeric(tab$Max_prod_taxe))
-
+hist(as.numeric(tab$Max_prod_mnt),main = "Montant de cotisations",xlim=c(0,quantile(as.numeric(tab$Max_prod_mnt),0.9)))
+hist(as.numeric(tab$Max_prod_taxe) , main =" Montant des taxes",xlim=c(0,quantile(as.numeric(tab$Max_prod_mnt),0.9)))
 ```
 
 
+
+
+
 ```{r}
-boxplot(tab[,c(13,15,16,18,21)])
-boxplot(log10(tab[,c(13,15,16,18,21)]))
+boxplot(tab[,c(13,15,16,18,21)],ylim=c(0,100000))
+boxplot(tab[,c(13,15,16,18,21)],ylim=c(0,quantile(tab$Mnt_2022,0.9)))
 ```
 
 
 ```{r}
 boxplot(tab[,c(12,14,17,19,20)])
-boxplot(log10(tab[,c(12,14,17,19,20)]))
+boxplot((tab[,c(12,14,17,19,20)]),ylim=c(0,quantile(tab$Taxe_2022,0.9)))
+boxplot(tab[,c(12,14,17,19,20)],ylim = c(0,10000))
 ```
-
-
-
-## Analyse bidimimensiolle 
-
-
-
-
-
-
-```{r}
-pairs()
-```
-
-
-
-pairs/pour les données 2 à 2 
-```{r}
-
-```
-
-
-
-à faire:
-P/C (voir bloc notes)
-reste à charge (dépense retenu - remb ro - remb rc) à noter RAC
-
-cotisation par PP (personne protegée)
-prestation par PP (personne protegée
-
-
-et faire des graphes par an , voir évolution
-variations des couts moyens 
 
