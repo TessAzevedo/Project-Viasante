@@ -400,7 +400,7 @@ print(ggplot(df1, aes(x="", y=x, fill=VIP)) +
 ```
 
 
-## Indexation Produi1
+## Indexation Produit
 
 ### 2018
 
@@ -423,243 +423,90 @@ barplot(table(tab_eff$Index_2018.f))
 
 
 ```{r}
-table(tab_eff$Prod1_Ind2019)
+table(tab_eff$Index_2019 )
 ```
 ```{r}
-tab_eff$Prod1_Ind2019.f=cut(tab_eff$Prod1_Ind2018, include.lowest = FALSE, right = TRUE,
+tab_eff$Index_2019.f=cut(tab_eff$Index_2019, include.lowest = FALSE, right = TRUE,
   breaks = c(-0.05,0,0.05,0.1,0.2))
 ```
 
 ```{r}
-barplot(table(tab_eff$Prod1_Ind2019.f))
+barplot(table(tab_eff$Index_2019.f))
 ``` 
 
 ### 2020
 
 ```{r}
-table(tab_eff$Prod1_Ind2020)
+table(tab_eff$Index_2020)
 ```
 ```{r}
-tab_eff$Prod1_Ind2020.f=cut(tab_eff$Prod1_Ind2020, include.lowest = FALSE, right = TRUE,
+tab_eff$Index_2020.f=cut(tab_eff$Index_2020, include.lowest = FALSE, right = TRUE,
   breaks = c(0,0.05,0.1,0.2))
 ```
 
 ```{r}
-barplot(table(tab_eff$Prod1_Ind2020.f))
+barplot(table(tab_eff$Index_2020.f))
 ```
 ### 2021
 
 ```{r}
-table(tab_eff$Prod1_Ind2021)
+table(tab_eff$Index_2021)
 ```
 ```{r}
-tab_eff$Prod1_Ind2021.f=cut(tab_eff$Prod1_Ind2021, include.lowest = FALSE, right = TRUE,
+tab_eff$Index_2021.f=cut(tab_eff$Index_2021, include.lowest = FALSE, right = TRUE,
   breaks = c(0,0.05,0.1))
 ```
 
 ```{r}
-barplot(table(tab_eff$Prod1_Ind2021.f))
+barplot(table(tab_eff$Index_2021.f))
 ```
 ### 2022
 
 ```{r}
-table(tab_eff$Prod1_Ind2022)
+table(tab_eff$Index_2022)
 ```
 ```{r}
-tab_eff$Prod1_Ind2022.f=cut(tab_eff$Prod1_Ind2022, include.lowest = FALSE, right = TRUE,
+tab_eff$Index_2022.f=cut(tab_eff$Index_2022, include.lowest = FALSE, right = TRUE,
   breaks = c(0,0.05,0.1,0.2))
 ```
 
 ```{r}
-barplot(table(tab_eff$Prod1_Ind2022.f))
+barplot(table(tab_eff$Index_2022.f))
 ```
 
 ### 2023
 
 ```{r}
-table(tab_eff$Prod1_Ind2023)
+table(tab_eff$Index_2023)
 ```
 ```{r}
-tab_eff$Prod1_Ind2023.f=cut(tab_eff$Prod1_Ind2023, include.lowest = FALSE, right = TRUE,
+tab_eff$Index_2023.f=cut(tab_eff$Index_2023, include.lowest = FALSE, right = TRUE,
   breaks = c(0,0.05,0.1,0.25))
 ```
 
 ```{r}
-barplot(table(tab_eff$Prod1_Ind2023.f))
-```
-
-## Indexation Produit2
-
-### 2018
-
-```{r}
-table(tab_eff$Prod2_Ind2018)
-```
-```{r}
-tab_eff$Prod2_Ind2018.f=cut(tab_eff$Prod2_Ind2018, include.lowest = FALSE, right = TRUE,
-  breaks = c(0,0.05,0.1,0.2,0.3))
-```
-
-```{r}
-barplot(table(tab_eff$Prod2_Ind2018.f))
+barplot(table(tab_eff$Index_2023.f))
 ```
 
 
-### 2019
+```{r}
+par(mfrow=c(3,2))
+barplot(table(tab_eff$Index_2018.f),xlab="indexation rate", ylab="frequency",main="2018")
+barplot(table(tab_eff$Index_2019.f),xlab="indexation rate", ylab="frequency",main="2019")
+barplot(table(tab_eff$Index_2020.f),xlab="indexation rate", ylab="frequency",main="2020")
+barplot(table(tab_eff$Index_2021.f),xlab="indexation rate", ylab="frequency",main="2021")
+barplot(table(tab_eff$Index_2022.f),xlab="indexation rate", ylab="frequency",main="2022")
+barplot(table(tab_eff$Index_2023.f),xlab="indexation rate", ylab="frequency",main="2023")
 
-
-```{r}
-table(tab_eff$Prod2_Ind2019)
-```
-```{r}
-tab_eff$Prod2_Ind2019.f=cut(tab_eff$Prod2_Ind2019, include.lowest = FALSE, right = TRUE,
-  breaks = c(-0.05,0,0.05,0.1,0.2))
-```
-
-```{r}
-barplot(table(tab_eff$Prod2_Ind2019.f))
-``` 
-
-### 2020
-
-```{r}
-table(tab_eff$Prod2_Ind2020)
-```
-```{r}
-tab_eff$Prod2_Ind2020.f=cut(tab_eff$Prod2_Ind2020, include.lowest = FALSE, right = TRUE,
-  breaks = c(0,0.05,0.1,0.2))
-```
-
-```{r}
-barplot(table(tab_eff$Prod2_Ind2020.f))
-```
-### 2021
-
-
-```{r}
-table(tab_eff$Prod2_Ind2021)
-```
-```{r}
-tab_eff$Prod2_Ind2021.f=cut(tab_eff$Prod2_Ind2021, include.lowest = FALSE, right = TRUE,
-  breaks = c(0,0.05,0.1))
-```
-
-```{r}
-barplot(table(tab_eff$Prod2_Ind2021.f))
-```
-### 2022
-
-```{r}
-table(tab_eff$Prod2_Ind2022)
-```
-```{r}
-tab_eff$Prod2_Ind2022.f=cut(tab_eff$Prod2_Ind2022, include.lowest = FALSE, right = TRUE,  breaks = c(0,0.05,0.1,0.2))
-```
-
-```{r}
-barplot(table(tab_eff$Prod2_Ind2022.f))
-```
-
-### 2023
-
-```{r}
-table(tab_eff$Prod2_Ind2023)
-```
-```{r}
-tab_eff$Prod2_Ind2023.f=cut(tab_eff$Prod2_Ind2023, include.lowest = FALSE, right = TRUE,  breaks = c(0,0.05,0.1,0.25))
-```
-
-```{r}
-barplot(table(tab_eff$Prod2_Ind2023.f))
 ```
 
 
-## Indexation Produit 3
-
-### 2018
-
-```{r}
-table(tab_eff$Prod3_Ind2018)
-```
-```{r}
-tab_eff$Prod3_Ind2018.f=cut(tab_eff$Prod3_Ind2018, include.lowest = FALSE, right = TRUE,  breaks = c(0,0.05,0.1,0.2))
-```
-
-```{r}
-barplot(table(tab_eff$Prod3_Ind2018.f))
-```
-
-
-### 2019
-
-
-```{r}
-table(tab_eff$Prod3_Ind2019)
-```
-```{r}
-tab_eff$Prod3_Ind2019.f=cut(tab_eff$Prod3_Ind2019, include.lowest = FALSE, right = TRUE,  breaks = c(-0.05,0,0.05,0.1,0.2))
-```
-
-```{r}
-barplot(table(tab_eff$Prod3_Ind2019.f))
-``` 
-
-### 2020
-
-```{r}
-table(tab_eff$Prod3_Ind2020)
-```
-```{r}
-tab_eff$Prod3_Ind2020.f=cut(tab_eff$Prod3_Ind2020, include.lowest = FALSE, right = TRUE,  breaks = c(0,0.05,0.1,0.2))
-```
-
-```{r}
-barplot(table(tab_eff$Prod3_Ind2020.f))
-```
-### 2021
-
-```{r}
-table(tab_eff$Prod3_Ind2021)
-```
-```{r}
-tab_eff$Prod3_Ind2021.f=cut(tab_eff$Prod3_Ind2021, include.lowest = FALSE, right = TRUE,
-  breaks = c(0,0.05,0.1))
-```
-
-```{r}
-barplot(table(tab_eff$Prod3_Ind2021.f))
-```
-### 2022
-
-```{r}
-table(tab_eff$Prod3_Ind2022)
-```
-```{r}
-tab_eff$Prod3_Ind2022.f=cut(tab_eff$Prod1_Ind2022, include.lowest = FALSE, right = TRUE,  breaks = c(0,0.05,0.1,0.2))
-```
-
-```{r}
-barplot(table(tab_eff$Prod3_Ind2022.f))
-```
-
-### 2023
-
-```{r}
-table(tab_eff$Prod3_Ind2023)
-```
-```{r}
-tab_eff$Prod3_Ind2023.f=cut(tab_eff$Prod3_Ind2023, include.lowest = FALSE, right = TRUE,  breaks = c(0,0.05,0.1,0.25))
-```
-
-```{r}
-barplot(table(tab_eff$Prod3_Ind2023.f))
-```
 
 ## Renego
 
 ### Renego2020
 ```{r}
-df1=aggregate(tab_eff[,53],list(tab_eff[,57]),length)
+df1=aggregate(tab_eff[,58],list(tab_eff[,58]),length)
 colnames(df1)[1]=c("Renego2020")
 df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
 print(ggplot(df1, aes(x="", y=x, fill=Renego2020)) +
@@ -671,7 +518,7 @@ print(ggplot(df1, aes(x="", y=x, fill=Renego2020)) +
 ```
 ### Renego2021
 ```{r}
-df1=aggregate(tab_eff[,54],list(tab_eff[,58]),length)
+df1=aggregate(tab_eff[,76],list(tab_eff[,76]),length)
 colnames(df1)[1]=c("Renego2021")
 df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
 print(ggplot(df1, aes(x="", y=x, fill=Renego2021)) +
