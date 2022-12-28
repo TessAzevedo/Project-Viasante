@@ -23,7 +23,7 @@ library(data.table)
 
 # Récupération du jeu Effectifs_freeze.Rdata
 ```{r recup, echo=TRUE}
-prest <- read.csv2('Prestations_final.csv')
+prest <- read.csv2('../../Donnees/Prestations/Prestations_final.csv')
 ```
 
 ```{r}
@@ -31,12 +31,12 @@ nb_lien <- nrow(prest)
 ```
 
 
-### Code groupe assurés
+# Code groupe assurés par quantité d'actes 
 
 ```{r}
 df1 = stack(prest[,c(2,3,4)])
 df1= subset(df1,values!=0)
-df1=aggregate(df1[,2],list(df1[,2]),length)
+df1=aggregate(df1[,1],list(df1[,2]),sum)
 df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
 ggplot(df1, aes(x="", y=x, fill=Group.1)) +
   geom_bar(stat="identity", width=1) +
@@ -46,58 +46,33 @@ ggplot(df1, aes(x="", y=x, fill=Group.1)) +
             position = position_stack(vjust = 0.8)) +
    ggtitle("Code groupe assurés")
 ```
-
-
-
-
-
-
+# Base et option par quantité d'actes 
 
 ```{r}
-for (i in 1:nb_lien){
-df1 = stack(prest[i,c(2,3,4)])
+df1 = stack(prest[,c(9,10)])
 df1= subset(df1,values!=0)
-df1$percent=paste(as.character(round(df1$values/sum(df1$values)*100,2)),"%")
-print(ggplot(df1, aes(x="", y=values, fill=ind)) +
+df1=aggregate(df1[,1],list(df1[,2]),sum)
+df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
+ggplot(df1, aes(x="", y=x, fill=Group.1)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
     theme_void()+
   geom_text(aes(label = percent),
             position = position_stack(vjust = 0.8)) +
-   ggtitle("Departement-Lien ",i))
-}
+   ggtitle("Base/option contrat")
 ```
-
-
-### Base et option
-
-```{r}
-#for (i in 1:nb_lien){
-  df1 = stack(prest[,c(14,15)])
-  df1= subset(df1,values!=0)
-  df1=aggregate(df1[,2],list(df1[,2]),length)
-  df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
-  print(ggplot(df1, aes(x="", y=x, fill=Group.1)) +
-    geom_bar(stat="identity", width=1) +
-    coord_polar("y", start=0)+
-      theme_void()+
-    geom_text(aes(label = percent),
-            position = position_stack(vjust = 0.8)) +
-    ggtitle("Baset et option"))
-#}
-```
-
 
 
 
 ## Type de soins
 
 ```{r}
-df1 = stack(prest[,c(5,6,7,8)])
+df1 = stack(prest[,c(51,52,53,54,55)])
 df1= subset(df1,values!=0)
-df1=aggregate(df1[,2],list(df1[,2]),length)
+df1=aggregate(df1[,1],list(df1[,2]),sum)
+colnames(df1)[1]=c("Type_de_soins")
 df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
-ggplot(df1, aes(x="", y=x, fill=Group.1)) +
+ggplot(df1, aes(x="", y=x, fill=Type_de_soins)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
     theme_void()+
@@ -106,7 +81,6 @@ ggplot(df1, aes(x="", y=x, fill=Group.1)) +
    ggtitle("Type de soins")
 
 
-#essayer la cumsum  cumsum(col2)[-length(col2)]),
 ```
 
 
@@ -114,19 +88,28 @@ ggplot(df1, aes(x="", y=x, fill=Group.1)) +
 
 
 
+```{r}
+df1 = stack(prest[,c(41,42,43,44,45)])
+df1= subset(df1,values!=0)
+df1=aggregate(df1[,1],list(df1[,2]),sum)
+colnames(df1)[1]=c("Type_de_soins")
+df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
+ggplot(df1, aes(x="", y=x, fill=Type_de_soins)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()+
+  geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8)) +
+   ggtitle("Type de soins")
+
+
+```
 
 
 
 
 
-
-
-
-
-
-
-
-### Regroup1
+# Regroup1
 
 ```{r}
 ggplot(prest, aes(x="", y=prest$Max_regroup1, fill=prest$Max_regroup1)) +
@@ -135,79 +118,74 @@ ggplot(prest, aes(x="", y=prest$Max_regroup1, fill=prest$Max_regroup1)) +
     theme_void()
 ```
 
-### Regroup4
 
-
+# Regroup4
 
 
 ```{r}
 hist(prest$Max_regroup4)
 ```
 
+
+# Remboursements et quantité d'actes
+
+
 ```{r}
-prest$Mnt_dep_retenu <-as.numeric(prest$Mnt_dep_retenu)
-prest$Remb_ro_retenu <-as.numeric(prest$Remb_ro_retenu)
-prest$Remb_rc <- as.numeric(prest$Remb_rc)
-prest$Qte_acte <-as.numeric(prest$Qte_acte)
+prest$Remb_ro_2022 <-as.numeric(prest$Remb_ro_2022)
+prest$Remb_rc_2022 <- as.numeric(prest$Remb_rc_2022)
+prest$Remb_ro_2021 <-as.numeric(prest$Remb_ro_2021)
+prest$Remb_rc_2021 <- as.numeric(prest$Remb_rc_2021)
+prest$Remb_ro_2020<-as.numeric(prest$Remb_ro_2020)
+prest$Remb_rc_2020<- as.numeric(prest$Remb_rc_2020)
+prest$Remb_ro_2019 <-as.numeric(prest$Remb_ro_2019)
+prest$Remb_rc_2019<- as.numeric(prest$Remb_rc_2019)
+prest$Remb_ro_2018<-as.numeric(prest$Remb_ro_2018)
+prest$Remb_rc_2018 <- as.numeric(prest$Remb_rc_2018)
 ```
 
 
-unname(quantile(x))                     # Get only the quantile values
+ # Get only the quantile values
 ou quantile(x,probs=0.75)
 
 ```{r}
 par(mfrow=c(2,2))
-#chercher le quantile 
-hist(prest$Mnt_dep_retenu,xlim=c(0,quantile(prest$Mnt_dep_retenu),probs=c(0.75)),breaks='Sturges')
-hist(prest$Remb_rc)
-hist(prest$Remb_ro_retenu)
-hist(prest$Qte_acte)
-#On pourrait donc appliquer le log 
+
+hist(prest$Remb_rc_2022,xlim=c(0,quantile(prest$Remb_rc_2022,0.9)),breaks = 500)
+hist(prest$Remb_ro_2022, xlim=c(0,quantile(prest$Remb_ro_2022,0.9)) , breaks =500)
+hist(prest$Qte_acte_2022,xlim=c(0,quantile(prest$Qte_acte,0.9)) , breaks= 500 )
 ```
 
 ```{r}
-par(mfrow=c(2,2))
-boxplot(prest$Mnt_dep_retenu)
-boxplot(prest$Remb_rc)
-boxplot(prest$Remb_ro_retenu)
-boxplot(prest$Qte_acte)
-#On pourrait donc appliquer le log 
-```
-```{r}
-summary(prest)
+boxplot(prest[,c("Remb_rc_2018","Remb_rc_2019", "Remb_rc_2020", "Remb_rc_2021","Remb_rc_2022")])
+boxplot(prest[,c("Remb_rc_2018","Remb_rc_2019", "Remb_rc_2020", "Remb_rc_2021","Remb_rc_2022")],ylim = c(0,50000))
 ```
 
 
 
 ```{r}
-par(mfrow=c(2,2))
-hist(log10(prest$Mnt_dep_retenu))
-hist(log10(prest$Remb_rc))
-hist(log10(prest$Remb_ro_retenu))
-hist(log10(prest$Qte_acte))
-#On pourrait donc appliquer le log 
+boxplot(prest[,c("Remb_ro_2018","Remb_ro_2019","Remb_ro_2020","Remb_ro_2021","Remb_ro_2022")],ylim = c(0,50000))
 ```
-```{r}
-par(mfrow=c(2,2))
-boxplot(log10(prest$Mnt_dep_retenu))
-boxplot(log10(prest$Remb_rc))
-boxplot(log10(prest$Remb_ro_retenu))
-```
+
+
 
 
 ```{r}
-boxplot(log10(prest$Qte_acte))
+boxplot(prest[,c("Qte_acte_2018","Qte_acte_2019","Qte_acte_2020","Qte_acte_2021","Qte_acte_2022")],ylim = c(0,30000))
 ```
-
-Tracer la repartitions des remboursements par maladie/vie/optique
-et qte acte
-Le plus importanteeeesss
-On joint notre base pour melanger les variables 
-
-4/5 graphes sympas à montrer
-
 
 ```{r}
-boxplot(prest$Remb_rc ~ prest$Dentaire,ylim=c(0,10000))
+boxplot(prest[,c("Maladie_2018","Maladie_2019","Maladie_2020","Maladie_2021","Maladie_2022")], ylim = c(0, quantile(prest$Maladie_2021,0.9)))
 
+boxplot(prest[,c("Vie_2018","Vie_2019","Vie_2020","Vie_2021","Vie_2022")], ylim = c(0, quantile(prest$Vie_2021,0.9)))
+
+
+boxplot(prest[,c("Dentaire_2018","Dentaire_2019","Dentaire_2020","Dentaire_2021","Dentaire_2022")], ylim = c(0, quantile(prest$Dentaire_2021,0.9)))
+
+boxplot(prest[,c("Optique_2018","Optique_2019","Optique_2020","Optique_2021","Optique_2022")], ylim = c(0, quantile(prest$Optique_2021,0.9)))
+
+boxplot(prest[,c("Hospitalisation_2018","Hospitalisation_2019","Hospitalisation_2020","Hospitalisation_2021","Hospitalisation_2022")], ylim = c(0, quantile(prest$Hospitalisation_2021,0.9)))
 ```
+
+
+
+
