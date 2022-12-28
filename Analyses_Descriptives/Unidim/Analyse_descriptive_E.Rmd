@@ -96,6 +96,11 @@ abline(v=c(0,25,50,75,100),col="red", lwd=3)
 
 ## Code groupe assurés
 
+
+
+
+
+
 actif passif portabilite
 
 ```{r}
@@ -460,7 +465,7 @@ tab_eff$Index_2021.f=cut(tab_eff$Index_2021, include.lowest = FALSE, right = TRU
 ```{r}
 barplot(table(tab_eff$Index_2021.f))
 ```
-### 2022
+# 2022
 
 ```{r}
 table(tab_eff$Index_2022)

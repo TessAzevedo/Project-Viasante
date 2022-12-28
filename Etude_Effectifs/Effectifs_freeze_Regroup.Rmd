@@ -118,7 +118,7 @@ max_repr <- function(data,ind){
     frequences=as.data.frame(table(data[,ind]))
     ind_level_max=which(table(data[,ind])==max(table(data[,ind])))
     level_max=frequences[ind_level_max,1]
-    return (as.character(level_max))
+    return (as.character(level_max[1]))
   }else{
     return (NA)
   }
@@ -196,6 +196,14 @@ Pour les varaibles suivantes :
 - R/RN
 - Regroup5
 - Code groupe assuré
+```{r}
+code=aggregate(L1002b$Code.Grp.Assures,list(L1002b$Code.Grp.Assures),length)
+code
+```
+```{r}
+codep=pourcentage(nrow(L1002b),code)
+codep
+```
 
 
 ```{r}
@@ -253,6 +261,8 @@ annee_adh_L(L2)
  
  
  
+ 
+ 
 ## Temps d'adhésion lien
 Calculer le temps moyen d'adhésion d'un lien en calculant le temps moyen d'adhésion des entreprises dans un lien en le pondérant par effectifs de l'entreprise
 ```{r temps_adhe_L}
@@ -265,10 +275,11 @@ temps_adh_E_au_L<-function(data,annee){
   if (annee !=2022){
     for (i in 1:n){
         temps=0
-      sub_entreprise<-subset(data,Num.Ctr.Coll.Anonyme==as.integer(levels(data[,1])[i]))
+        sub_entreprise<-subset(data,Num.Ctr.Coll.Anonyme==as.integer(levels(data[,1])[i]))
         temps=as.numeric(as.Date(paste(annee,"-12-31",sep=""))-sub_entreprise[1,4])
         tab$Tmps_Entreprise[i]=as.integer(temps)
         tab$Effectif_Entreprise[i]=nrow(sub_entreprise)
+        
       }
     
     adh=sum(tab$Tmps_Entreprise*tab$Effectif_Entreprise)/nrow(data)
@@ -282,6 +293,10 @@ temps_adh_E_au_L<-function(data,annee){
       }
     
     adh=sum(tab$Tmps_Entreprise*tab$Effectif_Entreprise)/nrow(data)
+  }
+  
+  if (adh<0){
+    adh=0
   }
 
   return(round(as.integer(adh)/365,digit=1))
@@ -367,6 +382,9 @@ temps_adh_P_au_L<-function(data,annee){
     }
   #total
   adh_moyenne=sum(tab$Tmps_Entreprise/tab$Effectif_Entreprise)/n
+  if (adh_moyenne<0){
+    adh_moyenne=0
+  }
   return (round((adh_moyenne)/365,digit=1))
 }
 ```
@@ -518,6 +536,13 @@ tab <- data.frame(Lien_E = integer(nb_liens),
 
 ```{r}
 remplissage_annee<- function(i,a,annee,prod,tab,data,ind_list){
+  #i:numero de lien 
+  #a : index rate
+  # annee : annee d'etude
+  #prod : prod max du lien
+  # tab :tab a completer
+  # data : dataset d l'annee
+  # ind_list :list ind a completer dans tab
     #nb personne
     tab[i,ind_list[1]] = length(levels(data$Num.Personne.Anonyme))
     #nb famille
@@ -540,8 +565,12 @@ remplissage_annee<- function(i,a,annee,prod,tab,data,ind_list){
     }
     
     #Code groupe assures
-    code_gp_as=aggregate(data[,2],list(data[,2]),length)
-    code_gp_as_p=pourcentage(tab[i,ind_list[1]],code_gp_as)
+    ####
+    sub=subset(data,Type.Assure=='ASSPRI')
+    ###
+    if (nrow(sub) != 0){
+    code_gp_as=aggregate(sub[,2],list(sub[,2]),length)
+    code_gp_as_p=pourcentage(nrow(sub),code_gp_as)
     ind_actifs=which(code_gp_as=="ACTIFS")
     ind_non_actifs=which(code_gp_as=="NON_ACTIFS")
     ind_portabi=which(code_gp_as=="PORTABILITE")
@@ -559,6 +588,7 @@ remplissage_annee<- function(i,a,annee,prod,tab,data,ind_list){
       tab[i,ind_list[7]]=code_gp_as_p[ind_portabi,2]
     }else{
       tab[i,ind_list[7]]=0.0
+    }
     }
 
     #assure conjoint enfant 
@@ -621,6 +651,7 @@ remplissage_annee<- function(i,a,annee,prod,tab,data,ind_list){
     
     tab[i,ind_list[16]]=temps_adh_E_au_L(data,annee)
     tab[i,ind_list[17]]=temps_adh_P_au_L(data,annee)
+    
 
     return (tab[i,list])
 
@@ -658,7 +689,7 @@ for (i in 1:nb_liens){
   tab$Regroup4[i]=max_repr(sub_lien,9)
   #prod max
   tab$Produit_max[i]=max_repr(sub_lien,3)[1]
-  
+
   # création de dataframe par annee
   # je garde les personnes radiées dans l'année sauf si c'est au premier janvier
   sub_lien_2018=subset(sub_lien,year(Date.Effet.Adhesion.Num.Personne)<=2018 & year(Date.Effet.Radiation.Num.Personne)>=2018 & Date.Effet.Radiation.Num.Personne!="2018-01-01" )
@@ -716,6 +747,12 @@ tab$Regroup1<-as.factor(tab$Regroup1)
 tab$Regroup4<-as.factor(tab$Regroup4)
 tab$Produit_max<-as.factor(tab$Produit_max)
 
+```
+
+
+```{r}
+tab=subset(tab, tab$Asspri_2022_p !=0.0)
+save(tab, file='../Donnees/Effectifs/Test.Rdata')
 ```
 
 ## Supprimer les lignes où ASSPRI =0%
