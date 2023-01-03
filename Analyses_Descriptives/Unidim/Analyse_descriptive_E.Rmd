@@ -285,17 +285,17 @@ summary(tab_eff[,c(8,25,42,60,78)])
 ### 2022
 
 ```{r}
-hist(tab_eff$Tps_adh_E_au_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
+hist(tab_eff$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
 ```
 
 ```{r}
-tab_eff$Tps_adh_E_au_L_2022.f=cut(tab_eff$Tps_adh_E_au_L_2022, include.lowest = FALSE, right = TRUE,
-  breaks = c(0,20,50,max(tab_eff$Tps_adh_E_au_L_2022)))
+tab_eff$Tps_adh_E_par_L_2022.f=cut(tab_eff$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
+  breaks = c(0,20,50,max(tab_eff$Tps_adh_E_par_L_2022)))
 ``` 
 
 
 ```{r}
-ggplot(tab_eff, aes(x="", y=Tps_adh_E_au_L_2022.f, fill=Tps_adh_E_au_L_2022.f)) +
+ggplot(tab_eff, aes(x="", y=Tps_adh_E_par_L_2022.f, fill=Tps_adh_E_par_L_2022.f)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
     theme_void()
@@ -303,7 +303,7 @@ ggplot(tab_eff, aes(x="", y=Tps_adh_E_au_L_2022.f, fill=Tps_adh_E_au_L_2022.f)) 
 Il y a eau beaucoup d'adhésion d'entreprises aux liens ces 20 dernières années.
 
 ```{r}
-summary(tab_eff$Tps_adh_E_au_L_2022.f)
+summary(tab_eff$Tps_adh_E_par_L_2022.f)
 ```
 
 
@@ -313,23 +313,23 @@ summary(tab_eff$Tps_adh_E_au_L_2022.f)
 ### 2022
 
 ```{r}
-hist(tab_eff$Tps_adh_P_au_L_2022, breaks=15, xlab='Mean subscription time of the individuals to the link in year', main='Histogramme')
+hist(tab_eff$Tps_adh_P_par_L_2022, breaks=15, xlab='Mean subscription time of the individuals to the link in year', main='Histogramme')
 ```
 
 ```{r}
-tab_eff$Tps_adh_P_au_L_2022.f=cut(tab_eff$Tps_adh_P_au_L_2022, include.lowest = FALSE, right = TRUE,
-  breaks = c(0,20,50,max(tab_eff$Tps_adh_P_au_L_2022)))
+tab_eff$Tps_adh_P_par_L_2022.f=cut(tab_eff$Tps_adh_P_par_L_2022, include.lowest = FALSE, right = TRUE,
+  breaks = c(0,20,50,max(tab_eff$Tps_adh_P_par_L_2022)))
 ``` 
 
 
 ```{r}
-ggplot(tab_eff, aes(x="", y=Tps_adh_P_au_L_2022.f, fill=Tps_adh_P_au_L_2022.f)) +
+ggplot(tab_eff, aes(x="", y=Tps_adh_P_par_L_2022.f, fill=Tps_adh_P_par_L_2022.f)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
     theme_void()
 ```
 ```{r}
-summary(tab_eff$Tps_adh_P_au_L_2022.f)
+summary(tab_eff$Tps_adh_P_par_L_2022.f)
 ```
 
 ## Sexe

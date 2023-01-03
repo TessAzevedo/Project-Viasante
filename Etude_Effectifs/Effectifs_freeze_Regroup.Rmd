@@ -182,7 +182,7 @@ pourcentage(nrow(L2),r.rn)
 ## Temps d'adhésion lien
 Calculer le temps moyen d'adhésion d'un lien en calculant le temps moyen d'adhésion des entreprises dans un lien en le pondérant par effectifs de l'entreprise
 ```{r temps_adhe_L}
-temps_adh_E_au_L<-function(data,annee){
+temps_adh_E_par_L<-function(data,annee){
   n=length(levels(data[,1]))
   tab <- data.frame(Tmps_Entreprise = integer(n),
                  Effectif_Entreprise = integer(n))
@@ -206,7 +206,7 @@ temps_adh_E_au_L<-function(data,annee){
 ```
 
 ```{r test_unit_tps_adh_E}
-print(temps_adh_E_au_L(sub_lien_2018,2018))
+print(temps_adh_E_par_L(sub_lien_2018,2018))
 #print(temps_adh_L(L9))
 ```
 
@@ -248,7 +248,7 @@ effectif_pers_fam(L1002)
 ## Temps d'adhésion moyenne des personnes
 Temps moyen d'adhésion des personnes à un lien en le pondérant par l'effectif dans chaque annee.
 ```{r tps adh P}
-temps_adh_P_au_L<-function(data,annee){
+temps_adh_P_par_L<-function(data,annee){
 
   
   #calcul du nombre d'entrepise dans le lien
@@ -279,7 +279,7 @@ temps_adh_P_au_L<-function(data,annee){
 
 
 ```{r test_unit_adh_moy}
-temps_adh_P_au_L(sub_lien_2018,2018)
+temps_adh_P_par_L(sub_lien_2018,2018)
 #temps_moy_adh_P(L1002)
 ```
 
@@ -334,8 +334,8 @@ tab <- data.frame(Lien_E = integer(nb_liens),
                  Respo_2018_p=numeric(nb_liens),
                  Non_respo_2018_p=numeric(nb_liens),
                  Index_2018 = numeric(nb_liens),
-                 Tps_adh_E_au_L_2018= numeric(nb_liens),
-                 Tps_adh_P_au_L_2018= numeric(nb_liens),
+                 Tps_adh_E_par_L_2018= numeric(nb_liens),
+                 Tps_adh_P_par_L_2018= numeric(nb_liens),
                  #2019
                  Nb_pers_2019 = integer(nb_liens),
                  Nb_fam_2019 =integer(nb_liens),
@@ -352,8 +352,8 @@ tab <- data.frame(Lien_E = integer(nb_liens),
                  Respo_2019_p=numeric(nb_liens),
                  Non_respo_2019_p=numeric(nb_liens),
                  Index_2019 = numeric(nb_liens),
-                 Tps_adh_E_au_L_2019= numeric(nb_liens),
-                 Tps_adh_P_au_L_2019= numeric(nb_liens),
+                 Tps_adh_E_par_L_2019= numeric(nb_liens),
+                 Tps_adh_P_par_L_2019= numeric(nb_liens),
                  #2020
                  Nb_pers_2020 = integer(nb_liens),
                  Nb_fam_2020 =integer(nb_liens),
@@ -370,8 +370,8 @@ tab <- data.frame(Lien_E = integer(nb_liens),
                  Respo_2020_p=numeric(nb_liens),
                  Non_respo_2020_p=numeric(nb_liens),
                  Index_2020 = numeric(nb_liens),
-                 Tps_adh_E_au_L_2020= numeric(nb_liens),
-                 Tps_adh_P_au_L_2020= numeric(nb_liens),
+                 Tps_adh_E_par_L_2020= numeric(nb_liens),
+                 Tps_adh_P_par_L_2020= numeric(nb_liens),
                  Nego_2020=logical(nb_liens),
                  #2021
                  Nb_pers_2021 = integer(nb_liens),
@@ -389,8 +389,8 @@ tab <- data.frame(Lien_E = integer(nb_liens),
                  Respo_2021_p=numeric(nb_liens),
                  Non_respo_2021_p=numeric(nb_liens),
                  Index_2021 = numeric(nb_liens),
-                 Tps_adh_E_au_L_2021= numeric(nb_liens),
-                 Tps_adh_P_au_L_2021= numeric(nb_liens),
+                 Tps_adh_E_par_L_2021= numeric(nb_liens),
+                 Tps_adh_P_par_L_2021= numeric(nb_liens),
                  Nego_2021=logical(nb_liens),
                  #2022
                  Nb_pers_2022 = integer(nb_liens),
@@ -409,8 +409,8 @@ tab <- data.frame(Lien_E = integer(nb_liens),
                  Non_respo_2022_p=numeric(nb_liens),
                  Index_2022 = numeric(nb_liens),
                  Index_2023 = numeric(nb_liens),
-                 Tps_adh_E_au_L_2022= numeric(nb_liens),
-                 Tps_adh_P_au_L_2022= numeric(nb_liens),
+                 Tps_adh_E_par_L_2022= numeric(nb_liens),
+                 Tps_adh_P_par_L_2022= numeric(nb_liens),
                  Nego_2022=logical(nb_liens),
                  VIP=logical(nb_liens))
 
@@ -537,8 +537,8 @@ remplissage_annee<- function(i,a,annee,prod,tab,data,ind_list){
     sub_prod=subset(data,Produit.Anonyme=prod)
     tab[i,ind_list[15]] = sub_prod[i,a]
     
-    tab[i,ind_list[16]]=temps_adh_E_au_L(data,annee)
-    tab[i,ind_list[17]]=temps_adh_P_au_L(data,annee)
+    tab[i,ind_list[16]]=temps_adh_E_par_L(data,annee)
+    tab[i,ind_list[17]]=temps_adh_P_par_L(data,annee)
     
 
     return (tab[i,list])
@@ -653,6 +653,4 @@ save(tab_eff, file='../Donnees/Effectifs/Effectif_final.Rdata')
 ```{r}
 write.table(tab_eff,file='../Donnees/Effectifs/Effectif_final.csv',sep=";",row.names = FALSE)
 ```
- 
- 
  
