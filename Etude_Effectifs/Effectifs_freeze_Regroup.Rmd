@@ -134,60 +134,6 @@ max_repr(L1,8)
 max_repr(L1,9)
 ```
 
-### Garder les 3 produits les plus présents
-
--Produits
-```{r max3}
-max3_repr <- function(data) {
-  frequences=as.data.frame(table(data[,3]))
-  ordre=tail(sort(frequences[,2]),3)
-  n=length(ordre)
-  ind_first=which(frequences[,2]==ordre[n])
-  first=as.integer(as.character(frequences[ind_first,1]))
-  if(length(ordre)>1){
-    ind_second=which(frequences[,2]==ordre[n-1])
-    second=as.integer(as.character(frequences[ind_second,1]))
-  }else{
-    second=NA
-  }
-  if(length(ordre)>2){
-    ind_third=which(frequences[,2]==ordre[n-2])
-    third=as.integer(as.character(frequences[ind_third,1]))
-  }else{
-    third=NA
-  }
-  return (c(first,second,third))
-}
-```
-
-
-
-```{r test_unit_max3_rep}
-max3_repr(L1)
-max3_repr(L1002)
-max3_repr(L9)
-```
-## Indexations correspondantes aux 3 produits
-
-```{r index_prod}
-index_prod<-function(data,prod){
-  if(!is.na(prod)){
-    sub_prod=subset(data,Produit.Anonyme=prod)
-    indexation2018_2023=sub_prod[1,21:26]
-    
-  }else{
-    indexation2018_2023=rep(NA,6)
-  }
-  return(indexation2018_2023)
-}
-```
-
-```{r test_unit_index_prod}
-index_prod(L1,1)
-index_prod(L1,NA)
-index_prod(L1002,2828)
-index_prod(L1002,53)
-```
 
 ## Catégories et effectifs
 Pour les varaibles suivantes :
@@ -231,36 +177,6 @@ pourcentage(nrow(L2),sexe)
 pourcentage(nrow(L2),r.rn)
 ```
 
-PARTIR PLUS UTILISEE
-## Date d'adhésion lien
-Pour la variable :
-annee moyen d'adhésion de l'entreprise au lien avec la ponderation en du nombre d'effectifs dans l'entreprise.
-```{r annee_adh_L}
-annee_adh_L<-function(data){
-  n=length(levels(data[,1]))
-  tab <- data.frame(Annee_Entreprise = integer(n),
-                 Effectif_Entreprise = integer(n))
-  for (i in 1:n){
-    sub_entreprise<-subset(data,Num.Ctr.Coll.Anonyme==as.integer(levels(data[,1])[i]))
-    tab$Annee_Entreprise[i]=year(sub_entreprise[,4])[1]
-    tab$Effectif_Entreprise[i]=nrow(sub_entreprise)
-    
-  }
-  annee=sum(tab$Annee_Entreprise*tab$Effectif_Entreprise)/nrow(data)
-  return(as.integer(annee))
-}
-```
-
-Test unitaire
-```{r}
-annee_adh_L(L1)
-annee_adh_L(L9)
-annee_adh_L(L1002)
-annee_adh_L(L2)
-```
- 
- 
- 
  
  
 ## Temps d'adhésion lien
@@ -271,8 +187,6 @@ temps_adh_E_au_L<-function(data,annee){
   tab <- data.frame(Tmps_Entreprise = integer(n),
                  Effectif_Entreprise = integer(n))
   
-
-  if (annee !=2022){
     for (i in 1:n){
         temps=0
         sub_entreprise<-subset(data,Num.Ctr.Coll.Anonyme==as.integer(levels(data[,1])[i]))
@@ -283,21 +197,8 @@ temps_adh_E_au_L<-function(data,annee){
       }
     
     adh=sum(tab$Tmps_Entreprise*tab$Effectif_Entreprise)/nrow(data)
-  }else{
-        for (i in 1:n){
-            temps=0
-      sub_entreprise<-subset(data,Num.Ctr.Coll.Anonyme==as.integer(levels(data[,1])[i]))
-        temps=as.numeric(Sys.Date()-sub_entreprise[1,4])
-        tab$Tmps_Entreprise[i]=as.integer(temps)
-        tab$Effectif_Entreprise[i]=nrow(sub_entreprise)
-      }
-    
-    adh=sum(tab$Tmps_Entreprise*tab$Effectif_Entreprise)/nrow(data)
-  }
-  
-  if (adh<0){
-    adh=0
-  }
+
+
 
   return(round(as.integer(adh)/365,digit=1))
 }
@@ -354,32 +255,19 @@ temps_adh_P_au_L<-function(data,annee){
   n=length(levels(data[,1]))
   tab <- data.frame(Tmps_Entreprise = integer(n),
                  Effectif_Entreprise = integer(n))
-  
-  if(annee!=2022){
     
     for (i in 1:n){
       adh=0
       sub_entreprise<-subset(data,Num.Ctr.Coll.Anonyme==as.integer(levels(data[,1])[i]))
       for (j in 1:nrow(sub_entreprise)){
       #calcul temps adhesion de toutes les personnes dans  une entreprise
-          adh=adh+as.numeric(as.Date(paste(annee,"-12-31",sep=""))-sub_entreprise[j,4])
+          adh=adh+as.numeric(as.Date(paste(annee,"-12-31",sep=""))-sub_entreprise[j,13])
         }
       
       tab$Tmps_Entreprise[i]=adh
       tab$Effectif_Entreprise[i]=nrow(sub_entreprise)
     }
-    }else{
-      for (i in 1:n){
-          adh=0
-        sub_entreprise<-subset(data,Num.Ctr.Coll.Anonyme==as.integer(levels(data[,1])[i]))
-        for (j in 1:nrow(sub_entreprise)){
-      #calcul temps adhesion de toutes les personnes dans  une entreprise
-          adh=adh+as.numeric(Sys.Date()-sub_entreprise[j,4])
-        }
-      tab$Tmps_Entreprise[i]=adh
-      tab$Effectif_Entreprise[i]=nrow(sub_entreprise)
-    }
-    }
+
   #total
   adh_moyenne=sum(tab$Tmps_Entreprise/tab$Effectif_Entreprise)/n
   if (adh_moyenne<0){
@@ -747,12 +635,6 @@ tab$Regroup1<-as.factor(tab$Regroup1)
 tab$Regroup4<-as.factor(tab$Regroup4)
 tab$Produit_max<-as.factor(tab$Produit_max)
 
-```
-
-
-```{r}
-tab=subset(tab, tab$Asspri_2022_p !=0.0)
-save(tab, file='../Donnees/Effectifs/Test.Rdata')
 ```
 
 ## Supprimer les lignes où ASSPRI =0%

@@ -44,56 +44,6 @@ Nous allons donc faire une analyse descriptive rapide de ces variables mais elle
 # Analyse descriptive unidimensionelle
 
 
-## Type assurés
-
-Asspri, conjoint, enfant
-```{r}
-l2018=c(14:16)
-l2019=c(31:33)
-l2020=c(48:50)
-l2021=c(66:68)
-l2022=c(84:86)
-
-df1 = stack(tab_eff[,l2021])
-n=nrow(df1)
-df1=aggregate(df1[,1],list(df1[,2]),sum)
-colnames(df1)[1]=c("Type_assure")
-df1$percent=paste(as.character(round(df1$x/(n/3),2)),"%")
-ggplot(df1, aes(x="", y=x, fill=Type_assure)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()+
-   ggtitle("Type_assure 2018")+
-    geom_text(aes(label = percent),
-            position = position_stack(vjust = 0.8))
-
-```
-
-On remarque le nombre d'assuré principal est supérieur aux autres catégories ce qui semble logique.
-
-
-### Asspri
-
-
-```{r}
-hist(tab_eff$Asspri_2022_p,breaks=c(0,25,50,75,100),xlab='Assuré principal', ylab='Effectif en pourcentage', main='Histogramme')
-abline(v=c(0,25,50,75,100),col="red", lwd=3)
-``` 
-### Conjoint
-
-
-```{r}
-hist(tab_eff$Conjoint_2022_p,breaks=c(0,25,50,75,100),xlab='Conjoint', ylab='Effectif en pourcentage', main='Histogramme')
-abline(v=c(0,25,50,75,100),col="red", lwd=3)
-``` 
-
-### Enfants
-
-```{r}
-hist(tab_eff$Enfants_2022_p,breaks=c(0,25,50,75,100),xlab='Enfant', ylab='Effectif en pourcentage', main='Histogramme')
-abline(v=c(0,25,50,75,100),col="red", lwd=3)
-``` 
-
 ## Code groupe assurés
 
 
@@ -160,6 +110,57 @@ boxplot(tab_eff$Portabilite_2022_p)
 ```{r}
 hist(tab_eff$Portabilite_2022_p,breaks =5,freq =TRUE, main = "Histogramme",xlab = "Portabilite",ylab = "effectifs")
 ```
+
+
+## Type assurés
+
+Asspri, conjoint, enfant
+```{r}
+l2018=c(14:16)
+l2019=c(31:33)
+l2020=c(48:50)
+l2021=c(66:68)
+l2022=c(84:86)
+
+df1 = stack(tab_eff[,l2021])
+n=nrow(df1)
+df1=aggregate(df1[,1],list(df1[,2]),sum)
+colnames(df1)[1]=c("Type_assure")
+df1$percent=paste(as.character(round(df1$x/(n/3),2)),"%")
+ggplot(df1, aes(x="", y=x, fill=Type_assure)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()+
+   ggtitle("Type_assure 2018")+
+    geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8))
+
+```
+
+On remarque le nombre d'assuré principal est supérieur aux autres catégories ce qui semble logique.
+
+
+### Asspri
+
+
+```{r}
+hist(tab_eff$Asspri_2022_p,breaks=c(0,25,50,75,100),xlab='Assuré principal', ylab='Effectif en pourcentage', main='Histogramme')
+abline(v=c(0,25,50,75,100),col="red", lwd=3)
+``` 
+### Conjoint
+
+
+```{r}
+hist(tab_eff$Conjoint_2022_p,breaks=c(0,25,50,75,100),xlab='Conjoint', ylab='Effectif en pourcentage', main='Histogramme')
+abline(v=c(0,25,50,75,100),col="red", lwd=3)
+``` 
+
+### Enfants
+
+```{r}
+hist(tab_eff$Enfants_2022_p,breaks=c(0,25,50,75,100),xlab='Enfant', ylab='Effectif en pourcentage', main='Histogramme')
+abline(v=c(0,25,50,75,100),col="red", lwd=3)
+``` 
 
 ## Produit
 
@@ -536,7 +537,7 @@ print(ggplot(df1, aes(x="", y=x, fill=Renego2021)) +
 
 ### Renego2022
 ```{r}
-df1=aggregate(tab_eff[,55],list(tab_eff[,59]),length)
+df1=aggregate(tab_eff[,95],list(tab_eff[,95]),length)
 colnames(df1)[1]=c("Renego2022")
 df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
 print(ggplot(df1, aes(x="", y=x, fill=Renego2022)) +
@@ -547,15 +548,4 @@ print(ggplot(df1, aes(x="", y=x, fill=Renego2022)) +
       theme_void())
 ```
 
-
-## Save 
-
-```{r save}
-tab_effectifs=tab_eff
-save(tab_effectifs, file='../../Donnees/Effectifs/Effectif_final+.Rdata')
-```
-
-```{r}
-write.table(tab_effectifs ,file='../../Donnees/Effectifs/Effectif_final+.csv',sep=";",row.names = FALSE)
-```
  
