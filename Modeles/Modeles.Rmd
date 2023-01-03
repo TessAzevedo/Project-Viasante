@@ -491,39 +491,39 @@ barplot(table(clust4$Index_2023.f))
 
 ```{r}
 par(mfrow=c(2,2))
-hist(clust1$Tps_adh_E_au_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
-hist(clust2$Tps_adh_E_au_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
-hist(clust3$Tps_adh_E_au_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
-hist(clust4$Tps_adh_E_au_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
+hist(clust1$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
+hist(clust2$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
+hist(clust3$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
+hist(clust4$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
 ```
 
 
 ```{r}
-clust1$Tps_adh_E_au_L_2022.f=cut(clust1$Tps_adh_E_au_L_2022, include.lowest = FALSE, right = TRUE,
+clust1$Tps_adh_E_par_L_2022.f=cut(clust1$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
   breaks = c(0,30,50,123))
-clust2$Tps_adh_E_au_L_2022.f=cut(clust2$Tps_adh_E_au_L_2022, include.lowest = FALSE, right = TRUE,
+clust2$Tps_adh_E_par_L_2022.f=cut(clust2$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
   breaks = c(0,30,50,123))
-clust3$Tps_adh_E_au_L_2022.f=cut(clust3$Tps_adh_E_au_L_2022, include.lowest = FALSE, right = TRUE,
+clust3$Tps_adh_E_par_L_2022.f=cut(clust3$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
   breaks = c(0,30,50,123))
-clust4$Tps_adh_E_au_L_2022.f=cut(clust4$Tps_adh_E_au_L_2022, include.lowest = FALSE, right = TRUE,
+clust4$Tps_adh_E_par_L_2022.f=cut(clust4$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
   breaks = c(0,30,50,123))
 ``` 
 
 
 ```{r}
-ggplot(clust1, aes(x="", y=Tps_adh_E_au_L_2022.f, fill=Tps_adh_E_au_L_2022.f)) +
+ggplot(clust1, aes(x="", y=Tps_adh_E_par_L_2022.f, fill=Tps_adh_E_par_L_2022.f)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
     theme_void()
-ggplot(clust2, aes(x="", y=Tps_adh_E_au_L_2022.f, fill=Tps_adh_E_au_L_2022.f)) +
+ggplot(clust2, aes(x="", y=Tps_adh_E_par_L_2022.f, fill=Tps_adh_E_par_L_2022.f)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
     theme_void()
-ggplot(clust3, aes(x="", y=Tps_adh_E_au_L_2022.f, fill=Tps_adh_E_au_L_2022.f)) +
+ggplot(clust3, aes(x="", y=Tps_adh_E_par_L_2022.f, fill=Tps_adh_E_par_L_2022.f)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
     theme_void()
-ggplot(clust4, aes(x="", y=Tps_adh_E_au_L_2022.f, fill=Tps_adh_E_au_L_2022.f)) +
+ggplot(clust4, aes(x="", y=Tps_adh_E_par_L_2022.f, fill=Tps_adh_E_par_L_2022.f)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
     theme_void()
