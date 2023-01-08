@@ -35,7 +35,7 @@ head(clust1)
 
 ```{r}
 library(FactoMineR)
-ind_num=c(5:22,26:43)
+ind_num=c(5:17,21:38)
 clust1_num=clust1[,ind_num]
 res.acp <- PCA(clust1_num, scale.unit = TRUE, graph=FALSE)
 options(repr.plot.width = 12, repr.plot.height = 10)
@@ -54,8 +54,8 @@ On garde 4 composantes pour avoir au moins 60% d'inertie cumulée.
 
 ```{r}
 options(repr.plot.width = 15, repr.plot.height = 15)
-par(mfrow = c(4, 1))
-for (i in 1:4){
+par(mfrow = c(5, 1))
+for (i in 1:5){
     plot(res.acp$svd$V[, i], type = "o", main = paste("Comp. ", i), xlab = "Time", ylab = "",
          ylim = c(-0.6, 0.6), col = "blue")
     abline(h = 0, lty = "dotted")
@@ -68,7 +68,8 @@ f1=fviz_contrib(res.acp, choice="var", axes=1, color="black", fill="lightgray")
 f2=fviz_contrib(res.acp, choice="var", axes=2, color="black", fill="lightgray")
 f3=fviz_contrib(res.acp, choice="var", axes=3, color="black", fill="lightgray")
 f4=fviz_contrib(res.acp, choice="var", axes=4, color="black", fill="lightgray")
-plot_grid(f1,f2,f3,f4)
+f5=fviz_contrib(res.acp, choice="var", axes=5, color="black", fill="lightgray")
+plot_grid(f1,f2,f3,f4,f5)
 ```
 compo 1 : des montants, base/option, nb personnes et familles
 compo 2 : actifs/non actifs, enfants, R/NR (pourcentage) +cot PP
