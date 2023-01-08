@@ -63,7 +63,7 @@ l2020=c(45:47)
 l2021=c(63:65)
 l2022=c(81:83)
 
-df1 = stack(tab_eff_nb[,l2022])
+df1 = stack(tab_eff_nb[,l2019])
 df1=aggregate(df1[,1],list(df1[,2]),sum)
 colnames(df1)[1]=c("Code_groupe_assure")
 df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
@@ -230,12 +230,17 @@ Regroup5 = Base et option
 ### Option
 
 ```{r}
+load(file="../../Donnees/Effectifs/Effectif_final_freq.Rdata")
+```
+
+
+```{r}
 #par(mfrow=c(3,2))
-hist(tab_eff_nb$Option_2018,breaks=1000,xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff_nb$Option_2019,breaks=1000,xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff_nb$Option_2020,breaks=1000,xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff_nb$Option_2021,breaks=1000,xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff_nb$Option_2022,breaks=1000,xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_freq$Option_2018,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_freq$Option_2019,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_freq$Option_2020,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_freq$Option_2021,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_freq$Option_2022,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
 ``` 
 
 ## Nombre de personnes et de familles dans un lien
@@ -364,6 +369,13 @@ Rspo et no respo
 
 ### Respo
 
+```{r}
+summary(tab_eff_freq$Respo_2018_p)
+summary(tab_eff_freq$Respo_2019_p)
+summary(tab_eff_freq$Respo_2020_p)
+summary(tab_eff_freq$Respo_2021_p)
+summary(tab_eff_freq$Respo_2022_p)
+```
 
 ```{r}
 l2018=c(19,20)
