@@ -18,7 +18,7 @@ head(dataset_total)
 ## 2018
 
 ```{r 2018, echo=TRUE}
-dataset_2018=dataset_total[,c(1:23,97,98,103,104:107,124:128,149,154,162,163,171,172,180)]
+dataset_2018=dataset_total[,c(1:20,90,91,92,101,102,105:107,120:124,145,153,154,162,163,171)]
 head(dataset_2018)
 ```
 
@@ -31,7 +31,7 @@ save(dataset_2018, file='../Donnees/Donnees_annnee/Dataset_2018.Rdata')
 ##2019
 
 ```{r 2019, echo=TRUE}
-dataset_2019=dataset_total[,c(1:6,24:40,97,99,103,108:111,129:133,150,155,161,162,164,170,171,173,179,180)]
+dataset_2019=dataset_total[,c(1:4,21:36,90,93,94,101,102,108:110,125:129,146,152,153,155,161,162,164,170,171)]
 head(dataset_2019)
 ```
 
@@ -43,7 +43,7 @@ save(dataset_2019, file='../Donnees/Donnees_annnee/Dataset_2019.Rdata')
 ##2020
 
 ```{r 2020, echo=TRUE}
-dataset_2020=dataset_total[,c(1:6,41:58,97,101,103,112:115,134:138,151,156,160,161,169,170,174,178,179)]
+dataset_2020=dataset_total[,c(1:4,37:53,90,95,96,101,102,111:113,130:134,147,151,152,156,160,161,165,169,170)]
 head(dataset_2020)
 ```
 
@@ -56,7 +56,7 @@ save(dataset_2020, file='../Donnees/Donnees_annnee/Dataset_2020.Rdata')
 
 
 ```{r 2021, echo=TRUE}
-dataset_2021=dataset_total[,c(1:6,59:76,97,101,103,116:119,139:143,152,157,159,160,166,168,169,175,177,178)]
+dataset_2021=dataset_total[,c(1:4,54:70,90,97,98,101,102,114:116,135:139,148,150,151,157,159,160,166,168,169)]
 head(dataset_2021)
 ```
 
@@ -68,7 +68,7 @@ save(dataset_2021, file='../Donnees/Donnees_annnee/Dataset_2021.Rdata')
 
 ##2022
 ```{r 2022, echo=TRUE}
-dataset_2022=dataset_total[,c(1:6,77:96,97,102,103,120:123,144:148,153,158,159,167,168,176,177)]
+dataset_2022=dataset_total[,c(1:4,71:89,90,99,100,101,102,117:119,140:144,149,150,158,159,167,168)]
 head(dataset_2022)
 ```
 
