@@ -28,18 +28,21 @@ library(data.table)
 
 # Récupération du jeu Effectif_final.Rdata
 ```{r recup, echo=TRUE}
-load('../../Donnees/Effectifs/Effectif_final.Rdata')
-head(tab_eff)
+load('../../Donnees/Effectifs/Effectif_final_nb.Rdata')
+head(tab_eff_nb)
 ```
 
+
+
+
 ```{r}
-summary(tab_eff)
+summary(tab_eff_nb)
 ```
 Il y a énormément de données manquantes pour les variables suivantes :
 - Code ape
 - Departements
 
-Nous allons donc faire une analyse descriptive rapide de ces variables mais elles ne seront potentiellement pas conservées dans le jeu de données total.
+
 
 # Analyse descriptive unidimensionelle
 
@@ -60,7 +63,7 @@ l2020=c(45:47)
 l2021=c(63:65)
 l2022=c(81:83)
 
-df1 = stack(tab_eff[,l2022])
+df1 = stack(tab_eff_nb[,l2022])
 n=nrow(df1)
 df1=aggregate(df1[,1],list(df1[,2]),sum)
 colnames(df1)[1]=c("Code_groupe_assure")
@@ -78,23 +81,23 @@ ggplot(df1, aes(x="", y=x, fill=Code_groupe_assure)) +
 ### Actifs
 
 ```{r}
-boxplot(tab_eff$Actifs_2022_p)
+boxplot(tab_eff_nb$Actifs_2022_p)
 ```
 
 
 ```{r}
-hist(tab_eff$Actifs_2022_p,breaks=10,freq =TRUE, main = "Histogramme",xlab = "Actifs",ylab = "Effectifs")
+hist(tab_eff_nb$Actifs_2022_p,breaks=10,freq =TRUE, main = "Histogramme",xlab = "Actifs",ylab = "Effectifs")
 ```
 Les entreprises ont en principe soit 10% soit 100% actifs.
 ### Non actifs
 
 ```{r}
-boxplot(tab_eff$Non_actifs_2022_p)
+boxplot(tab_eff_nb$Non_actifs_2022_p)
 ```
 
 
 ```{r}
-hist(tab_eff$Non_actifs_2022_p,breaks =10,freq =TRUE, main = "Histogramme",xlab = "Non actifs",ylab = "effectifs")
+hist(tab_eff_nb$Non_actifs_2022_p,breaks =10,freq =TRUE, main = "Histogramme",xlab = "Non actifs",ylab = "effectifs")
 
 ```
 
@@ -103,12 +106,12 @@ hist(tab_eff$Non_actifs_2022_p,breaks =10,freq =TRUE, main = "Histogramme",xlab 
 
 
 ```{r}
-boxplot(tab_eff$Portabilite_2022_p)
+boxplot(tab_eff_nb$Portabilite_2022_p)
 ```
 
 
 ```{r}
-hist(tab_eff$Portabilite_2022_p,breaks =5,freq =TRUE, main = "Histogramme",xlab = "Portabilite",ylab = "effectifs")
+hist(tab_eff_nb$Portabilite_2022_p,breaks =5,freq =TRUE, main = "Histogramme",xlab = "Portabilite",ylab = "effectifs")
 ```
 
 
@@ -122,7 +125,7 @@ l2020=c(48:50)
 l2021=c(66:68)
 l2022=c(84:86)
 
-df1 = stack(tab_eff[,l2021])
+df1 = stack(tab_eff_nb[,l2021])
 n=nrow(df1)
 df1=aggregate(df1[,1],list(df1[,2]),sum)
 colnames(df1)[1]=c("Type_assure")
@@ -144,35 +147,35 @@ On remarque le nombre d'assuré principal est supérieur aux autres catégories 
 
 
 ```{r}
-hist(tab_eff$Asspri_2022_p,breaks=c(0,25,50,75,100),xlab='Assuré principal', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Asspri_2022_p,breaks=c(0,25,50,75,100),xlab='Assuré principal', ylab='Effectif en pourcentage', main='Histogramme')
 abline(v=c(0,25,50,75,100),col="red", lwd=3)
 ``` 
 ### Conjoint
 
 
 ```{r}
-hist(tab_eff$Conjoint_2022_p,breaks=c(0,25,50,75,100),xlab='Conjoint', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Conjoint_2022_p,breaks=c(0,25,50,75,100),xlab='Conjoint', ylab='Effectif en pourcentage', main='Histogramme')
 abline(v=c(0,25,50,75,100),col="red", lwd=3)
 ``` 
 
 ### Enfants
 
 ```{r}
-hist(tab_eff$Enfants_2022_p,breaks=c(0,25,50,75,100),xlab='Enfant', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Enfants_2022_p,breaks=c(0,25,50,75,100),xlab='Enfant', ylab='Effectif en pourcentage', main='Histogramme')
 abline(v=c(0,25,50,75,100),col="red", lwd=3)
 ``` 
 
 ## Produit
 
 ```{r}
-barplot(table(tab_eff[,"Produit_max"]))
+barplot(table(tab_eff_nb[,"Produit_max"]))
 ``` 
 On ne pas analyser beaucoup de choses. Sauf que les liens ont souvent un produi premier différent.
 
 ```{r}
 options(repr.plot.width=2, repr.plot.height=2)
 
-ggplot(tab_eff, aes(x="", y=Produit_max, fill=Produit_max)) +
+ggplot(tab_eff_nb, aes(x="", y=Produit_max, fill=Produit_max)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
   theme_void()+
@@ -182,13 +185,13 @@ ggplot(tab_eff, aes(x="", y=Produit_max, fill=Produit_max)) +
 #Departement 
 Trop de levels création de la variable region. Mais il y atrop de données manquantes donc on n'étudira pas cette variable finalement.
 ```{r}
-tab_eff$Region=tab_eff$Departement
-levels(tab_eff$Region) <- factor(c("Occitanie", "Occitanie", "Auvergne", "Nouvelle-Aquitaine", "Nouvelle-Aquitaine","Occitanie","Nouvelle-Aquitaine","Occitanie","Occitanie","Nouvelle-Aquitaine","Occitanie","Pays de la Loire","Grand Est","Hauts-de-France","Occitanie","Grand Est","Ile de France","Normandie","Hauts-de-France","Nouvelle-Aquitaine","Ile de France","Ile de France"))
+tab_eff_nb$Region=tab_eff_nb$Departement
+levels(tab_eff_nb$Region) <- factor(c("Occitanie", "Occitanie", "Auvergne", "Nouvelle-Aquitaine", "Nouvelle-Aquitaine","Occitanie","Nouvelle-Aquitaine","Occitanie","Occitanie","Nouvelle-Aquitaine","Occitanie","Pays de la Loire","Grand Est","Hauts-de-France","Occitanie","Grand Est","Ile de France","Normandie","Hauts-de-France","Nouvelle-Aquitaine","Ile de France","Ile de France"))
 ```
 
 
 ```{r}
-table(tab_eff$Region)
+table(tab_eff_nb$Region)
 ```
 
 
@@ -196,9 +199,9 @@ table(tab_eff$Region)
 
 
 ```{r}
-tab_bis=subset(tab_eff,  Regroup1 !='NA')
-barplot(table(tab_eff[,"Regroup1"]))
-levels(tab_eff$Regroup1)
+tab_bis=subset(tab_eff_nb,  Regroup1 !='NA')
+barplot(table(tab_eff_nb[,"Regroup1"]))
+levels(tab_eff_nb$Regroup1)
 ``` 
 
 ```{r}
@@ -220,9 +223,9 @@ Le Regroup1 le plus représenté est ER080.
 
 
 ```{r}
-tab_bis=subset(tab_eff,  Regroup4 !='NA')
+tab_bis=subset(tab_eff_nb,  Regroup4 !='NA')
 barplot(table(tab_bis$Regroup4))
-levels(tab_eff$Regroup4)
+levels(tab_eff_nb$Regroup4)
 ``` 
 
 ## Regroup5
@@ -232,21 +235,21 @@ Regroup5 = Base et option
 ### Base
 
 ```{r}
-hist(tab_eff$Base_2018, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff$Base_2019, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff$Base_2020, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff$Base_2021, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff$Base_2022, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Base_2018, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Base_2019, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Base_2020, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Base_2021, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Base_2022, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
 ``` 
 ### Option
 
 ```{r}
 #par(mfrow=c(3,2))
-hist(tab_eff$Option_2018_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff$Option_2019_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff$Option_2020_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff$Option_2021_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff$Option_2022_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Option_2018_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Option_2019_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Option_2020_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Option_2021_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Option_2022_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
 ``` 
 
 ## Nombre de personnes et de familles dans un lien
@@ -254,28 +257,28 @@ hist(tab_eff$Option_2022_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effecti
 ### Personnes 
 ```{r}
 par(mfrow=c(3,2))
-hist(tab_eff$Nb_pers_2018,breaks=1000, xlim=c(0,quantile(tab_eff$Nb_pers_2018,0.8)),xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme', )
-hist(tab_eff$Nb_pers_2019,breaks=1000,xlim=c(0,quantile(tab_eff$Nb_pers_2019,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
-hist(tab_eff$Nb_pers_2020,breaks=1000,xlim=c(0,quantile(tab_eff$Nb_pers_2020,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
-hist(tab_eff$Nb_pers_2021,breaks=1000,xlim=c(0,quantile(tab_eff$Nb_pers_2021,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
-hist(tab_eff$Nb_pers_2022,breaks=1000,xlim=c(0,quantile(tab_eff$Nb_pers_2022,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
+hist(tab_eff_nb$Nb_pers_2018,breaks=1000, xlim=c(0,quantile(tab_eff_nb$Nb_pers_2018,0.8)),xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme', )
+hist(tab_eff_nb$Nb_pers_2019,breaks=1000,xlim=c(0,quantile(tab_eff_nb$Nb_pers_2019,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
+hist(tab_eff_nb$Nb_pers_2020,breaks=1000,xlim=c(0,quantile(tab_eff_nb$Nb_pers_2020,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
+hist(tab_eff_nb$Nb_pers_2021,breaks=1000,xlim=c(0,quantile(tab_eff_nb$Nb_pers_2021,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
+hist(tab_eff_nb$Nb_pers_2022,breaks=1000,xlim=c(0,quantile(tab_eff_nb$Nb_pers_2022,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
 ``` 
 ```{r}
-summary(tab_eff[,c(7,24,41,59,77)])
+summary(tab_eff_nb[,c(7,24,41,59,77)])
 ```
 
 
 ### Nombre de familles
 ```{r}
 par(mfrow=c(3,2))
-hist(tab_eff$Nb_fam_2018,breaks=1000, xlim=c(0,quantile(tab_eff$Nb_fam_2018,0.8)), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
-hist(tab_eff$Nb_fam_2019,breaks=1000, xlim=c(0,quantile(tab_eff$Nb_fam_2019,0.8)), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
-hist(tab_eff$Nb_fam_2020,breaks=1000, xlim=c(0,quantile(tab_eff$Nb_fam_2020,0.8)), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
-hist(tab_eff$Nb_fam_2021,breaks=1000, xlim=c(0,quantile(tab_eff$Nb_fam_2021,0.8)), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
-hist(tab_eff$Nb_fam_2022,breaks=1000, xlim=c(0,quantile(tab_eff$Nb_fam_2022,0.8)), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
+hist(tab_eff_nb$Nb_fam_2018,breaks=1000, xlim=c(0,quantile(tab_eff_nb$Nb_fam_2018,0.8)), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
+hist(tab_eff_nb$Nb_fam_2019,breaks=1000, xlim=c(0,quantile(tab_eff_nb$Nb_fam_2019,0.8)), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
+hist(tab_eff_nb$Nb_fam_2020,breaks=1000, xlim=c(0,quantile(tab_eff_nb$Nb_fam_2020,0.8)), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
+hist(tab_eff_nb$Nb_fam_2021,breaks=1000, xlim=c(0,quantile(tab_eff_nb$Nb_fam_2021,0.8)), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
+hist(tab_eff_nb$Nb_fam_2022,breaks=1000, xlim=c(0,quantile(tab_eff_nb$Nb_fam_2022,0.8)), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
 ``` 
 ```{r}
-summary(tab_eff[,c(8,25,42,60,78)])
+summary(tab_eff_nb[,c(8,25,42,60,78)])
 ```
 
 
@@ -285,17 +288,17 @@ summary(tab_eff[,c(8,25,42,60,78)])
 ### 2022
 
 ```{r}
-hist(tab_eff$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
+hist(tab_eff_nb$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
 ```
 
 ```{r}
-tab_eff$Tps_adh_E_par_L_2022.f=cut(tab_eff$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
-  breaks = c(0,20,50,max(tab_eff$Tps_adh_E_par_L_2022)))
+tab_eff_nb$Tps_adh_E_par_L_2022.f=cut(tab_eff_nb$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
+  breaks = c(0,20,50,max(tab_eff_nb$Tps_adh_E_par_L_2022)))
 ``` 
 
 
 ```{r}
-ggplot(tab_eff, aes(x="", y=Tps_adh_E_par_L_2022.f, fill=Tps_adh_E_par_L_2022.f)) +
+ggplot(tab_eff_nb, aes(x="", y=Tps_adh_E_par_L_2022.f, fill=Tps_adh_E_par_L_2022.f)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
     theme_void()
@@ -303,7 +306,7 @@ ggplot(tab_eff, aes(x="", y=Tps_adh_E_par_L_2022.f, fill=Tps_adh_E_par_L_2022.f)
 Il y a eau beaucoup d'adhésion d'entreprises aux liens ces 20 dernières années.
 
 ```{r}
-summary(tab_eff$Tps_adh_E_par_L_2022.f)
+summary(tab_eff_nb$Tps_adh_E_par_L_2022.f)
 ```
 
 
@@ -313,23 +316,23 @@ summary(tab_eff$Tps_adh_E_par_L_2022.f)
 ### 2022
 
 ```{r}
-hist(tab_eff$Tps_adh_P_par_L_2022, breaks=15, xlab='Mean subscription time of the individuals to the link in year', main='Histogramme')
+hist(tab_eff_nb$Tps_adh_P_par_L_2022, breaks=15, xlab='Mean subscription time of the individuals to the link in year', main='Histogramme')
 ```
 
 ```{r}
-tab_eff$Tps_adh_P_par_L_2022.f=cut(tab_eff$Tps_adh_P_par_L_2022, include.lowest = FALSE, right = TRUE,
-  breaks = c(0,20,50,max(tab_eff$Tps_adh_P_par_L_2022)))
+tab_eff_nb$Tps_adh_P_par_L_2022.f=cut(tab_eff_nb$Tps_adh_P_par_L_2022, include.lowest = FALSE, right = TRUE,
+  breaks = c(0,20,50,max(tab_eff_nb$Tps_adh_P_par_L_2022)))
 ``` 
 
 
 ```{r}
-ggplot(tab_eff, aes(x="", y=Tps_adh_P_par_L_2022.f, fill=Tps_adh_P_par_L_2022.f)) +
+ggplot(tab_eff_nb, aes(x="", y=Tps_adh_P_par_L_2022.f, fill=Tps_adh_P_par_L_2022.f)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
     theme_void()
 ```
 ```{r}
-summary(tab_eff$Tps_adh_P_par_L_2022.f)
+summary(tab_eff_nb$Tps_adh_P_par_L_2022.f)
 ```
 
 ## Sexe
@@ -340,13 +343,13 @@ Femme et Homme
 ### Femme
 
 ```{r}
-hist(tab_eff$Femmes_2022_p,breaks=c(0,25,50,75,100),xlab='Femmes', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Femmes_2022_p,breaks=c(0,25,50,75,100),xlab='Femmes', ylab='Effectif en pourcentage', main='Histogramme')
 abline(v=c(0,25,50,75,100),col="red", lwd=3)
 ``` 
 ### Hommes
 
 ```{r}
-hist(tab_eff$Hommes_2022_p,breaks=c(0,25,50,75,100),xlab='Hommes', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Hommes_2022_p,breaks=c(0,25,50,75,100),xlab='Hommes', ylab='Effectif en pourcentage', main='Histogramme')
 abline(v=c(0,25,50,75,100),col="red", lwd=3)
 ``` 
 
@@ -354,7 +357,7 @@ abline(v=c(0,25,50,75,100),col="red", lwd=3)
 ```{r}
 l2018=c(17,18)
 l2022=c(87,88)
-df1 = stack(tab_eff[,l2022])
+df1 = stack(tab_eff_nb[,l2022])
 n=nrow(df1)
 df1=aggregate(df1[,1],list(df1[,2]),sum)
 colnames(df1)[1]=c("Sexe")
@@ -378,7 +381,7 @@ Rspo et no respo
 ```{r}
 l2018=c(19,20)
 l2022=c(89,90)
-df1 = stack(tab_eff[,l2018])
+df1 = stack(tab_eff_nb[,l2018])
 n=nrow(df1)
 df1=aggregate(df1[,1],list(df1[,2]),sum)
 colnames(df1)[1]=c("Responsabilite")
@@ -394,7 +397,7 @@ print(ggplot(df1, aes(x="", y=x, fill=Responsabilite)) +
 ## VIP
 
 ```{r}
-df1=aggregate(tab_eff$VIP,list(tab_eff$VIP),length)
+df1=aggregate(tab_eff_nb$VIP,list(tab_eff_nb$VIP),length)
 colnames(df1)[1]=c("VIP")
 df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
 print(ggplot(df1, aes(x="", y=x, fill=VIP)) +
@@ -411,17 +414,17 @@ print(ggplot(df1, aes(x="", y=x, fill=VIP)) +
 ### 2018
 
 ```{r}
-table(tab_eff$Index_2018)
+table(tab_eff_nb$Index_2018)
 ```
 
 
 ```{r}
-tab_eff$Index_2018.f=cut(tab_eff$Index_2018, include.lowest = FALSE, right = TRUE,
+tab_eff_nb$Index_2018.f=cut(tab_eff_nb$Index_2018, include.lowest = FALSE, right = TRUE,
   breaks = c(0,0.05,0.1,0.2,0.3))
 ```
 
 ```{r}
-barplot(table(tab_eff$Index_2018.f))
+barplot(table(tab_eff_nb$Index_2018.f))
 ```
 
 
@@ -429,80 +432,80 @@ barplot(table(tab_eff$Index_2018.f))
 
 
 ```{r}
-table(tab_eff$Index_2019 )
+table(tab_eff_nb$Index_2019 )
 ```
 ```{r}
-tab_eff$Index_2019.f=cut(tab_eff$Index_2019, include.lowest = FALSE, right = TRUE,
+tab_eff_nb$Index_2019.f=cut(tab_eff_nb$Index_2019, include.lowest = FALSE, right = TRUE,
   breaks = c(-0.05,0,0.05,0.1,0.2))
 ```
 
 ```{r}
-barplot(table(tab_eff$Index_2019.f))
+barplot(table(tab_eff_nb$Index_2019.f))
 ``` 
 
 ### 2020
 
 ```{r}
-table(tab_eff$Index_2020)
+table(tab_eff_nb$Index_2020)
 ```
 ```{r}
-tab_eff$Index_2020.f=cut(tab_eff$Index_2020, include.lowest = FALSE, right = TRUE,
+tab_eff_nb$Index_2020.f=cut(tab_eff_nb$Index_2020, include.lowest = FALSE, right = TRUE,
   breaks = c(0,0.05,0.1,0.2))
 ```
 
 ```{r}
-barplot(table(tab_eff$Index_2020.f))
+barplot(table(tab_eff_nb$Index_2020.f))
 ```
 ### 2021
 
 ```{r}
-table(tab_eff$Index_2021)
+table(tab_eff_nb$Index_2021)
 ```
 ```{r}
-tab_eff$Index_2021.f=cut(tab_eff$Index_2021, include.lowest = FALSE, right = TRUE,
+tab_eff_nb$Index_2021.f=cut(tab_eff_nb$Index_2021, include.lowest = FALSE, right = TRUE,
   breaks = c(0,0.05,0.1))
 ```
 
 ```{r}
-barplot(table(tab_eff$Index_2021.f))
+barplot(table(tab_eff_nb$Index_2021.f))
 ```
 # 2022
 
 ```{r}
-table(tab_eff$Index_2022)
+table(tab_eff_nb$Index_2022)
 ```
 ```{r}
-tab_eff$Index_2022.f=cut(tab_eff$Index_2022, include.lowest = FALSE, right = TRUE,
+tab_eff_nb$Index_2022.f=cut(tab_eff_nb$Index_2022, include.lowest = FALSE, right = TRUE,
   breaks = c(0,0.05,0.1,0.2))
 ```
 
 ```{r}
-barplot(table(tab_eff$Index_2022.f))
+barplot(table(tab_eff_nb$Index_2022.f))
 ```
 
 ### 2023
 
 ```{r}
-table(tab_eff$Index_2023)
+table(tab_eff_nb$Index_2023)
 ```
 ```{r}
-tab_eff$Index_2023.f=cut(tab_eff$Index_2023, include.lowest = FALSE, right = TRUE,
+tab_eff_nb$Index_2023.f=cut(tab_eff_nb$Index_2023, include.lowest = FALSE, right = TRUE,
   breaks = c(0,0.05,0.1,0.25))
 ```
 
 ```{r}
-barplot(table(tab_eff$Index_2023.f))
+barplot(table(tab_eff_nb$Index_2023.f))
 ```
 
 
 ```{r}
 par(mfrow=c(3,2))
-barplot(table(tab_eff$Index_2018.f),xlab="indexation rate", ylab="frequency",main="2018")
-barplot(table(tab_eff$Index_2019.f),xlab="indexation rate", ylab="frequency",main="2019")
-barplot(table(tab_eff$Index_2020.f),xlab="indexation rate", ylab="frequency",main="2020")
-barplot(table(tab_eff$Index_2021.f),xlab="indexation rate", ylab="frequency",main="2021")
-barplot(table(tab_eff$Index_2022.f),xlab="indexation rate", ylab="frequency",main="2022")
-barplot(table(tab_eff$Index_2023.f),xlab="indexation rate", ylab="frequency",main="2023")
+barplot(table(tab_eff_nb$Index_2018.f),xlab="indexation rate", ylab="frequency",main="2018")
+barplot(table(tab_eff_nb$Index_2019.f),xlab="indexation rate", ylab="frequency",main="2019")
+barplot(table(tab_eff_nb$Index_2020.f),xlab="indexation rate", ylab="frequency",main="2020")
+barplot(table(tab_eff_nb$Index_2021.f),xlab="indexation rate", ylab="frequency",main="2021")
+barplot(table(tab_eff_nb$Index_2022.f),xlab="indexation rate", ylab="frequency",main="2022")
+barplot(table(tab_eff_nb$Index_2023.f),xlab="indexation rate", ylab="frequency",main="2023")
 
 ```
 
@@ -512,7 +515,7 @@ barplot(table(tab_eff$Index_2023.f),xlab="indexation rate", ylab="frequency",mai
 
 ### Renego2020
 ```{r}
-df1=aggregate(tab_eff[,58],list(tab_eff[,58]),length)
+df1=aggregate(tab_eff_nb[,58],list(tab_eff_nb[,58]),length)
 colnames(df1)[1]=c("Renego2020")
 df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
 print(ggplot(df1, aes(x="", y=x, fill=Renego2020)) +
@@ -524,7 +527,7 @@ print(ggplot(df1, aes(x="", y=x, fill=Renego2020)) +
 ```
 ### Renego2021
 ```{r}
-df1=aggregate(tab_eff[,76],list(tab_eff[,76]),length)
+df1=aggregate(tab_eff_nb[,76],list(tab_eff_nb[,76]),length)
 colnames(df1)[1]=c("Renego2021")
 df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
 print(ggplot(df1, aes(x="", y=x, fill=Renego2021)) +
@@ -537,7 +540,7 @@ print(ggplot(df1, aes(x="", y=x, fill=Renego2021)) +
 
 ### Renego2022
 ```{r}
-df1=aggregate(tab_eff[,95],list(tab_eff[,95]),length)
+df1=aggregate(tab_eff_nb[,95],list(tab_eff_nb[,95]),length)
 colnames(df1)[1]=c("Renego2022")
 df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
 print(ggplot(df1, aes(x="", y=x, fill=Renego2022)) +
