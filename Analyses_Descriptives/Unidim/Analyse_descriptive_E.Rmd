@@ -64,10 +64,9 @@ l2021=c(63:65)
 l2022=c(81:83)
 
 df1 = stack(tab_eff_nb[,l2022])
-n=nrow(df1)
 df1=aggregate(df1[,1],list(df1[,2]),sum)
 colnames(df1)[1]=c("Code_groupe_assure")
-df1$percent=paste(as.character(round(df1$x/(n/3),2)),"%")
+df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
 ggplot(df1, aes(x="", y=x, fill=Code_groupe_assure)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
@@ -81,23 +80,23 @@ ggplot(df1, aes(x="", y=x, fill=Code_groupe_assure)) +
 ### Actifs
 
 ```{r}
-boxplot(tab_eff_nb$Actifs_2022_p)
+boxplot(tab_eff_nb$Actifs_2022)
 ```
 
 
 ```{r}
-hist(tab_eff_nb$Actifs_2022_p,breaks=10,freq =TRUE, main = "Histogramme",xlab = "Actifs",ylab = "Effectifs")
+hist(tab_eff_nb$Actifs_2022,breaks=10,freq =TRUE, main = "Histogramme",xlab = "Actifs",ylab = "Effectifs")
 ```
 Les entreprises ont en principe soit 10% soit 100% actifs.
 ### Non actifs
 
 ```{r}
-boxplot(tab_eff_nb$Non_actifs_2022_p)
+boxplot(tab_eff_nb$Non_actifs_2022)
 ```
 
 
 ```{r}
-hist(tab_eff_nb$Non_actifs_2022_p,breaks =10,freq =TRUE, main = "Histogramme",xlab = "Non actifs",ylab = "effectifs")
+hist(tab_eff_nb$Non_actifs_2022,breaks =10,freq =TRUE, main = "Histogramme",xlab = "Non actifs",ylab = "effectifs")
 
 ```
 
@@ -106,12 +105,12 @@ hist(tab_eff_nb$Non_actifs_2022_p,breaks =10,freq =TRUE, main = "Histogramme",xl
 
 
 ```{r}
-boxplot(tab_eff_nb$Portabilite_2022_p)
+boxplot(tab_eff_nb$Portabilite_2022)
 ```
 
 
 ```{r}
-hist(tab_eff_nb$Portabilite_2022_p,breaks =5,freq =TRUE, main = "Histogramme",xlab = "Portabilite",ylab = "effectifs")
+hist(tab_eff_nb$Portabilite_2022,breaks =5,freq =TRUE, main = "Histogramme",xlab = "Portabilite",ylab = "effectifs")
 ```
 
 
@@ -125,11 +124,10 @@ l2020=c(48:50)
 l2021=c(66:68)
 l2022=c(84:86)
 
-df1 = stack(tab_eff_nb[,l2021])
-n=nrow(df1)
+df1 = stack(tab_eff_nb[,l2022])
 df1=aggregate(df1[,1],list(df1[,2]),sum)
 colnames(df1)[1]=c("Type_assure")
-df1$percent=paste(as.character(round(df1$x/(n/3),2)),"%")
+df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
 ggplot(df1, aes(x="", y=x, fill=Type_assure)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
@@ -147,22 +145,19 @@ On remarque le nombre d'assuré principal est supérieur aux autres catégories 
 
 
 ```{r}
-hist(tab_eff_nb$Asspri_2022_p,breaks=c(0,25,50,75,100),xlab='Assuré principal', ylab='Effectif en pourcentage', main='Histogramme')
-abline(v=c(0,25,50,75,100),col="red", lwd=3)
+hist(tab_eff_nb$Asspri_2022,breaks=100,xlab='Assuré principal', ylab='Effectif en pourcentage', main='Histogramme')
 ``` 
 ### Conjoint
 
 
 ```{r}
-hist(tab_eff_nb$Conjoint_2022_p,breaks=c(0,25,50,75,100),xlab='Conjoint', ylab='Effectif en pourcentage', main='Histogramme')
-abline(v=c(0,25,50,75,100),col="red", lwd=3)
+hist(tab_eff_nb$Conjoint_2022,breaks=100,xlab='Conjoint', ylab='Effectif en pourcentage', main='Histogramme')
 ``` 
 
 ### Enfants
 
 ```{r}
-hist(tab_eff_nb$Enfants_2022_p,breaks=c(0,25,50,75,100),xlab='Enfant', ylab='Effectif en pourcentage', main='Histogramme')
-abline(v=c(0,25,50,75,100),col="red", lwd=3)
+hist(tab_eff_nb$Enfants_2022,breaks=100,xlab='Enfant', ylab='Effectif en pourcentage', main='Histogramme')
 ``` 
 
 ## Produit
@@ -232,24 +227,15 @@ levels(tab_eff_nb$Regroup4)
 
 Regroup5 = Base et option
 
-### Base
-
-```{r}
-hist(tab_eff_nb$Base_2018, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff_nb$Base_2019, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff_nb$Base_2020, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff_nb$Base_2021, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff_nb$Base_2022, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
-``` 
 ### Option
 
 ```{r}
 #par(mfrow=c(3,2))
-hist(tab_eff_nb$Option_2018_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff_nb$Option_2019_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff_nb$Option_2020_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff_nb$Option_2021_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff_nb$Option_2022_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Option_2018,breaks=1000,xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Option_2019,breaks=1000,xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Option_2020,breaks=1000,xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Option_2021,breaks=1000,xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Option_2022,breaks=1000,xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
 ``` 
 
 ## Nombre de personnes et de familles dans un lien
@@ -343,25 +329,26 @@ Femme et Homme
 ### Femme
 
 ```{r}
-hist(tab_eff_nb$Femmes_2022_p,breaks=c(0,25,50,75,100),xlab='Femmes', ylab='Effectif en pourcentage', main='Histogramme')
-abline(v=c(0,25,50,75,100),col="red", lwd=3)
+hist(tab_eff_nb$Femmes_2022,breaks=100,xlab='Femmes', ylab='Effectif en pourcentage', main='Histogramme')
 ``` 
 ### Hommes
 
 ```{r}
-hist(tab_eff_nb$Hommes_2022_p,breaks=c(0,25,50,75,100),xlab='Hommes', ylab='Effectif en pourcentage', main='Histogramme')
-abline(v=c(0,25,50,75,100),col="red", lwd=3)
+hist(tab_eff_nb$Hommes_2022,breaks=100,xlab='Hommes', ylab='Effectif en pourcentage', main='Histogramme')
 ``` 
 
 
 ```{r}
 l2018=c(17,18)
+l2019=c(34,35)
+l2020=c(51,52)
+l2021=c(69,70)
 l2022=c(87,88)
-df1 = stack(tab_eff_nb[,l2022])
+df1 = stack(tab_eff_nb[,l2020])
 n=nrow(df1)
 df1=aggregate(df1[,1],list(df1[,2]),sum)
 colnames(df1)[1]=c("Sexe")
-df1$percent=paste(as.character(round(df1$x/(n/2),2)),"%")
+df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
 print(ggplot(df1, aes(x="", y=x, fill=Sexe)) +
     geom_bar(stat="identity", width=1) +
     coord_polar("y", start=0)+
@@ -381,11 +368,11 @@ Rspo et no respo
 ```{r}
 l2018=c(19,20)
 l2022=c(89,90)
-df1 = stack(tab_eff_nb[,l2018])
+df1 = stack(tab_eff_nb[,l2022])
 n=nrow(df1)
 df1=aggregate(df1[,1],list(df1[,2]),sum)
 colnames(df1)[1]=c("Responsabilite")
-df1$percent=paste(as.character(round(df1$x/(n/2),2)),"%")
+df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
 print(ggplot(df1, aes(x="", y=x, fill=Responsabilite)) +
     geom_bar(stat="identity", width=1) +
     coord_polar("y", start=0)+
