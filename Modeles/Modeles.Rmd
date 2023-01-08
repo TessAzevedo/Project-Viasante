@@ -32,18 +32,23 @@ head(dataset_2022)
 
 On va retirer code APE et departement de l'étude car il y a trop de données manquantes.
 
-```{r}
-dataset_2022=dataset_2022[,-c(2,3)]
-head(dataset_2022)
-```
+# Retrait var corrélées
 
-`
+```{r}
+dataset_2022=dataset_2022[,-c(10,13,15,17,38,39)]
+```
+portabilite
+enfants
+homme
+non respo
+var PC
+prest pp
 
 # ACP
 
 ```{r}
 library(FactoMineR)
-ind_num=c(5:22,26:43)
+ind_num=c(5:17,21:36)
 dataset_2022_num=dataset_2022[,ind_num]
 res.acp <- PCA(dataset_2022_num, scale.unit = TRUE, graph=FALSE)
 options(repr.plot.width = 12, repr.plot.height = 10)
@@ -62,8 +67,8 @@ On garde 4 composantes pour avoir au moins 60% d'inertie cumulée.
 
 ```{r}
 options(repr.plot.width = 15, repr.plot.height = 15)
-par(mfrow = c(4, 1))
-for (i in 1:4){
+par(mfrow = c(3, 1))
+for (i in 1:3){
     plot(res.acp$svd$V[, i], type = "o", main = paste("Comp. ", i), xlab = "Time", ylab = "",
          ylim = c(-0.6, 0.6), col = "blue")
     abline(h = 0, lty = "dotted")
@@ -75,23 +80,18 @@ library(factoextra);library(cowplot)
 f1=fviz_contrib(res.acp, choice="var", axes=1, color="black", fill="lightgray")
 f2=fviz_contrib(res.acp, choice="var", axes=2, color="black", fill="lightgray")
 f3=fviz_contrib(res.acp, choice="var", axes=3, color="black", fill="lightgray")
-f4=fviz_contrib(res.acp, choice="var", axes=4, color="black", fill="lightgray")
-plot_grid(f1,f2,f3,f4)
+plot_grid(f1,f2,f3)
 ```
 compo 1 : des montants, base/option, nb personnes et familles
-compo 2 : actifs/non actifs, enfants, R/NR (pourcentage) +cot PP
-compo 3 : var pc, presta pp, pc, sexe
-compo 4 : temps d'adhésion + sexe
+compo 2 : actifs/non actifs,  R/NR (pourcentage) +cot PP
+compo 3 : conjoint asspri index temps d'adhésion
 
 ```{r}
 options(repr.plot.width =8 , repr.plot.height = 6)
 acp <- PCA(dataset_2022[,ind_num], scale.unit = TRUE, graph = F)
 plot(acp, axes = c(1, 2), choix = "var")
 plot(acp, axes = c(1, 3), choix = "var")
-plot(acp, axes = c(1, 4), choix = "var")
 plot(acp, axes = c(2, 3), choix = "var")
-plot(acp, axes = c(2, 4), choix = "var")
-plot(acp, axes = c(3,4), choix = "var")
 
 ```
 
@@ -118,8 +118,8 @@ fviz_pca_ind(res.acp, col.ind = dataset_2022$Regroup1,repel = TRUE ,title="graph
 ```{r}
 options(repr.plot.width =8 , repr.plot.height = 6)
 
-fviz_pca_ind(res.acp, axes=c(2,4), col.ind = dataset_2022$VIP,repel = TRUE ,title="graphe des individus avec distinction vip/no vip")
-fviz_pca_ind(res.acp, axes=c(2,4),col.ind = dataset_2022$Respo_2022_p,repel = TRUE ,title="graphe des individus avec distinction Respo/Non Respo")
+fviz_pca_ind(res.acp, axes=c(1,2), col.ind = dataset_2022$VIP,repel = TRUE ,title="graphe des individus avec distinction vip/no vip")
+fviz_pca_ind(res.acp, axes=c(1,2),col.ind = dataset_2022$Respo_2022_p,repel = TRUE ,title="graphe des individus avec distinction Respo/Non Respo")
 ```
 
 # Clustering
@@ -139,8 +139,8 @@ plot(arbre, labels = FALSE, main = "Dendrogramme")
 Saut à 4 ou 6.
 
 ```{r}
-C = res.acp$var$coord[,1:4]
-C = res.acp$ind$coord[,1:4]
+C = res.acp$var$coord[,1:3]
+C = res.acp$ind$coord[,1:3]
 dataset_2022_ACP = C
 ```
 # Clustering sur toutes les données
@@ -199,6 +199,21 @@ clust4=dataset_2022[indice,] #9 obs
 
 ```
 
+
+
+# Save clust
+
+```{r save}
+clust1=droplevels(clust1)
+clust2=droplevels(clust2)
+clust3=droplevels(clust3)
+clust4=droplevels(clust4)
+
+save(clust1, file='../Donnees/Clust/Clust1.Rdata')
+save(clust2, file='../Donnees/Clust/Clust2.Rdata')
+save(clust3, file='../Donnees/Clust/Clust3.Rdata')
+save(clust4, file='../Donnees/Clust/Clust4.Rdata')
+```
 ## qualitative variable
 ```{r}
 summary(clust1)
@@ -214,6 +229,14 @@ hist(clust3$Nb_pers_2022,breaks=1000,xlim=c(0,quantile(clust3$Nb_pers_2022,0.8))
 hist(clust4$Nb_pers_2022,breaks=1000,xlim=c(0,quantile(clust4$Nb_pers_2022,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
 ```
 Ils semblent que dans les clusters 2, 3 et 4, une observations correspondent à 1 nb_pers
+
+```{r}
+summary(clust1$Nb_pers_2022)
+summary(clust2$Nb_pers_2022)
+summary(clust3$Nb_pers_2022)
+summary(clust4$Nb_pers_2022)
+```
+
 ### Regroup1
 
 ```{r}
@@ -235,12 +258,46 @@ hist(clust4$Option_2022_p,breaks = 50)
 ```
 
 ### Code groupe ass
+
+
 ```{r}
-df1 = stack(clust1[,c(9:11)])
+load(file="../Donnees/Effectifs/Effectif_final_nb.Rdata")
+```
+
+
+```{r}
+garder<-function(data,clust){
+  keep=c()
+  list=as.character(clust$Lien_E)
+  for(j in 1:length(list)){
+      for (i in 1:nrow(data)){
+        if(data$Lien_E[i]==list[j]){
+          keep=c(keep,i)
+        }
+    }
+  }
+  return(keep)
+}
+```
+
+
+```{r}
+ind1=garder(tab_eff_nb,clust1)
+c1=tab_eff_nb[ind1,]
+ind2=garder(tab_eff_nb,clust2)
+c2=tab_eff_nb[ind2,]
+ind3=garder(tab_eff_nb,clust3)
+c3=tab_eff_nb[ind3,]
+ind4=garder(tab_eff_nb,clust4)
+c4=tab_eff_nb[ind4,]
+```
+
+```{r}
+df1 = stack(c1[,c(9:11)])
 n=nrow(df1)
 df1=aggregate(df1[,1],list(df1[,2]),sum)
 colnames(df1)[1]=c("Code_groupe_ass")
-df1$x=round(df1$x/(n/3),digit=2)
+df1$x=round(df1$x/sum(df1$x)*100,digit=2)
 ggplot(df1, aes(x="", y=x, fill=Code_groupe_ass)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
@@ -249,11 +306,11 @@ ggplot(df1, aes(x="", y=x, fill=Code_groupe_ass)) +
     geom_text(aes(label = x),
             position = position_stack(vjust = 0.8))
 
-df1 = stack(clust2[,c(9:11)])
+df1 = stack(c2[,c(9:11)])
 n=nrow(df1)
 df1=aggregate(df1[,1],list(df1[,2]),sum)
 colnames(df1)[1]=c("Code_groupe_ass")
-df1$x=round(df1$x/(n/3),digit=2)
+df1$x=round(df1$x/sum(df1$x)*100,digit=2)
 ggplot(df1, aes(x="", y=x, fill=Code_groupe_ass)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
@@ -261,11 +318,11 @@ ggplot(df1, aes(x="", y=x, fill=Code_groupe_ass)) +
    ggtitle("Code groupe assurés")+
     geom_text(aes(label = x),
             position = position_stack(vjust = 0.8))
-df1 = stack(clust3[,c(9:11)])
+df1 = stack(c3[,c(9:11)])
 n=nrow(df1)
 df1=aggregate(df1[,1],list(df1[,2]),sum)
 colnames(df1)[1]=c("Code_groupe_ass")
-df1$x=round(df1$x/(n/3),digit=2)
+df1$x=round(df1$x/sum(df1$x)*100,digit=2)
 ggplot(df1, aes(x="", y=x, fill=Code_groupe_ass)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
@@ -273,11 +330,11 @@ ggplot(df1, aes(x="", y=x, fill=Code_groupe_ass)) +
    ggtitle("Code groupe assurés")+
     geom_text(aes(label = x),
             position = position_stack(vjust = 0.8))
-df1 = stack(clust4[,c(9:11)])
+df1 = stack(c4[,c(9:11)])
 n=nrow(df1)
 df1=aggregate(df1[,1],list(df1[,2]),sum)
 colnames(df1)[1]=c("Code_groupe_ass")
-df1$x=round(df1$x/(n/3),digit=2)
+df1$x=round(df1$x/sum(df1$x)*100,digit=2)
 ggplot(df1, aes(x="", y=x, fill=Code_groupe_ass)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
