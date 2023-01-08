@@ -1,10 +1,12 @@
 ---
-title: "Effectif_freeze_Regroup"
+title: "Analyse_descriptive"
 author: "Manon Santrisse"
-date: '2022-10-18'
-output: pdf_document
+date: "15/11/2022"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
 ---
-
 
 ```{r library, include=FALSE}
 library(dplyr)
@@ -15,7 +17,6 @@ library(FactoMineR)
 library(factoextra)
 library(cowplot)
 library("NbClust")
-library(missForest)
 library(writexl)
 library("scales")
 library(readr)
@@ -24,633 +25,530 @@ library(data.table)
 ```
 
 
-# Récupération du jeu Effectifs_freeze.Rdata
+
+# Récupération du jeu Effectif_final.Rdata
 ```{r recup, echo=TRUE}
-load('../Donnees/Effectifs/Effectifs_freeze.Rdata')
-head(effectif_freeze)
-```
-
-
-
-# Définition du format pour chaque variable
-
-- Gp assurés : mettre majorité
-- Produit : Il y a plus de 2000 produits donc on ne peut pas faire une variable par produit. Une entreprise semble avoir au maximum 3 produits et chaque produit mène à une indexation différente donc il serait intéressant de garder les 3 produits les plus représenté par ordre et leur indexation
-- Date d'adhésion : pas d'intérêt / mettre année la plus vieille
-- Code APE : mettre majorité
-- Département : mettre majorité
-- Regroup 1 : mettre majorité
-- Regroup 4 : semble 1 entreprise = 1 regroup 4
-- Regroup 5 : Créer 4 catégories (Base, Option, Asso, Surcomp) et mettre la majorité
-- Num pers/ num Ind: calculer nombre de personnes et de famille. Attention ! Enlever les personnes radiées
-- Date adhésion pers : pas d'intérêt
-- Date radiation : voir précédement
-- Type assuré : 3 catégories = variables avec leurs effectifs
-- Sexe : 2 catégories = variables avec leurs effectifs
-- Date de naissance : pas d'intérêt / sinon tranche d'âge
-- R/RN : 2 catégories = variables avec leurs effectifs
-- Num contrat grandes entreprises: faire 1 variable oui/non
-- Indexation 2018/2019/2020 : faire pour les 3 produits
-- Renégo 2020/2021/2022 : variable oui/non
-
-
-# Fonctions pour attribuer une ligne par entreprise
-
-## Dataframes de test
-```{r datatest, echo=FALSE}
-L1=subset(effectif_freeze,Lien.entreprise.Anonyme==1)
-L1=droplevels(L1)
-L2=subset(effectif_freeze,Lien.entreprise.Anonyme==2)
-L2=droplevels(L2)
-L9=subset(effectif_freeze,Lien.entreprise.Anonyme==9) #plusieurs entreprises dans le lien 9
-L9=droplevels(L9)
-L1002=subset(effectif_freeze,Lien.entreprise.Anonyme==1002) #plusieurs produits dans le lien 1002
-L1002=droplevels(L1002)
-```
-
-### Garder une ligne par personne (Num.personne.anonyme)
-
-
-```{r}
-one_line_by_pers<-function(data){
-  niv=levels(data$Num.Personne.Anonyme)
-  list=c()
-  for (i in niv){
-    k=0
-    for (j in 1:nrow(data)){
-      if(as.character(data$Num.Personne.Anonyme[j])==i & k!=0){
-        list=c(list,j)
-      }else if (as.character(data$Num.Personne.Anonyme[j])==i & k==0){
-        k=k+1
-      }
-    }
-  }
-  if (length(list) !=0){
-    data=data[-list,]
-  }
-return (data)
-}
-
-
-```
-
-```{r}
-L1002b=one_line_by_pers(L1002)
-L2b=one_line_by_pers(L2)
-L10=subset(effectif_freeze,Lien.entreprise.Anonyme==10)
-L10=droplevels(L10)
-L10b=one_line_by_pers(L10)
-```
-
-
-## Garder le max représenté
-Pour les variables :
-
-- Code APE (6)
-- Département (7)
-- Regroup1 (8)
-- Regroup4 (9)
-
-
-```{r max}
-max_repr <- function(data,ind){
-  if (length(table(data[,ind]))!=0){
-    frequences=as.data.frame(table(data[,ind]))
-    ind_level_max=which(table(data[,ind])==max(table(data[,ind])))
-    level_max=frequences[ind_level_max,1]
-    return (as.character(level_max[1]))
-  }else{
-    return (NA)
-  }
-}
-```
-
-Test unitaire de max_repr
-
-```{r test_unit_max_repr}
-max_repr(L1,6)
-max_repr(L1,7)
-max_repr(L1,8)
-max_repr(L1,9)
-```
-
-
-## Catégories et effectifs
-Pour les varaibles suivantes :
-- Type assuré
-- Sexe
-- R/RN
-- Regroup5
-- Code groupe assuré
-```{r}
-code=aggregate(L1002b$Code.Grp.Assures,list(L1002b$Code.Grp.Assures),length)
-code
-```
-```{r}
-codep=pourcentage(nrow(L1002b),code)
-codep
-```
-
-
-```{r}
-#transpose(aggregate(L2$Type.Assure,list(L2$Type.Assure),length))
-type=aggregate(L2$Type.Assure,list(L2$Type.Assure),length)
-sexe=aggregate(L2$Sexe,list(L2$Sexe),length)
-r.rn=aggregate(L2$R.NR,list(L2$R.NR),length)
-#r.rn=aggregate(L9$R.NR,list(L9$R.NR),length)
-type
-sexe
-r.rn
-```
-
-Mise en pourcentage
-```{r}
-pourcentage<-function(nb_pers,eff){
-  eff[,2]=round(eff[,2]/nb_pers*100, digit=2)
-  return(eff)
-}
-```
-
-```{r test_unit_pourcentage}
-pourcentage(nrow(L2),type)
-pourcentage(nrow(L2),sexe)
-pourcentage(nrow(L2),r.rn)
-```
-
- 
- 
-## Temps d'adhésion lien
-Calculer le temps moyen d'adhésion d'un lien en calculant le temps moyen d'adhésion des entreprises dans un lien en le pondérant par effectifs de l'entreprise
-```{r temps_adhe_L}
-temps_adh_E_par_L<-function(data,annee){
-  n=length(levels(data[,1]))
-  tab <- data.frame(Tmps_Entreprise = integer(n),
-                 Effectif_Entreprise = integer(n))
-  
-    for (i in 1:n){
-        temps=0
-        sub_entreprise<-subset(data,Num.Ctr.Coll.Anonyme==as.integer(levels(data[,1])[i]))
-        temps=as.numeric(as.Date(paste(annee,"-12-31",sep=""))-sub_entreprise[1,4])
-        tab$Tmps_Entreprise[i]=as.integer(temps)
-        tab$Effectif_Entreprise[i]=nrow(sub_entreprise)
-        
-      }
-    
-    adh=sum(tab$Tmps_Entreprise*tab$Effectif_Entreprise)/nrow(data)
-
-
-
-  return(round(as.integer(adh)/365,digit=1))
-}
-
-```
-
-```{r test_unit_tps_adh_E}
-print(temps_adh_E_par_L(sub_lien_2018,2018))
-#print(temps_adh_L(L9))
-```
-
-## Effectif personnes et familles
-Pour les variables :
-- Num pers
-- Num ind
-
-Avec retrait des personnes et familles radiées.
-```{r fonct eff_pers_fam}
-effectif_pers_fam<-function(data){
-  n=5
-  tab <- data.frame(Annnee = c(2018,2019,2020,2021,2022),Nb_pers = integer(n), Nb_fam =integer(n))
-
-  an=c(2018,2019,2020,2021,2022)
-  j=1
-  for(i in an){ 
-    data_sub=subset(data, year(data[,13])<=i & year(data[,14])>=i)
-    data_sub=droplevels(data_sub)
-    tab$Nb_pers[j]=length(levels(data_sub[,11]))
-    tab$Nb_fam[j]=length(levels(data_sub[,12]))
-    j=j+1
-  }
-
-  return (tab)
-}
-```
-
-Test unitaire
-```{r test_unit_pers_fam}
-effectif_pers_fam(L1)
-effectif_pers_fam(L9)
-effectif_pers_fam(L1002)
-#nb pers, nb_fam
-```
-
-
-
-## Temps d'adhésion moyenne des personnes
-Temps moyen d'adhésion des personnes à un lien en le pondérant par l'effectif dans chaque annee.
-```{r tps adh P}
-temps_adh_P_par_L<-function(data,annee){
-
-  
-  #calcul du nombre d'entrepise dans le lien
-  n=length(levels(data[,1]))
-  tab <- data.frame(Tmps_Entreprise = integer(n),
-                 Effectif_Entreprise = integer(n))
-    
-    for (i in 1:n){
-      adh=0
-      sub_entreprise<-subset(data,Num.Ctr.Coll.Anonyme==as.integer(levels(data[,1])[i]))
-      for (j in 1:nrow(sub_entreprise)){
-      #calcul temps adhesion de toutes les personnes dans  une entreprise
-          adh=adh+as.numeric(as.Date(paste(annee,"-12-31",sep=""))-sub_entreprise[j,13])
-        }
-      
-      tab$Tmps_Entreprise[i]=adh
-      tab$Effectif_Entreprise[i]=nrow(sub_entreprise)
-    }
-
-  #total
-  adh_moyenne=sum(tab$Tmps_Entreprise/tab$Effectif_Entreprise)/n
-  if (adh_moyenne<0){
-    adh_moyenne=0
-  }
-  return (round((adh_moyenne)/365,digit=1))
-}
-```
-
-
-```{r test_unit_adh_moy}
-temps_adh_P_par_L(sub_lien_2018,2018)
-#temps_moy_adh_P(L1002)
-```
-
-
-## 0/1 pour Grands comptes
-
-```{r boolean_gd_compte} 
-# true or false
-gd_compte<-function(data){
-  return (data[1,20])
-}
-```
-
-
-Test unitaire
-```{r}
-gd_compte(L2)
-gd_compte(L1)
-```
-
-# Récupération du nombre d'entreprises et de liens
-```{r}
-paste("Il y a ", length(levels(effectif_freeze$Num.Ctr.Coll.Anonyme)), "entreprises.")
-paste("Il y a ",length(levels(effectif_freeze$Lien.entreprise.Anonyme))," liens")
-nb_liens=length(levels(effectif_freeze$Lien.entreprise.Anonyme))
-
-```
-
-## Création d'un dataframe pour récupérer ces nouvelles informations
-
-```{r}
-tab <- data.frame(Lien_E = integer(nb_liens),
-                 # commun aux années
-                 Code_ape = character(nb_liens),
-                 Departement= character(nb_liens),
-                 Regroup1= character(nb_liens),
-                 Regroup4=character(nb_liens),
-                 Produit_max=integer(nb_liens),
-                 #2018
-                 Nb_pers_2018 = integer(nb_liens),
-                 Nb_fam_2018 =integer(nb_liens),
-                 Base_2018 = integer(nb_liens),
-                 Option_2018_p = integer(nb_liens),
-                 Actifs_2018_p =numeric(nb_liens),
-                 Non_actifs_2018_p=numeric(nb_liens),
-                 Portabilite_2018_p=numeric(nb_liens),
-                 Asspri_2018_p = numeric(nb_liens),
-                 Conjoint_2018_p = numeric(nb_liens),
-                 Enfants_2018_p =numeric(nb_liens),
-                 Femmes_2018_p= numeric(nb_liens),
-                 Hommes_2018_p=numeric(nb_liens),
-                 Respo_2018_p=numeric(nb_liens),
-                 Non_respo_2018_p=numeric(nb_liens),
-                 Index_2018 = numeric(nb_liens),
-                 Tps_adh_E_par_L_2018= numeric(nb_liens),
-                 Tps_adh_P_par_L_2018= numeric(nb_liens),
-                 #2019
-                 Nb_pers_2019 = integer(nb_liens),
-                 Nb_fam_2019 =integer(nb_liens),
-                 Base_2019 = integer(nb_liens),
-                 Option_2019_p = integer(nb_liens),
-                 Actifs_2019_p =numeric(nb_liens),
-                 Non_actifs_2019_p=numeric(nb_liens),
-                 Portabilite_2019_p=numeric(nb_liens),
-                 Asspri_2019_p = numeric(nb_liens),
-                 Conjoint_2019_p = numeric(nb_liens),
-                 Enfants_2019_p =numeric(nb_liens),
-                 Femmes_2019_p= numeric(nb_liens),
-                 Hommes_2019_p=numeric(nb_liens),
-                 Respo_2019_p=numeric(nb_liens),
-                 Non_respo_2019_p=numeric(nb_liens),
-                 Index_2019 = numeric(nb_liens),
-                 Tps_adh_E_par_L_2019= numeric(nb_liens),
-                 Tps_adh_P_par_L_2019= numeric(nb_liens),
-                 #2020
-                 Nb_pers_2020 = integer(nb_liens),
-                 Nb_fam_2020 =integer(nb_liens),
-                 Base_2020 = integer(nb_liens),
-                 Option_2020_p = integer(nb_liens),
-                 Actifs_2020_p =numeric(nb_liens),
-                 Non_actifs_2020_p=numeric(nb_liens),
-                 Portabilite_2020_p=numeric(nb_liens),
-                 Asspri_2020_p = numeric(nb_liens),
-                 Conjoint_2020_p = numeric(nb_liens),
-                 Enfants_2020_p =numeric(nb_liens),
-                 Femmes_2020_p= numeric(nb_liens),
-                 Hommes_2020_p=numeric(nb_liens),
-                 Respo_2020_p=numeric(nb_liens),
-                 Non_respo_2020_p=numeric(nb_liens),
-                 Index_2020 = numeric(nb_liens),
-                 Tps_adh_E_par_L_2020= numeric(nb_liens),
-                 Tps_adh_P_par_L_2020= numeric(nb_liens),
-                 Nego_2020=logical(nb_liens),
-                 #2021
-                 Nb_pers_2021 = integer(nb_liens),
-                 Nb_fam_2021 =integer(nb_liens),
-                 Base_2021 = integer(nb_liens),
-                 Option_2021_p = integer(nb_liens),
-                 Actifs_2021_p =numeric(nb_liens),
-                 Non_actifs_2021_p=numeric(nb_liens),
-                 Portabilite_2021_p=numeric(nb_liens),
-                 Asspri_2021_p = numeric(nb_liens),
-                 Conjoint_2021_p = numeric(nb_liens),
-                 Enfants_2021_p =numeric(nb_liens),
-                 Femmes_2021_p= numeric(nb_liens),
-                 Hommes_2021_p=numeric(nb_liens),
-                 Respo_2021_p=numeric(nb_liens),
-                 Non_respo_2021_p=numeric(nb_liens),
-                 Index_2021 = numeric(nb_liens),
-                 Tps_adh_E_par_L_2021= numeric(nb_liens),
-                 Tps_adh_P_par_L_2021= numeric(nb_liens),
-                 Nego_2021=logical(nb_liens),
-                 #2022
-                 Nb_pers_2022 = integer(nb_liens),
-                 Nb_fam_2022 =integer(nb_liens),
-                 Base_2022 = integer(nb_liens),
-                 Option_2022_p = integer(nb_liens),
-                 Actifs_2022_p =numeric(nb_liens),
-                 Non_actifs_2022_p=numeric(nb_liens),
-                 Portabilite_2022_p=numeric(nb_liens),
-                 Asspri_2022_p = numeric(nb_liens),
-                 Conjoint_2022_p = numeric(nb_liens),
-                 Enfants_2022_p =numeric(nb_liens),
-                 Femmes_2022_p= numeric(nb_liens),
-                 Hommes_2022_p=numeric(nb_liens),
-                 Respo_2022_p=numeric(nb_liens),
-                 Non_respo_2022_p=numeric(nb_liens),
-                 Index_2022 = numeric(nb_liens),
-                 Index_2023 = numeric(nb_liens),
-                 Tps_adh_E_par_L_2022= numeric(nb_liens),
-                 Tps_adh_P_par_L_2022= numeric(nb_liens),
-                 Nego_2022=logical(nb_liens),
-                 VIP=logical(nb_liens))
-
-```                 
-      
-            
-                 
-## Subdataset par lien entreprise
-
-
-
-```{r}
-remplissage_annee<- function(i,a,annee,prod,tab,data,ind_list){
-  #i:numero de lien 
-  #a : index rate
-  # annee : annee d'etude
-  #prod : prod max du lien
-  # tab :tab a completer
-  # data : dataset d l'annee
-  # ind_list :list ind a completer dans tab
-    #nb personne
-    tab[i,ind_list[1]] = length(levels(data$Num.Personne.Anonyme))
-    #nb famille
-    tab[i,ind_list[2]] =length(levels(data$Num.Ctr.Indiv.Anonyme))
-    
-    #base et option (regroup5)
-    regroup5=aggregate(data[,10],list(data[,10]),length)
-    regroup5_p=pourcentage(tab[i,ind_list[1]],regroup5)
-    ind_base=which(regroup5=="BASE")
-    ind_option=which(regroup5=="OPTION")
-    if(length(ind_base)){
-      tab[i,ind_list[3]]=regroup5[ind_base,2]
-    }else{
-      tab[i,ind_list[3]]=0
-    }
-    if(length(ind_option)){
-      tab[i,ind_list[4]]=regroup5_p[ind_option,2]
-    }else{
-      tab[i,ind_list[4]]=0
-    }
-    
-    #Code groupe assures
-    ####
-    sub=subset(data,Type.Assure=='ASSPRI')
-    ###
-    if (nrow(sub) != 0){
-    code_gp_as=aggregate(sub[,2],list(sub[,2]),length)
-    code_gp_as_p=pourcentage(nrow(sub),code_gp_as)
-    ind_actifs=which(code_gp_as=="ACTIFS")
-    ind_non_actifs=which(code_gp_as=="NON_ACTIFS")
-    ind_portabi=which(code_gp_as=="PORTABILITE")
-    if(length(ind_actifs)){
-      tab[i,ind_list[5]]=code_gp_as_p[ind_actifs,2]
-    }else{
-      tab[i,ind_list[5]]=0.0
-    }
-    if(length(ind_non_actifs)){
-      tab[i,ind_list[6]]=code_gp_as_p[ind_non_actifs,2]
-    }else{
-      tab[i,ind_list[6]]=0.0
-    }
-    if(length(ind_portabi)){
-      tab[i,ind_list[7]]=code_gp_as_p[ind_portabi,2]
-    }else{
-      tab[i,ind_list[7]]=0.0
-    }
-    }
-
-    #assure conjoint enfant 
-    type_ass=aggregate(data[,15],list(data[,15]),length)
-    type_ass_p=pourcentage(tab[i,ind_list[1]],type_ass)
-    ind_as=which(type_ass=="ASSPRI")
-    ind_conj=which(type_ass=="CONJOI")
-    ind_enf=which(type_ass=="ENFANT")
-    if(length(ind_as)){
-      tab[i,ind_list[8]]=type_ass_p[ind_as,2]
-    }else{
-      tab[i,ind_list[8]]=0.0
-    }
-    if(length(ind_conj)){
-      tab[i,ind_list[9]]=type_ass_p[ind_conj,2]
-    }else{
-      tab[i,ind_list[9]]=0.0
-    }
-    if(length(ind_enf)){
-      tab[i,ind_list[10]]=type_ass_p[ind_enf,2]
-    }else{
-      tab[i,ind_list[10]]=0.0
-    }   
-
-    #sexe
-    sexe=aggregate(data[,16],list(data[,16]),length)
-    sexe_percent=pourcentage(tab[i,ind_list[1]],sexe)
-    ind_m=which(sexe=="M")
-    ind_f=which(sexe=="F")
-    if(length(ind_m)){
-      tab[i,ind_list[12]]=sexe_percent[ind_m,2]
-    }else{
-      tab[i,ind_list[12]]=0.0
-    }
-    if(length(ind_f)){
-      tab[i,ind_list[11]]=sexe_percent[ind_f,2]
-    }else{
-      tab[i,ind_list[11]]=0.0
-    }
-    
-    #r.rn
-    RNR=aggregate(data[,18],list(data[,18]),length)
-    RNR_percent=pourcentage(tab[i,ind_list[1]],RNR)
-    ind_r=which(RNR=="R")
-    ind_rn=which(RNR=="NR")
-    if(length(ind_r)){
-      tab[i,ind_list[13]]=RNR_percent[ind_r,2]
-    }else{
-      tab[i,ind_list[13]]=0
-    }
-    if(length(ind_rn)){
-      tab[i,ind_list[14]]=RNR_percent[ind_rn,2]
-    }else{
-      tab[i,ind_list[14]]=0.0
-    }
-    #index produit max
-    
-    sub_prod=subset(data,Produit.Anonyme=prod)
-    tab[i,ind_list[15]] = sub_prod[i,a]
-    
-    tab[i,ind_list[16]]=temps_adh_E_par_L(data,annee)
-    tab[i,ind_list[17]]=temps_adh_P_par_L(data,annee)
-    
-
-    return (tab[i,list])
-
-}
+load('../../Donnees/Effectifs/Effectif_final_nb.Rdata')
+head(tab_eff_nb)
 ```
 
 
 
 
 ```{r}
-for (i in 1:nb_liens){
-
-  #recup num de lien
-  lien=levels(effectif_freeze$Lien.entreprise.Anonyme)[i]
-  
-  print(paste("i",i,"lien",lien))
-  #recuperer les liens qui concernent uniquement le lien i
-  sub_lien=subset(effectif_freeze,Lien.entreprise.Anonyme==lien)
-  # suppression des levels vides
-  sub_lien=droplevels(sub_lien)
-  #Une ligne par num personne
-  sub_lien=one_line_by_pers(sub_lien)
-  
-  
-  #remplissage de tab pour les valeurs communes
-  #Lien
-  tab$Lien_E[i]=lien
-  #code ape le plus présent
-  tab$Code_ape[i]=max_repr(sub_lien,6)
-  #departement le plus present
-  tab$Departement[i]=max_repr(sub_lien,7)
-  # regroup1 le plus present
-  tab$Regroup1[i]=max_repr(sub_lien,8)
-  #regroup4 le plus present
-  tab$Regroup4[i]=max_repr(sub_lien,9)
-  #prod max
-  tab$Produit_max[i]=max_repr(sub_lien,3)[1]
-
-  # création de dataframe par annee
-  # je garde les personnes radiées dans l'année sauf si c'est au premier janvier
-  sub_lien_2018=subset(sub_lien,year(Date.Effet.Adhesion.Num.Personne)<=2018 & year(Date.Effet.Radiation.Num.Personne)>=2018 & Date.Effet.Radiation.Num.Personne!="2018-01-01" )
-  sub_lien_2018=droplevels(sub_lien_2018)
-  sub_lien_2019=subset(sub_lien,year(Date.Effet.Adhesion.Num.Personne)<=2019 & year(Date.Effet.Radiation.Num.Personne)>=2019 & Date.Effet.Radiation.Num.Personne!="2019-01-01")
-  sub_lien_2019=droplevels(sub_lien_2019)
-  sub_lien_2020=subset(sub_lien,year(Date.Effet.Adhesion.Num.Personne)<=2020 & year(Date.Effet.Radiation.Num.Personne)>=2020 & Date.Effet.Radiation.Num.Personne!="2020-01-01")
-  sub_lien_2020=droplevels(sub_lien_2020)
-  sub_lien_2021=subset(sub_lien,year(Date.Effet.Adhesion.Num.Personne)<=2021 & year(Date.Effet.Radiation.Num.Personne)>=2021 & Date.Effet.Radiation.Num.Personne!="2021-01-01")
-  sub_lien_2021=droplevels(sub_lien_2021)
-  sub_lien_2022=subset(sub_lien,year(Date.Effet.Adhesion.Num.Personne)<=2022 & year(Date.Effet.Radiation.Num.Personne)>=2022 & Date.Effet.Radiation.Num.Personne!="2022-01-01")
-  sub_lien_2022=droplevels(sub_lien_2022)
-  
-  
-  if (nrow(sub_lien_2018)!=0){
-    list=seq(7,23)
-    tab[i,list]=remplissage_annee(i,21,2018, tab$Produit_max[i],tab,sub_lien_2018,list)
-  }
-  if (nrow(sub_lien_2019)!=0){
-      list=seq(24,40)
-      tab[i,list]=remplissage_annee(i,22,2019, tab$Produit_max[i],tab,sub_lien_2019,list)
-  }
-  
-  if (nrow(sub_lien_2020)!=0){
-    list=seq(41,57)
-    tab[i,list]=remplissage_annee(i,23,2020, tab$Produit_max[i],tab,sub_lien_2020,list)
-    tab$Nego_2020[i]=sub_lien[1,27]
-  }
-  if (nrow(sub_lien_2021)!=0){
-    list=seq(59,75)
-    tab[i,list]=remplissage_annee(i,24,2021, tab$Produit_max[i],tab,sub_lien_2021,list)
-    tab$Nego_2021[i]=sub_lien[1,28]
-  }
+summary(tab_eff_nb)
+```
+Il y a énormément de données manquantes pour les variables suivantes :
+- Code ape
+- Departements
 
 
-  if (nrow(sub_lien_2022)!=0){
-    list=c(seq(77,91),93,94)
-    tab[i,list]=remplissage_annee(i,25,2022, tab$Produit_max[i],tab,sub_lien_2022,list)
-    tab$Index_2023[i]= sub_lien[i,26]
-    tab$Nego_2022[i]=sub_lien[1,29]
-    tab$VIP[i]=gd_compte(sub_lien)
-  }
 
-  
-}
+# Analyse descriptive unidimensionelle
+
+
+## Code groupe assurés
+
+
+
+
+
+
+actif passif portabilite
+
+```{r}
+l2018=c(11:13)
+l2019=c(28:30)
+l2020=c(45:47)
+l2021=c(63:65)
+l2022=c(81:83)
+
+df1 = stack(tab_eff_nb[,l2022])
+n=nrow(df1)
+df1=aggregate(df1[,1],list(df1[,2]),sum)
+colnames(df1)[1]=c("Code_groupe_assure")
+df1$percent=paste(as.character(round(df1$x/(n/3),2)),"%")
+ggplot(df1, aes(x="", y=x, fill=Code_groupe_assure)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()+
+   ggtitle("Code_groupe_assure ")+
+    geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8))
+
 ```
 
+### Actifs
+
+```{r}
+boxplot(tab_eff_nb$Actifs_2022_p)
+```
 
 
 ```{r}
-tab$Lien_E<-as.factor(tab$Lien_E)
-tab$Code_ape<-as.factor(tab$Code_ape) 
-tab$Departement<-as.factor(tab$Departement) 
-tab$Regroup1<-as.factor(tab$Regroup1)
-tab$Regroup4<-as.factor(tab$Regroup4)
-tab$Produit_max<-as.factor(tab$Produit_max)
+hist(tab_eff_nb$Actifs_2022_p,breaks=10,freq =TRUE, main = "Histogramme",xlab = "Actifs",ylab = "Effectifs")
+```
+Les entreprises ont en principe soit 10% soit 100% actifs.
+### Non actifs
+
+```{r}
+boxplot(tab_eff_nb$Non_actifs_2022_p)
+```
+
+
+```{r}
+hist(tab_eff_nb$Non_actifs_2022_p,breaks =10,freq =TRUE, main = "Histogramme",xlab = "Non actifs",ylab = "effectifs")
 
 ```
 
-## Supprimer les lignes où ASSPRI =0%
 
-```{r asspri}
-tab=subset(tab, tab$Asspri_2022_p !=0.0)
+### Portabilité
+
+
+```{r}
+boxplot(tab_eff_nb$Portabilite_2022_p)
 ```
 
-# Save en Effectif_final.Rdata
 
-```{r save}
-tab_eff=tab
-save(tab_eff, file='../Donnees/Effectifs/Effectif_final.Rdata')
+```{r}
+hist(tab_eff_nb$Portabilite_2022_p,breaks =5,freq =TRUE, main = "Histogramme",xlab = "Portabilite",ylab = "effectifs")
+```
+
+
+## Type assurés
+
+Asspri, conjoint, enfant
+```{r}
+l2018=c(14:16)
+l2019=c(31:33)
+l2020=c(48:50)
+l2021=c(66:68)
+l2022=c(84:86)
+
+df1 = stack(tab_eff_nb[,l2021])
+n=nrow(df1)
+df1=aggregate(df1[,1],list(df1[,2]),sum)
+colnames(df1)[1]=c("Type_assure")
+df1$percent=paste(as.character(round(df1$x/(n/3),2)),"%")
+ggplot(df1, aes(x="", y=x, fill=Type_assure)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()+
+   ggtitle("Type_assure 2018")+
+    geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8))
+
+```
+
+On remarque le nombre d'assuré principal est supérieur aux autres catégories ce qui semble logique.
+
+
+### Asspri
+
+
+```{r}
+hist(tab_eff_nb$Asspri_2022_p,breaks=c(0,25,50,75,100),xlab='Assuré principal', ylab='Effectif en pourcentage', main='Histogramme')
+abline(v=c(0,25,50,75,100),col="red", lwd=3)
+``` 
+### Conjoint
+
+
+```{r}
+hist(tab_eff_nb$Conjoint_2022_p,breaks=c(0,25,50,75,100),xlab='Conjoint', ylab='Effectif en pourcentage', main='Histogramme')
+abline(v=c(0,25,50,75,100),col="red", lwd=3)
+``` 
+
+### Enfants
+
+```{r}
+hist(tab_eff_nb$Enfants_2022_p,breaks=c(0,25,50,75,100),xlab='Enfant', ylab='Effectif en pourcentage', main='Histogramme')
+abline(v=c(0,25,50,75,100),col="red", lwd=3)
+``` 
+
+## Produit
+
+```{r}
+barplot(table(tab_eff_nb[,"Produit_max"]))
+``` 
+On ne pas analyser beaucoup de choses. Sauf que les liens ont souvent un produi premier différent.
+
+```{r}
+options(repr.plot.width=2, repr.plot.height=2)
+
+ggplot(tab_eff_nb, aes(x="", y=Produit_max, fill=Produit_max)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+  theme_void()+
+  theme(legend.position="none") 
+```
+
+#Departement 
+Trop de levels création de la variable region. Mais il y atrop de données manquantes donc on n'étudira pas cette variable finalement.
+```{r}
+tab_eff_nb$Region=tab_eff_nb$Departement
+levels(tab_eff_nb$Region) <- factor(c("Occitanie", "Occitanie", "Auvergne", "Nouvelle-Aquitaine", "Nouvelle-Aquitaine","Occitanie","Nouvelle-Aquitaine","Occitanie","Occitanie","Nouvelle-Aquitaine","Occitanie","Pays de la Loire","Grand Est","Hauts-de-France","Occitanie","Grand Est","Ile de France","Normandie","Hauts-de-France","Nouvelle-Aquitaine","Ile de France","Ile de France"))
+```
+
+
+```{r}
+table(tab_eff_nb$Region)
+```
+
+
+## Regroup1
+
+
+```{r}
+tab_bis=subset(tab_eff_nb,  Regroup1 !='NA')
+barplot(table(tab_eff_nb[,"Regroup1"]))
+levels(tab_eff_nb$Regroup1)
+``` 
+
+```{r}
+
+t=aggregate(tab_bis$Regroup1,list(tab_bis$Regroup1),length)
+colnames(t)[1]<-c("Regroup1")
+t= subset(t,x!=0)
+t$percent=paste(as.character(round(t$x/sum(t$x)*100,2)),"%")
+ggplot(t, aes(x="", y=x, fill=Regroup1)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+  theme_void()+
+  geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.4)) 
+```
+Le Regroup1 le plus représenté est ER080.
+
+## Regroup4
+
+
+```{r}
+tab_bis=subset(tab_eff_nb,  Regroup4 !='NA')
+barplot(table(tab_bis$Regroup4))
+levels(tab_eff_nb$Regroup4)
+``` 
+
+## Regroup5
+
+Regroup5 = Base et option
+
+### Base
+
+```{r}
+hist(tab_eff_nb$Base_2018, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Base_2019, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Base_2020, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Base_2021, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Base_2022, breaks=15,xlab='Base', ylab='Effectif en pourcentage', main='Histogramme')
+``` 
+### Option
+
+```{r}
+#par(mfrow=c(3,2))
+hist(tab_eff_nb$Option_2018_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Option_2019_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Option_2020_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Option_2021_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_nb$Option_2022_p,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+``` 
+
+## Nombre de personnes et de familles dans un lien
+
+### Personnes 
+```{r}
+par(mfrow=c(3,2))
+hist(tab_eff_nb$Nb_pers_2018,breaks=1000, xlim=c(0,quantile(tab_eff_nb$Nb_pers_2018,0.8)),xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme', )
+hist(tab_eff_nb$Nb_pers_2019,breaks=1000,xlim=c(0,quantile(tab_eff_nb$Nb_pers_2019,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
+hist(tab_eff_nb$Nb_pers_2020,breaks=1000,xlim=c(0,quantile(tab_eff_nb$Nb_pers_2020,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
+hist(tab_eff_nb$Nb_pers_2021,breaks=1000,xlim=c(0,quantile(tab_eff_nb$Nb_pers_2021,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
+hist(tab_eff_nb$Nb_pers_2022,breaks=1000,xlim=c(0,quantile(tab_eff_nb$Nb_pers_2022,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
+``` 
+```{r}
+summary(tab_eff_nb[,c(7,24,41,59,77)])
+```
+
+
+### Nombre de familles
+```{r}
+par(mfrow=c(3,2))
+hist(tab_eff_nb$Nb_fam_2018,breaks=1000, xlim=c(0,quantile(tab_eff_nb$Nb_fam_2018,0.8)), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
+hist(tab_eff_nb$Nb_fam_2019,breaks=1000, xlim=c(0,quantile(tab_eff_nb$Nb_fam_2019,0.8)), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
+hist(tab_eff_nb$Nb_fam_2020,breaks=1000, xlim=c(0,quantile(tab_eff_nb$Nb_fam_2020,0.8)), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
+hist(tab_eff_nb$Nb_fam_2021,breaks=1000, xlim=c(0,quantile(tab_eff_nb$Nb_fam_2021,0.8)), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
+hist(tab_eff_nb$Nb_fam_2022,breaks=1000, xlim=c(0,quantile(tab_eff_nb$Nb_fam_2022,0.8)), xlab='Nombre de familles par lien', ylab='Effectif', main='Histogramme')
+``` 
+```{r}
+summary(tab_eff_nb[,c(8,25,42,60,78)])
+```
+
+
+
+## Temps d'adhesion de l'entreprise au lien en années
+
+### 2022
+
+```{r}
+hist(tab_eff_nb$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
 ```
 
 ```{r}
-write.table(tab_eff,file='../Donnees/Effectifs/Effectif_final.csv',sep=";",row.names = FALSE)
+tab_eff_nb$Tps_adh_E_par_L_2022.f=cut(tab_eff_nb$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
+  breaks = c(0,20,50,max(tab_eff_nb$Tps_adh_E_par_L_2022)))
+``` 
+
+
+```{r}
+ggplot(tab_eff_nb, aes(x="", y=Tps_adh_E_par_L_2022.f, fill=Tps_adh_E_par_L_2022.f)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()
 ```
+Il y a eau beaucoup d'adhésion d'entreprises aux liens ces 20 dernières années.
+
+```{r}
+summary(tab_eff_nb$Tps_adh_E_par_L_2022.f)
+```
+
+
+## Temps moyenne d'adhésion des personnes dans le lien
+
+
+### 2022
+
+```{r}
+hist(tab_eff_nb$Tps_adh_P_par_L_2022, breaks=15, xlab='Mean subscription time of the individuals to the link in year', main='Histogramme')
+```
+
+```{r}
+tab_eff_nb$Tps_adh_P_par_L_2022.f=cut(tab_eff_nb$Tps_adh_P_par_L_2022, include.lowest = FALSE, right = TRUE,
+  breaks = c(0,20,50,max(tab_eff_nb$Tps_adh_P_par_L_2022)))
+``` 
+
+
+```{r}
+ggplot(tab_eff_nb, aes(x="", y=Tps_adh_P_par_L_2022.f, fill=Tps_adh_P_par_L_2022.f)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()
+```
+```{r}
+summary(tab_eff_nb$Tps_adh_P_par_L_2022.f)
+```
+
+## Sexe
+
+Femme et Homme
+
+
+### Femme
+
+```{r}
+hist(tab_eff_nb$Femmes_2022_p,breaks=c(0,25,50,75,100),xlab='Femmes', ylab='Effectif en pourcentage', main='Histogramme')
+abline(v=c(0,25,50,75,100),col="red", lwd=3)
+``` 
+### Hommes
+
+```{r}
+hist(tab_eff_nb$Hommes_2022_p,breaks=c(0,25,50,75,100),xlab='Hommes', ylab='Effectif en pourcentage', main='Histogramme')
+abline(v=c(0,25,50,75,100),col="red", lwd=3)
+``` 
+
+
+```{r}
+l2018=c(17,18)
+l2022=c(87,88)
+df1 = stack(tab_eff_nb[,l2022])
+n=nrow(df1)
+df1=aggregate(df1[,1],list(df1[,2]),sum)
+colnames(df1)[1]=c("Sexe")
+df1$percent=paste(as.character(round(df1$x/(n/2),2)),"%")
+print(ggplot(df1, aes(x="", y=x, fill=Sexe)) +
+    geom_bar(stat="identity", width=1) +
+    coord_polar("y", start=0)+
+    geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8))+
+      theme_void())
+```
+
+## Responsable
+
+Rspo et no respo
+
+
+### Respo
+
+
+```{r}
+l2018=c(19,20)
+l2022=c(89,90)
+df1 = stack(tab_eff_nb[,l2018])
+n=nrow(df1)
+df1=aggregate(df1[,1],list(df1[,2]),sum)
+colnames(df1)[1]=c("Responsabilite")
+df1$percent=paste(as.character(round(df1$x/(n/2),2)),"%")
+print(ggplot(df1, aes(x="", y=x, fill=Responsabilite)) +
+    geom_bar(stat="identity", width=1) +
+    coord_polar("y", start=0)+
+    geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8))+
+      theme_void())
+```
+
+## VIP
+
+```{r}
+df1=aggregate(tab_eff_nb$VIP,list(tab_eff_nb$VIP),length)
+colnames(df1)[1]=c("VIP")
+df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
+print(ggplot(df1, aes(x="", y=x, fill=VIP)) +
+    geom_bar(stat="identity", width=1) +
+    coord_polar("y", start=0)+
+    geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8))+
+      theme_void())
+```
+
+
+## Indexation Produit
+
+### 2018
+
+```{r}
+table(tab_eff_nb$Index_2018)
+```
+
+
+```{r}
+tab_eff_nb$Index_2018.f=cut(tab_eff_nb$Index_2018, include.lowest = FALSE, right = TRUE,
+  breaks = c(0,0.05,0.1,0.2,0.3))
+```
+
+```{r}
+barplot(table(tab_eff_nb$Index_2018.f))
+```
+
+
+### 2019
+
+
+```{r}
+table(tab_eff_nb$Index_2019 )
+```
+```{r}
+tab_eff_nb$Index_2019.f=cut(tab_eff_nb$Index_2019, include.lowest = FALSE, right = TRUE,
+  breaks = c(-0.05,0,0.05,0.1,0.2))
+```
+
+```{r}
+barplot(table(tab_eff_nb$Index_2019.f))
+``` 
+
+### 2020
+
+```{r}
+table(tab_eff_nb$Index_2020)
+```
+```{r}
+tab_eff_nb$Index_2020.f=cut(tab_eff_nb$Index_2020, include.lowest = FALSE, right = TRUE,
+  breaks = c(0,0.05,0.1,0.2))
+```
+
+```{r}
+barplot(table(tab_eff_nb$Index_2020.f))
+```
+### 2021
+
+```{r}
+table(tab_eff_nb$Index_2021)
+```
+```{r}
+tab_eff_nb$Index_2021.f=cut(tab_eff_nb$Index_2021, include.lowest = FALSE, right = TRUE,
+  breaks = c(0,0.05,0.1))
+```
+
+```{r}
+barplot(table(tab_eff_nb$Index_2021.f))
+```
+# 2022
+
+```{r}
+table(tab_eff_nb$Index_2022)
+```
+```{r}
+tab_eff_nb$Index_2022.f=cut(tab_eff_nb$Index_2022, include.lowest = FALSE, right = TRUE,
+  breaks = c(0,0.05,0.1,0.2))
+```
+
+```{r}
+barplot(table(tab_eff_nb$Index_2022.f))
+```
+
+### 2023
+
+```{r}
+table(tab_eff_nb$Index_2023)
+```
+```{r}
+tab_eff_nb$Index_2023.f=cut(tab_eff_nb$Index_2023, include.lowest = FALSE, right = TRUE,
+  breaks = c(0,0.05,0.1,0.25))
+```
+
+```{r}
+barplot(table(tab_eff_nb$Index_2023.f))
+```
+
+
+```{r}
+par(mfrow=c(3,2))
+barplot(table(tab_eff_nb$Index_2018.f),xlab="indexation rate", ylab="frequency",main="2018")
+barplot(table(tab_eff_nb$Index_2019.f),xlab="indexation rate", ylab="frequency",main="2019")
+barplot(table(tab_eff_nb$Index_2020.f),xlab="indexation rate", ylab="frequency",main="2020")
+barplot(table(tab_eff_nb$Index_2021.f),xlab="indexation rate", ylab="frequency",main="2021")
+barplot(table(tab_eff_nb$Index_2022.f),xlab="indexation rate", ylab="frequency",main="2022")
+barplot(table(tab_eff_nb$Index_2023.f),xlab="indexation rate", ylab="frequency",main="2023")
+
+```
+
+
+
+## Renego
+
+### Renego2020
+```{r}
+df1=aggregate(tab_eff_nb[,58],list(tab_eff_nb[,58]),length)
+colnames(df1)[1]=c("Renego2020")
+df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
+print(ggplot(df1, aes(x="", y=x, fill=Renego2020)) +
+    geom_bar(stat="identity", width=1) +
+    coord_polar("y", start=0)+
+    geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8))+
+      theme_void())
+```
+### Renego2021
+```{r}
+df1=aggregate(tab_eff_nb[,76],list(tab_eff_nb[,76]),length)
+colnames(df1)[1]=c("Renego2021")
+df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
+print(ggplot(df1, aes(x="", y=x, fill=Renego2021)) +
+    geom_bar(stat="identity", width=1) +
+    coord_polar("y", start=0)+
+    geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8))+
+      theme_void())
+```
+
+### Renego2022
+```{r}
+df1=aggregate(tab_eff_nb[,95],list(tab_eff_nb[,95]),length)
+colnames(df1)[1]=c("Renego2022")
+df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
+print(ggplot(df1, aes(x="", y=x, fill=Renego2022)) +
+    geom_bar(stat="identity", width=1) +
+    coord_polar("y", start=0)+
+    geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8))+
+      theme_void())
+```
+
  
