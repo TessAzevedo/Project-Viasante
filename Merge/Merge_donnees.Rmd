@@ -30,7 +30,11 @@ library(data.table)
 load('../Donnees/Effectifs/Effectif_final_freq.Rdata')
 head(tab_eff_freq)
 ```
-
+ Retrait variable Base
+```{r}
+tab_eff_freq=tab_eff_freq[,-c(9,26,43,61,79)]
+```
+ 
 ## jeu Cotisation.Rdata
 
 ```{r}

@@ -10,22 +10,6 @@ load('../Donnees/Dataset_total.Rdata')
 head(dataset_total)
 ```
 
-# Création variable reste à charge
-
-```{r}
-dataset_total$RAC_2018 <- dataset_total$Mnt_dep_2018 - dataset_total$Remb_rc_2018 - dataset_total$Remb_ro_2018
-
-dataset_total$RAC_2019 <- dataset_total$Mnt_dep_2019 - dataset_total$Remb_rc_2019 - dataset_total$Remb_ro_2019
-
-dataset_total$RAC_2020 <- dataset_total$Mnt_dep_2020 - dataset_total$Remb_rc_2020- dataset_total$Remb_ro_2020
-
-dataset_total$RAC_2021<- dataset_total$Mnt_dep_2021 - dataset_total$Remb_rc_2021 - dataset_total$Remb_ro_2021
-
-dataset_total$RAC_2022<- dataset_total$Mnt_dep_2022 - dataset_total$Remb_rc_2022 - dataset_total$Remb_ro_2022
-
-
- 
-```
 
 
 # Création du P/C 
