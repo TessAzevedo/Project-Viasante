@@ -236,11 +236,11 @@ load(file="../../Donnees/Effectifs/Effectif_final_freq.Rdata")
 
 ```{r}
 #par(mfrow=c(3,2))
-hist(tab_eff_freq$Option_2018,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff_freq$Option_2019,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff_freq$Option_2020,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff_freq$Option_2021,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
-hist(tab_eff_freq$Option_2022,breaks=c(0,25,50,75,100),xlab='Option', ylab='Effectif en pourcentage', main='Histogramme')
+hist(tab_eff_freq$Option_2018,breaks=50,xlab='Option', ylab='Effectif', main='Histogramme')
+hist(tab_eff_freq$Option_2019,breaks=50,xlab='Option', ylab='Effectif', main='Histogramme')
+hist(tab_eff_freq$Option_2020,breaks=50,xlab='Option', ylab='Effectif', main='Histogramme')
+hist(tab_eff_freq$Option_2021,breaks=50,xlab='Option', ylab='Effectif', main='Histogramme')
+hist(tab_eff_freq$Option_2022,breaks=50,xlab='Option', ylab='Effectif', main='Histogramme')
 ``` 
 
 ## Nombre de personnes et de familles dans un lien
@@ -287,13 +287,20 @@ tab_eff_nb$Tps_adh_E_par_L_2022.f=cut(tab_eff_nb$Tps_adh_E_par_L_2022, include.l
   breaks = c(0,20,50,max(tab_eff_nb$Tps_adh_E_par_L_2022)))
 ``` 
 
-
 ```{r}
-ggplot(tab_eff_nb, aes(x="", y=Tps_adh_E_par_L_2022.f, fill=Tps_adh_E_par_L_2022.f)) +
+df1=aggregate(tab_eff_nb$Tps_adh_E_par_L_2022.f,list(tab_eff_nb$Tps_adh_E_par_L_2022.f),length)
+colnames(df1)[1]=c("Tmps_adh_E_par_L")
+df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
+ggplot(df1, aes(x="", y=x, fill=Tmps_adh_E_par_L)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
-    theme_void()
+    theme_void()+
+   ggtitle("Tmps_adh_E_par_L")+
+    geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8))
 ```
+
+
 Il y a eau beaucoup d'adhésion d'entreprises aux liens ces 20 dernières années.
 
 ```{r}
@@ -316,12 +323,20 @@ tab_eff_nb$Tps_adh_P_par_L_2022.f=cut(tab_eff_nb$Tps_adh_P_par_L_2022, include.l
 ``` 
 
 
+
 ```{r}
-ggplot(tab_eff_nb, aes(x="", y=Tps_adh_P_par_L_2022.f, fill=Tps_adh_P_par_L_2022.f)) +
+df1=aggregate(tab_eff_nb$Tps_adh_P_par_L_2022.f,list(tab_eff_nb$Tps_adh_P_par_L_2022.f),length)
+colnames(df1)[1]=c("Tmps_adh_P_par_L")
+df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
+ggplot(df1, aes(x="", y=x, fill=Tmps_adh_P_par_L)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
-    theme_void()
+    theme_void()+
+   ggtitle("Tmps_adh_P_par_L")+
+    geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8))
 ```
+
 ```{r}
 summary(tab_eff_nb$Tps_adh_P_par_L_2022.f)
 ```
