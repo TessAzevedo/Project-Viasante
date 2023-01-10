@@ -45,6 +45,11 @@ non respo
 # ACP
 
 ```{r}
+rownames(dataset_2022) = dataset_2022$Lien_E
+```
+
+
+```{r}
 library(FactoMineR)
 ind_num=c(5:17,21:36)
 dataset_2022_num=dataset_2022[,ind_num]
