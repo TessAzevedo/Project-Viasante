@@ -53,13 +53,13 @@ cumsum(res.acp$eig[1:10, 2])
 On garde 4 composantes pour avoir au moins 60% d'inertie cumulée.
 
 ```{r}
-options(repr.plot.width = 15, repr.plot.height = 15)
-par(mfrow = c(5, 1))
-for (i in 1:5){
-    plot(res.acp$svd$V[, i], type = "o", main = paste("Comp. ", i), xlab = "Time", ylab = "",
-         ylim = c(-0.6, 0.6), col = "blue")
-    abline(h = 0, lty = "dotted")
-}
+# options(repr.plot.width = 10, repr.plot.height = 10)
+# par(mfrow = c(5, 1))
+# for (i in 1:4){
+#     plot(res.acp$svd$V[, i], type = "o", main = paste("Comp. ", i), xlab = "Time", ylab = "",
+#          ylim = c(-0.4, 0.4), col = "blue")
+#     abline(h = 0, lty = "dotted")
+# }
 ```
 
 ```{r fig.height=10}
@@ -73,8 +73,10 @@ plot_grid(f1,f2,f3,f4,f5)
 ```
 compo 1 : des montants, base/option, nb personnes et familles
 compo 2 : actifs/non actifs, enfants, R/NR (pourcentage) +cot PP
-compo 3 : var pc, presta pp, pc, sexe
-compo 4 : temps d'adhésion + sexe
+compo 3 : var pc, presta pp, pc,code gp ass
+compo 4:
+compo 5:
+ 
 
 ```{r}
 options(repr.plot.width =8 , repr.plot.height = 6)
@@ -126,7 +128,7 @@ plot(inertie[1:12], type = "s", xlab = "Nombre de classes", ylab = "Inertie")
 plot(arbre, labels = FALSE, main = "Dendrogramme")
 
 ```
-Saut à 4 ou 6.
+Saut à 7 ou 5.
 
 ```{r}
 C = res.acp$var$coord[,1:4]
@@ -135,20 +137,20 @@ clust1_ACP = C
 ```
 # Clustering sur toutes les données
 
-## CAH avec 4 clusters
+## CAH avec 7 clusters
 ```{r}
 options(repr.plot.width = 4, repr.plot.height = 4)
-arbre_clust4 = cutree(arbre,k=4)
-plot(clust1_ACP, pch=20, asp=1, col=arbre_clust4)
-legend("topright",legend=c(1:4), col=1:4,lty=1)
+arbre_clust7 = cutree(arbre,k=7)
+plot(clust1_ACP, pch=20, asp=1, col=arbre_clust7)
+legend("topright",legend=c(1:7), col=1:7,lty=1)
 ```
 
 ```{r}
 options(repr.plot.width = 20, repr.plot.height = 20)
 Sclust1_num=scale(clust1_num)
 par(mfrow=c(2,2))
-for (i in 1:4){
-    indice<-which(arbre_clust4==i)
+for (i in 1:7){
+    indice<-which(arbre_clust7==i)
     boxplot(Sclust1_num[indice,] ,main=i )
 }
  
@@ -157,15 +159,20 @@ for (i in 1:4){
 
 ## creation cluster
 ```{r}
-indice<-which(arbre_clust4==1)
-clust11=clust1[indice,]  #876 obs
-indice<-which(arbre_clust4==2) 
-clust12=clust1[indice,] #26 obs
-indice<-which(arbre_clust4==3)
-clust13=clust1[indice,] #8 obs
-indice<-which(arbre_clust4==4)
-clust14=clust1[indice,] #9 obs
-
+indice<-which(arbre_clust7==1)
+clust11=clust1[indice,]  #586 obs
+indice<-which(arbre_clust7==2) 
+clust12=clust1[indice,] #128 obs
+indice<-which(arbre_clust7==3)
+clust13=clust1[indice,] #52 obs
+indice<-which(arbre_clust7==4)
+clust14=clust1[indice,] #52 obs
+indice<-which(arbre_clust7==5)
+clust15=clust1[indice,]  #32 obs
+indice<-which(arbre_clust7==6) 
+clust16=clust1[indice,] #19 obs
+indice<-which(arbre_clust7==7)
+clust17=clust1[indice,] #7 obs
 ```
 
 ## qualitative variable
@@ -178,8 +185,22 @@ hist(clust11$Nb_pers_2022,breaks=1000,xlim=c(0,quantile(clust11$Nb_pers_2022,0.8
 hist(clust12$Nb_pers_2022,breaks=1000,xlim=c(0,quantile(clust12$Nb_pers_2022,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
 hist(clust13$Nb_pers_2022,breaks=1000,xlim=c(0,quantile(clust13$Nb_pers_2022,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
 hist(clust14$Nb_pers_2022,breaks=1000,xlim=c(0,quantile(clust14$Nb_pers_2022,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
+hist(clust15$Nb_pers_2022,breaks=1000,xlim=c(0,quantile(clust15$Nb_pers_2022,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
+hist(clust16$Nb_pers_2022,breaks=1000,xlim=c(0,quantile(clust16$Nb_pers_2022,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
+hist(clust17$Nb_pers_2022,breaks=1000,xlim=c(0,quantile(clust17$Nb_pers_2022,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
 ```
-Ils semblent que dans les clusters 2, 3 et 4, une observations correspondent à 1 nb_pers
+```{r}
+summary(clust11$Nb_pers_2022)
+summary(clust12$Nb_pers_2022)
+summary(clust13$Nb_pers_2022)
+summary(clust14$Nb_pers_2022)
+summary(clust15$Nb_pers_2022)
+summary(clust16$Nb_pers_2022)
+summary(clust17$Nb_pers_2022)
+```
+
+
+
 ### Regroup1
 
 ```{r}
@@ -188,6 +209,10 @@ barplot(table(clust11[,"Regroup1"]))
 barplot(table(clust12[,"Regroup1"]))
 barplot(table(clust13[,"Regroup1"]))
 barplot(table(clust14[,"Regroup1"]))
+
+barplot(table(clust15[,"Regroup1"]))
+barplot(table(clust16[,"Regroup1"]))
+barplot(table(clust17[,"Regroup1"]))
 ```
 Ils ont le max au même endroit.
 
@@ -198,15 +223,61 @@ hist(clust11$Option_2022_p,breaks = 50)
 hist(clust12$Option_2022_p,breaks = 50)
 hist(clust13$Option_2022_p,breaks = 50)
 hist(clust14$Option_2022_p,breaks = 50)
+hist(clust15$Option_2022_p,breaks = 50)
+hist(clust16$Option_2022_p,breaks = 50)
+hist(clust17$Option_2022_p,breaks = 50)
+```
+
+
+### Recupe eff nb non freq
+
+
+
+```{r}
+load(file="../Donnees/Effectifs/Effectif_final_nb.Rdata")
+```
+
+
+```{r}
+garder<-function(data,clust){
+  keep=c()
+  list=as.character(clust$Lien_E)
+  for(j in 1:length(list)){
+      for (i in 1:nrow(data)){
+        if(data$Lien_E[i]==list[j]){
+          keep=c(keep,i)
+        }
+    }
+  }
+  return(keep)
+}
+```
+
+
+```{r}
+ind11=garder(tab_eff_nb,clust11)
+c11=tab_eff_nb[ind11,c(1,4:6,77,78,80:96)]
+ind12=garder(tab_eff_nb,clust12)
+c12=tab_eff_nb[ind12,c(1,4:6,77,78,80:96)]
+ind13=garder(tab_eff_nb,clust13)
+c13=tab_eff_nb[ind13,c(1,4:6,77,78,80:96)]
+ind14=garder(tab_eff_nb,clust14)
+c14=tab_eff_nb[ind14,c(1,4:6,77,78,80:96)]
+ind15=garder(tab_eff_nb,clust15)
+c15=tab_eff_nb[ind15,c(1,4:6,77,78,80:96)]
+ind16=garder(tab_eff_nb,clust16)
+c16=tab_eff_nb[ind16,c(1,4:6,77,78,80:96)]
+ind17=garder(tab_eff_nb,clust17)
+c17=tab_eff_nb[ind17,c(1,4:6,77,78,80:96)]
 ```
 
 ### Code groupe ass
 ```{r}
-df1 = stack(clust11[,c(9:11)])
-n=nrow(df1)
-df1=aggregate(df1[,1],list(df1[,2]),sum)
-colnames(df1)[1]=c("Code_groupe_ass")
-df1$x=round(df1$x/(n/3),digit=2)
+codegp<-function(data){
+  df1 = stack(data[,c(8:10)])
+  df1=aggregate(df1[,1],list(df1[,2]),sum)
+  colnames(df1)[1]=c("Code_groupe_ass")
+  df1$x=round(df1$x/sum(df1$x)*100,digit=2)
 ggplot(df1, aes(x="", y=x, fill=Code_groupe_ass)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
@@ -214,206 +285,87 @@ ggplot(df1, aes(x="", y=x, fill=Code_groupe_ass)) +
    ggtitle("Code groupe assurés")+
     geom_text(aes(label = x),
             position = position_stack(vjust = 0.8))
+}
+codegp(c11)
+codegp(c12)
+codegp(c13)
+codegp(c14)
+codegp(c15)
+codegp(c16)
+codegp(c17)
+``` 
 
-df1 = stack(clust12[,c(9:11)])
-n=nrow(df1)
-df1=aggregate(df1[,1],list(df1[,2]),sum)
-colnames(df1)[1]=c("Code_groupe_ass")
-df1$x=round(df1$x/(n/3),digit=2)
-ggplot(df1, aes(x="", y=x, fill=Code_groupe_ass)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()+
-   ggtitle("Code groupe assurés")+
-    geom_text(aes(label = x),
-            position = position_stack(vjust = 0.8))
-
-df1 = stack(clust13[,c(9:11)])
-n=nrow(df1)
-df1=aggregate(df1[,1],list(df1[,2]),sum)
-colnames(df1)[1]=c("Code_groupe_ass")
-df1$x=round(df1$x/(n/3),digit=2)
-ggplot(df1, aes(x="", y=x, fill=Code_groupe_ass)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()+
-   ggtitle("Code groupe assurés")+
-    geom_text(aes(label = x),
-            position = position_stack(vjust = 0.8))
-
-df1 = stack(clust14[,c(9:11)])
-n=nrow(df1)
-df1=aggregate(df1[,1],list(df1[,2]),sum)
-colnames(df1)[1]=c("Code_groupe_ass")
-df1$x=round(df1$x/(n/3),digit=2)
-ggplot(df1, aes(x="", y=x, fill=Code_groupe_ass)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()+
-   ggtitle("Code groupe assurés")+
-    geom_text(aes(label = x),
-            position = position_stack(vjust = 0.8))
-```
 ### Type ass
 
 ```{r}
-df1 = stack(clust11[,c(12:14)])
-n=nrow(df1)
-df1=aggregate(df1[,1],list(df1[,2]),sum)
-colnames(df1)[1]=c("Type_assures")
-df1$x=round(df1$x/(n/3),digit=2)
-ggplot(df1, aes(x="", y=x, fill=Type_assures)) +
+typeass<-function(data){
+  df1 = stack(data[,c(11:13)])
+  df1=aggregate(df1[,1],list(df1[,2]),sum)
+  colnames(df1)[1]=c("Type_ass")
+  df1$x=round(df1$x/sum(df1$x)*100,digit=2)
+ggplot(df1, aes(x="", y=x, fill=Type_ass)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
     theme_void()+
-   ggtitle("Type_assures")+
+   ggtitle("Type_ass")+
     geom_text(aes(label = x),
             position = position_stack(vjust = 0.8))
-
-df1 = stack(clust12[,c(12:14)])
-n=nrow(df1)
-df1=aggregate(df1[,1],list(df1[,2]),sum)
-colnames(df1)[1]=c("Type_assures")
-df1$x=round(df1$x/(n/3),digit=2)
-ggplot(df1, aes(x="", y=x, fill=Type_assures)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()+
-   ggtitle("Type_assures")+
-    geom_text(aes(label = x),
-            position = position_stack(vjust = 0.8))
-
-df1 = stack(clust13[,c(12:14)])
-n=nrow(df1)
-df1=aggregate(df1[,1],list(df1[,2]),sum)
-colnames(df1)[1]=c("Type_assures")
-df1$x=round(df1$x/(n/3),digit=2)
-ggplot(df1, aes(x="", y=x, fill=Type_assures)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()+
-   ggtitle("Type_assures")+
-    geom_text(aes(label = x),
-            position = position_stack(vjust = 0.8))
-
-df1 = stack(clust14[,c(12:14)])
-n=nrow(df1)
-df1=aggregate(df1[,1],list(df1[,2]),sum)
-colnames(df1)[1]=c("Type_assures")
-df1$x=round(df1$x/(n/3),digit=2)
-ggplot(df1, aes(x="", y=x, fill=Type_assures)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()+
-   ggtitle("Type_assures")+
-    geom_text(aes(label = x),
-            position = position_stack(vjust = 0.8))
+}
+typeass(c11)
+typeass(c12)
+typeass(c13)
+typeass(c14)
+typeass(c15)
+typeass(c16)
+typeass(c17)
 ```
 
-### Sexe
-```{r}
-df1 = stack(clust11[,c(15,16)])
-n=nrow(df1)
-df1=aggregate(df1[,1],list(df1[,2]),sum)
-colnames(df1)[1]=c("Sexe")
-df1$x=round(df1$x/(n/2),digit=2)
-ggplot(df1, aes(x="", y=x, fill=Sexe)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()+
-   ggtitle("Sexe")+
-    geom_text(aes(label = x),
-            position = position_stack(vjust = 0.8))
-
-df1 = stack(clust12[,c(15,16)])
-n=nrow(df1)
-df1=aggregate(df1[,1],list(df1[,2]),sum)
-colnames(df1)[1]=c("Sexe")
-df1$x=round(df1$x/(n/2),digit=2)
-ggplot(df1, aes(x="", y=x, fill=Sexe)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()+
-   ggtitle("Sexe")+
-    geom_text(aes(label = x),
-            position = position_stack(vjust = 0.8))
-df1 = stack(clust13[,c(15,16)])
-n=nrow(df1)
-df1=aggregate(df1[,1],list(df1[,2]),sum)
-colnames(df1)[1]=c("Sexe")
-df1$x=round(df1$x/(n/2),digit=2)
-ggplot(df1, aes(x="", y=x, fill=Sexe)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()+
-   ggtitle("Sexe")+
-    geom_text(aes(label = x),
-            position = position_stack(vjust = 0.8))
-df1 = stack(clust14[,c(15,16)])
-n=nrow(df1)
-df1=aggregate(df1[,1],list(df1[,2]),sum)
-colnames(df1)[1]=c("Sexe")
-df1$x=round(df1$x/(n/2),digit=2)
-ggplot(df1, aes(x="", y=x, fill=Sexe)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()+
-   ggtitle("Sexe")+
-    geom_text(aes(label = x),
-            position = position_stack(vjust = 0.8))
-```
 ### RNR
+```{r}
+rnr<-function(data){
+  df1 = stack(data[,c(16,17)])
+  df1=aggregate(df1[,1],list(df1[,2]),sum)
+  colnames(df1)[1]=c("Respo")
+  df1$x=round(df1$x/sum(df1$x)*100,digit=2)
+ggplot(df1, aes(x="", y=x, fill=Respo)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()+
+   ggtitle("Respo")+
+    geom_text(aes(label = x),
+            position = position_stack(vjust = 0.8))
+}
+rnr(c11)
+rnr(c12)
+rnr(c13)
+rnr(c14)
+rnr(c15)
+rnr(c16)
+rnr(c17)
+```
+### Sexe
 
 ```{r}
-df1 = stack(clust11[,c(17,18)])
-n=nrow(df1)
-df1=aggregate(df1[,1],list(df1[,2]),sum)
-colnames(df1)[1]=c("RNR")
-df1$x=round(df1$x/(n/2),digit=2)
-ggplot(df1, aes(x="", y=x, fill=RNR)) +
+sexe<-function(data){
+  df1 = stack(data[,c(14,15)])
+  df1=aggregate(df1[,1],list(df1[,2]),sum)
+  colnames(df1)[1]=c("Sexe")
+  df1$x=round(df1$x/sum(df1$x)*100,digit=2)
+ggplot(df1, aes(x="", y=x, fill=Sexe)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
     theme_void()+
-   ggtitle("RNR")+
+   ggtitle("Sexe")+
     geom_text(aes(label = x),
             position = position_stack(vjust = 0.8))
-
-df1 = stack(clust12[,c(17,18)])
-n=nrow(df1)
-df1=aggregate(df1[,1],list(df1[,2]),sum)
-colnames(df1)[1]=c("RNR")
-df1$x=round(df1$x/(n/2),digit=2)
-ggplot(df1, aes(x="", y=x, fill=RNR)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()+
-   ggtitle("RNR")+
-    geom_text(aes(label = x),
-            position = position_stack(vjust = 0.8))
-df1 = stack(clust13[,c(17,18)])
-n=nrow(df1)
-df1=aggregate(df1[,1],list(df1[,2]),sum)
-colnames(df1)[1]=c("RNR")
-df1$x=round(df1$x/(n/2),digit=2)
-ggplot(df1, aes(x="", y=x, fill=RNR)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()+
-   ggtitle("RNR")+
-    geom_text(aes(label = x),
-            position = position_stack(vjust = 0.8))
-df1 = stack(clust14[,c(17,18)])
-n=nrow(df1)
-df1=aggregate(df1[,1],list(df1[,2]),sum)
-colnames(df1)[1]=c("RNR")
-df1$x=round(df1$x/(n/2),digit=2)
-ggplot(df1, aes(x="", y=x, fill=RNR)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()+
-   ggtitle("RNR")+
-    geom_text(aes(label = x),
-            position = position_stack(vjust = 0.8))
+}
+sexe(c11)
+sexe(c12)
+sexe(c13)
+sexe(c14)
+sexe(c15)
+sexe(c16)
+sexe(c17)
 ```
 
 ### Index 2022
@@ -427,12 +379,21 @@ clust13$Index_2022.f=cut(clust13$Index_2022, include.lowest = FALSE, right = TRU
   breaks = c(0,0.05,0.1,0.2))
 clust14$Index_2022.f=cut(clust14$Index_2022, include.lowest = FALSE, right = TRUE,
   breaks = c(0,0.05,0.1,0.2))
+clust15$Index_2022.f=cut(clust15$Index_2022, include.lowest = FALSE, right = TRUE,
+  breaks = c(0,0.05,0.1,0.2))
+clust16$Index_2022.f=cut(clust16$Index_2022, include.lowest = FALSE, right = TRUE,
+  breaks = c(0,0.05,0.1,0.2))
+clust17$Index_2022.f=cut(clust17$Index_2022, include.lowest = FALSE, right = TRUE,
+  breaks = c(0,0.05,0.1,0.2))
 
-par(mfrow=c(2,2))
+par(mfrow=c(4,2))
 barplot(table(clust11$Index_2022.f))
 barplot(table(clust12$Index_2022.f))
 barplot(table(clust13$Index_2022.f))
 barplot(table(clust14$Index_2022.f))
+barplot(table(clust15$Index_2022.f))
+barplot(table(clust16$Index_2022.f))
+barplot(table(clust17$Index_2022.f))
 ```
 
 
@@ -448,12 +409,21 @@ clust13$Index_2023.f=cut(clust13$Index_2023, include.lowest = FALSE, right = TRU
   breaks = c(0,0.05,0.1,0.2))
 clust14$Index_2023.f=cut(clust14$Index_2023, include.lowest = FALSE, right = TRUE,
   breaks = c(0,0.05,0.1,0.2))
+clust15$Index_2023.f=cut(clust15$Index_2023, include.lowest = FALSE, right = TRUE,
+  breaks = c(0,0.05,0.1,0.2))
+clust16$Index_2023.f=cut(clust16$Index_2023, include.lowest = FALSE, right = TRUE,
+  breaks = c(0,0.05,0.1,0.2))
+clust17$Index_2023.f=cut(clust17$Index_2023, include.lowest = FALSE, right = TRUE,
+  breaks = c(0,0.05,0.1,0.2))
 
-par(mfrow=c(2,2))
+par(mfrow=c(4,2))
 barplot(table(clust11$Index_2023.f))
 barplot(table(clust12$Index_2023.f))
 barplot(table(clust13$Index_2023.f))
 barplot(table(clust14$Index_2023.f))
+barplot(table(clust15$Index_2023.f))
+barplot(table(clust16$Index_2023.f))
+barplot(table(clust17$Index_2023.f))
 ```
 
 
@@ -461,42 +431,49 @@ barplot(table(clust14$Index_2023.f))
 
 ```{r}
 par(mfrow=c(2,2))
-hist(clust11$Tps_adh_E_au_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
-hist(clust12$Tps_adh_E_au_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
-hist(clust13$Tps_adh_E_au_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
-hist(clust14$Tps_adh_E_au_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
+hist(clust11$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
+hist(clust12$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
+hist(clust13$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
+hist(clust14$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
+hist(clust15$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
+hist(clust16$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
+hist(clust17$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
 ```
 
 
 ```{r}
-clust11$Tps_adh_E_au_L_2022.f=cut(clust11$Tps_adh_E_au_L_2022, include.lowest = FALSE, right = TRUE,
-  breaks = c(0,30,50,123))
-clust12$Tps_adh_E_au_L_2022.f=cut(clust12$Tps_adh_E_au_L_2022, include.lowest = FALSE, right = TRUE,
-  breaks = c(0,30,50,123))
-clust13$Tps_adh_E_au_L_2022.f=cut(clust13$Tps_adh_E_au_L_2022, include.lowest = FALSE, right = TRUE,
-  breaks = c(0,30,50,123))
-clust14$Tps_adh_E_au_L_2022.f=cut(clust14$Tps_adh_E_au_L_2022, include.lowest = FALSE, right = TRUE,
-  breaks = c(0,30,50,123))
+clust11$Tps_adh_E_par_L_2022.f=cut(clust11$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
+  breaks = c(min(clust11$Tps_adh_E_par_L_2022),30,50,123))
+clust12$Tps_adh_E_par_L_2022.f=cut(clust12$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
+  breaks = c(min(clust12$Tps_adh_E_par_L_2022),30,50,123))
+clust13$Tps_adh_E_par_L_2022.f=cut(clust13$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
+  breaks = c(min(clust13$Tps_adh_E_par_L_2022),30,50,123))
+clust14$Tps_adh_E_par_L_2022.f=cut(clust14$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
+  breaks = c(min(clust14$Tps_adh_E_par_L_2022),30,50,123))
+clust15$Tps_adh_E_par_L_2022.f=cut(clust15$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
+  breaks = c(min(clust15$Tps_adh_E_par_L_2022),30,50,123))
+clust16$Tps_adh_E_par_L_2022.f=cut(clust16$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
+  breaks = c(min(clust16$Tps_adh_E_par_L_2022),30,50,123))
+clust17$Tps_adh_E_par_L_2022.f=cut(clust17$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
+  breaks = c(min(clust17$Tps_adh_E_par_L_2022),30,50,123))
 ``` 
 
 
 ```{r}
-ggplot(clust11, aes(x="", y=Tps_adh_E_au_L_2022.f, fill=Tps_adh_E_au_L_2022.f)) +
+temps<-function(data){
+ggplot(data, aes(x="", y=Tps_adh_E_par_L_2022.f, fill=Tps_adh_E_par_L_2022.f)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
     theme_void()
-ggplot(clust12, aes(x="", y=Tps_adh_E_au_L_2022.f, fill=Tps_adh_E_au_L_2022.f)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()
-ggplot(clust13, aes(x="", y=Tps_adh_E_au_L_2022.f, fill=Tps_adh_E_au_L_2022.f)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()
-ggplot(clust14, aes(x="", y=Tps_adh_E_au_L_2022.f, fill=Tps_adh_E_au_L_2022.f)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()
+}
+temps(clust11)
+temps(clust12)
+temps(clust13)
+temps(clust14)
+temps(clust15)
+temps(clust16)
+temps(clust17)
+
 ```
 
 ## Quantitative variables
@@ -505,53 +482,167 @@ ggplot(clust14, aes(x="", y=Tps_adh_E_au_L_2022.f, fill=Tps_adh_E_au_L_2022.f)) 
 
 
 
+### montant 2022
+```{r}
+summary(clust1$Mnt_2022)
+summary(clust2$Mnt_2022)
+summary(clust3$Mnt_2022)
+summary(clust4$Mnt_2022)
+par(mfrow=c(1,4))
+boxplot(clust1$Mnt_2022,ylim=c(0,quantile(clust1$Mnt_2022,0.9)))
+boxplot(clust2$Mnt_2022,ylim=c(0,quantile(clust2$Mnt_2022,0.9)))
+boxplot(clust3$Mnt_2022,ylim=c(0,quantile(clust3$Mnt_2022,0.9)))
+boxplot(clust4$Mnt_2022,ylim=c(0,quantile(clust4$Mnt_2022,0.9)))
+#boxplot(tab[,c(13,15,16,18,21)],ylim=c(0,quantile(tab$Mnt_2022,0.9)))
+```
+
+
+### remboursement rc
+
+```{r}
+summary(clust1$Remb_rc_2022)
+summary(clust2$Remb_rc_2022)
+summary(clust3$Remb_rc_2022)
+summary(clust4$Remb_rc_2022)
+par(mfrow=c(1,4))
+boxplot(clust1$Remb_rc_2022,ylim=c(0,quantile(clust1$Remb_rc_2022,0.9)))
+boxplot(clust2$Remb_rc_2022,ylim=c(0,quantile(clust2$Remb_rc_2022,0.9)))
+boxplot(clust3$Remb_rc_2022,ylim=c(0,quantile(clust3$Remb_rc_2022,0.9)))
+boxplot(clust4$Remb_rc_2022,ylim=c(0,quantile(clust4$Remb_rc_2022,0.9)))
+```
+
+### remboursement ro
+
+```{r}
+summary(clust1$Remb_ro_2022)
+summary(clust2$Remb_ro_2022)
+summary(clust3$Remb_ro_2022)
+summary(clust4$Remb_ro_2022)
+par(mfrow=c(1,4))
+boxplot(clust1$Remb_ro_2022,ylim=c(0,quantile(clust1$Remb_ro_2022,0.9)))
+boxplot(clust2$Remb_ro_2022,ylim=c(0,quantile(clust2$Remb_ro_2022,0.9)))
+boxplot(clust3$Remb_ro_2022,ylim=c(0,quantile(clust3$Remb_ro_2022,0.9)))
+boxplot(clust4$Remb_ro_2022,ylim=c(0,quantile(clust4$Remb_ro_2022,0.9)))
+```
+
+
+### quantité acte
+```{r}
+summary(clust1$Qte_acte_2022)
+summary(clust2$Qte_acte_2022)
+summary(clust3$Qte_acte_2022)
+summary(clust4$Qte_acte_2022)
+par(mfrow=c(1,4))
+boxplot(clust1$Qte_acte_2022,ylim=c(0,quantile(clust1$Qte_acte_2022,0.9)))
+boxplot(clust2$Qte_acte_2022,ylim=c(0,quantile(clust2$Qte_acte_2022,0.9)))
+boxplot(clust3$Qte_acte_2022,ylim=c(0,quantile(clust3$Qte_acte_2022,0.9)))
+boxplot(clust4$Qte_acte_2022,ylim=c(0,quantile(clust4$Qte_acte_2022,0.9)))
+```
 
 
 
 
+### PC_2022
+
+```{r}
+summary(clust1$PC_2022)
+summary(clust2$PC_2022)
+summary(clust3$PC_2022)
+summary(clust4$PC_2022)
+par(mfrow=c(2,2))
+boxplot(clust1$PC_2022,ylim=c(quantile(clust1$PC_2022,0.1),quantile(clust1$PC_2022,0.9)))
+boxplot(clust2$PC_2022,ylim=c(quantile(clust2$PC_2022,0.1),quantile(clust2$PC_2022,0.9)))
+boxplot(clust3$PC_2022,ylim=c(quantile(clust3$PC_2022,0.1),quantile(clust3$PC_2022,0.9)))
+boxplot(clust4$PC_2022,ylim=c(quantile(clust4$PC_2022,0.1),quantile(clust4$PC_2022,0.9)))
+```
 
 
+### VAR_PC2221
+```{r}
+summary(clust1$VAR_PC2221)
+summary(clust2$VAR_PC2221)
+summary(clust3$VAR_PC2221)
+summary(clust4$VAR_PC2221)
+par(mfrow=c(2,2))
+boxplot(clust1$VAR_PC2221,ylim=c(quantile(clust1$VAR_PC2221,0.1),quantile(clust1$VAR_PC2221,0.9)))
+boxplot(clust2$VAR_PC2221,ylim=c(quantile(clust2$VAR_PC2221,0.1),quantile(clust2$VAR_PC2221,0.9)))
+boxplot(clust3$VAR_PC2221,ylim=c(quantile(clust3$VAR_PC2221,0.1),quantile(clust3$VAR_PC2221,0.9)))
+boxplot(clust4$VAR_PC2221,ylim=c(quantile(clust4$VAR_PC2221,0.1),quantile(clust4$VAR_PC2221,0.9)))
+```
 
 
+### Prest_PP_2022
+```{r}
+summary(clust1$Prest_PP_2022)
+summary(clust2$Prest_PP_2022)
+summary(clust3$Prest_PP_2022)
+summary(clust4$Prest_PP_2022)
+par(mfrow=c(2,2))
+boxplot(clust1$Prest_PP_2022,ylim=c(quantile(clust1$Prest_PP_2022,0.1),quantile(clust1$Prest_PP_2022,0.9)))
+boxplot(clust2$Prest_PP_2022,ylim=c(quantile(clust2$Prest_PP_2022,0.1),quantile(clust2$Prest_PP_2022,0.9)))
+boxplot(clust3$Prest_PP_2022,ylim=c(quantile(clust3$Prest_PP_2022,0.1),quantile(clust3$Prest_PP_2022,0.9)))
+boxplot(clust4$Prest_PP_2022,ylim=c(quantile(clust4$Prest_PP_2022,0.1),quantile(clust4$Prest_PP_2022,0.9)))
+```
+
+### VAR_Pr2221
+```{r}
+summary(clust1$VAR_Pr2221)
+summary(clust2$VAR_Pr2221)
+summary(clust3$VAR_Pr2221)
+summary(clust4$VAR_Pr2221)
+par(mfrow=c(2,2))
+boxplot(clust1$VAR_Pr2221,ylim=c(quantile(clust1$VAR_Pr2221,0.1),quantile(clust1$VAR_Pr2221,0.9)))
+boxplot(clust2$VAR_Pr2221,ylim=c(quantile(clust2$VAR_Pr2221,0.1),quantile(clust2$VAR_Pr2221,0.9)))
+boxplot(clust3$VAR_Pr2221,ylim=c(quantile(clust3$VAR_Pr2221,0.1),quantile(clust3$VAR_Pr2221,0.9)))
+boxplot(clust4$VAR_Pr2221,ylim=c(quantile(clust4$VAR_Pr2221,0.1),quantile(clust4$VAR_Pr2221,0.9)))
+```
 
 
+### Cot_PP_2022 
+```{r}
+summary(clust1$Cot_PP_2022)
+summary(clust2$Cot_PP_2022)
+summary(clust3$Cot_PP_2022)
+summary(clust4$Cot_PP_2022)
+par(mfrow=c(2,2))
+boxplot(clust1$Cot_PP_2022,ylim=c(quantile(clust1$Cot_PP_2022,0.1),quantile(clust1$Cot_PP_2022,0.9)))
+boxplot(clust2$Cot_PP_2022,ylim=c(quantile(clust2$Cot_PP_2022,0.1),quantile(clust2$Cot_PP_2022,0.9)))
+boxplot(clust3$Cot_PP_2022,ylim=c(quantile(clust3$Cot_PP_2022,0.1),quantile(clust3$Cot_PP_2022,0.9)))
+boxplot(clust4$Cot_PP_2022,ylim=c(quantile(clust4$Cot_PP_2022,0.1),quantile(clust4$Cot_PP_2022,0.9)))
+```
+
+### VAR_Cot2221
+
+```{r}
+summary(clust1$VAR_Cot2221)
+summary(clust2$VAR_Cot2221)
+summary(clust3$VAR_Cot2221)
+summary(clust4$VAR_Cot2221)
+par(mfrow=c(2,2))
+boxplot(clust1$VAR_Cot2221,ylim=c(quantile(clust1$VAR_Cot2221,0.1),quantile(clust1$VAR_Cot2221,0.9)))
+boxplot(clust2$VAR_Cot2221,ylim=c(quantile(clust2$VAR_Cot2221,0.1),quantile(clust2$VAR_Cot2221,0.9)))
+boxplot(clust3$VAR_Cot2221,ylim=c(quantile(clust3$VAR_Cot2221,0.1),quantile(clust3$VAR_Cot2221,0.9)))
+boxplot(clust4$VAR_Cot2221,ylim=c(quantile(clust4$VAR_Cot2221,0.1),quantile(clust4$VAR_Cot2221,0.9)))
+```
 
 
+## Type de soins
+
+```{r}
+df1 = stack(clust1[,c(28:32)])
+df1=aggregate(df1[,1],list(df1[,2]),sum)
+df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
+ggplot(df1, aes(x="", y=x, fill=Group.1)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()+
+  geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8)) +
+   ggtitle("Type de soins")
 
 
+#essayer la cumsum  cumsum(col2)[-length(col2)]),
+```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#####################################################################################################################################
 
