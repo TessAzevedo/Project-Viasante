@@ -145,6 +145,8 @@ plot(clust1_ACP, pch=20, asp=1, col=arbre_clust7)
 legend("topright",legend=c(1:7), col=1:7,lty=1)
 ```
 
+
+
 ```{r}
 options(repr.plot.width = 20, repr.plot.height = 20)
 Sclust1_num=scale(clust1_num)
@@ -443,28 +445,34 @@ hist(clust17$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of th
 
 ```{r}
 clust11$Tps_adh_E_par_L_2022.f=cut(clust11$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
-  breaks = c(min(clust11$Tps_adh_E_par_L_2022),30,50,123))
+  breaks = c(0,20,50,max(clust11$Tps_adh_E_par_L_2022)))
 clust12$Tps_adh_E_par_L_2022.f=cut(clust12$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
-  breaks = c(min(clust12$Tps_adh_E_par_L_2022),30,50,123))
+  breaks = c(0,20,50,max(clust12$Tps_adh_E_par_L_2022)))
 clust13$Tps_adh_E_par_L_2022.f=cut(clust13$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
-  breaks = c(min(clust13$Tps_adh_E_par_L_2022),30,50,123))
+  breaks = c(0,20,50,max(clust13$Tps_adh_E_par_L_2022)))
 clust14$Tps_adh_E_par_L_2022.f=cut(clust14$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
-  breaks = c(min(clust14$Tps_adh_E_par_L_2022),30,50,123))
+  breaks = c(0,20,50,max(clust14$Tps_adh_E_par_L_2022)))
 clust15$Tps_adh_E_par_L_2022.f=cut(clust15$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
-  breaks = c(min(clust15$Tps_adh_E_par_L_2022),30,50,123))
+  breaks = c(0,20,50,max(clust15$Tps_adh_E_par_L_2022)))
 clust16$Tps_adh_E_par_L_2022.f=cut(clust16$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
-  breaks = c(min(clust16$Tps_adh_E_par_L_2022),30,50,123))
+  breaks = c(0,20,50,max(clust16$Tps_adh_E_par_L_2022)))
 clust17$Tps_adh_E_par_L_2022.f=cut(clust17$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
-  breaks = c(min(clust17$Tps_adh_E_par_L_2022),30,50,123))
+  breaks = c(0,20,50,max(clust17$Tps_adh_E_par_L_2022)))
 ``` 
 
 
 ```{r}
 temps<-function(data){
-ggplot(data, aes(x="", y=Tps_adh_E_par_L_2022.f, fill=Tps_adh_E_par_L_2022.f)) +
+df1=aggregate(data$Tps_adh_E_par_L_2022.f,list(data$Tps_adh_E_par_L_2022.f),length)
+colnames(df1)[1]=c("Tmps_adh_E_par_L")
+df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
+ggplot(df1, aes(x="", y=x, fill=Tmps_adh_E_par_L)) +
   geom_bar(stat="identity", width=1) +
   coord_polar("y", start=0)+
-    theme_void()
+    theme_void()+
+   ggtitle("Tmps_adh_E_par_L")+
+    geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8))
 }
 temps(clust11)
 temps(clust12)
@@ -484,59 +492,83 @@ temps(clust17)
 
 ### montant 2022
 ```{r}
-summary(clust1$Mnt_2022)
-summary(clust2$Mnt_2022)
-summary(clust3$Mnt_2022)
-summary(clust4$Mnt_2022)
+summary(clust11$Mnt_2022)
+summary(clust12$Mnt_2022)
+summary(clust13$Mnt_2022)
+summary(clust14$Mnt_2022)
+summary(clust15$Mnt_2022)
+summary(clust16$Mnt_2022)
+summary(clust17$Mnt_2022)
+
 par(mfrow=c(1,4))
-boxplot(clust1$Mnt_2022,ylim=c(0,quantile(clust1$Mnt_2022,0.9)))
-boxplot(clust2$Mnt_2022,ylim=c(0,quantile(clust2$Mnt_2022,0.9)))
-boxplot(clust3$Mnt_2022,ylim=c(0,quantile(clust3$Mnt_2022,0.9)))
-boxplot(clust4$Mnt_2022,ylim=c(0,quantile(clust4$Mnt_2022,0.9)))
-#boxplot(tab[,c(13,15,16,18,21)],ylim=c(0,quantile(tab$Mnt_2022,0.9)))
+boxplot(clust11$Mnt_2022,ylim=c(0,quantile(clust11$Mnt_2022,0.9)))
+boxplot(clust12$Mnt_2022,ylim=c(0,quantile(clust12$Mnt_2022,0.9)))
+boxplot(clust13$Mnt_2022,ylim=c(0,quantile(clust13$Mnt_2022,0.9)))
+boxplot(clust14$Mnt_2022,ylim=c(0,quantile(clust14$Mnt_2022,0.9)))
+boxplot(clust15$Mnt_2022,ylim=c(0,quantile(clust15$Mnt_2022,0.9)))
+boxplot(clust16$Mnt_2022,ylim=c(0,quantile(clust16$Mnt_2022,0.9)))
+boxplot(clust17$Mnt_2022,ylim=c(0,quantile(clust17$Mnt_2022,0.9)))
 ```
 
 
 ### remboursement rc
 
 ```{r}
-summary(clust1$Remb_rc_2022)
-summary(clust2$Remb_rc_2022)
-summary(clust3$Remb_rc_2022)
-summary(clust4$Remb_rc_2022)
+summary(clust11$Remb_rc_2022)
+summary(clust12$Remb_rc_2022)
+summary(clust13$Remb_rc_2022)
+summary(clust14$Remb_rc_2022)
+summary(clust15$Remb_rc_2022)
+summary(clust16$Remb_rc_2022)
+summary(clust17$Remb_rc_2022)
 par(mfrow=c(1,4))
-boxplot(clust1$Remb_rc_2022,ylim=c(0,quantile(clust1$Remb_rc_2022,0.9)))
-boxplot(clust2$Remb_rc_2022,ylim=c(0,quantile(clust2$Remb_rc_2022,0.9)))
-boxplot(clust3$Remb_rc_2022,ylim=c(0,quantile(clust3$Remb_rc_2022,0.9)))
-boxplot(clust4$Remb_rc_2022,ylim=c(0,quantile(clust4$Remb_rc_2022,0.9)))
+boxplot(clust11$Remb_rc_2022,ylim=c(0,quantile(clust11$Remb_rc_2022,0.9)))
+boxplot(clust12$Remb_rc_2022,ylim=c(0,quantile(clust12$Remb_rc_2022,0.9)))
+boxplot(clust13$Remb_rc_2022,ylim=c(0,quantile(clust13$Remb_rc_2022,0.9)))
+boxplot(clust14$Remb_rc_2022,ylim=c(0,quantile(clust14$Remb_rc_2022,0.9)))
+boxplot(clust15$Remb_rc_2022,ylim=c(0,quantile(clust15$Remb_rc_2022,0.9)))
+boxplot(clust16$Remb_rc_2022,ylim=c(0,quantile(clust16$Remb_rc_2022,0.9)))
+boxplot(clust17$Remb_rc_2022,ylim=c(0,quantile(clust17$Remb_rc_2022,0.9)))
 ```
 
 ### remboursement ro
 
 ```{r}
-summary(clust1$Remb_ro_2022)
-summary(clust2$Remb_ro_2022)
-summary(clust3$Remb_ro_2022)
-summary(clust4$Remb_ro_2022)
+summary(clust11$Remb_ro_2022)
+summary(clust12$Remb_ro_2022)
+summary(clust13$Remb_ro_2022)
+summary(clust14$Remb_ro_2022)
+summary(clust15$Remb_ro_2022)
+summary(clust16$Remb_ro_2022)
+summary(clust17$Remb_ro_2022)
 par(mfrow=c(1,4))
-boxplot(clust1$Remb_ro_2022,ylim=c(0,quantile(clust1$Remb_ro_2022,0.9)))
-boxplot(clust2$Remb_ro_2022,ylim=c(0,quantile(clust2$Remb_ro_2022,0.9)))
-boxplot(clust3$Remb_ro_2022,ylim=c(0,quantile(clust3$Remb_ro_2022,0.9)))
-boxplot(clust4$Remb_ro_2022,ylim=c(0,quantile(clust4$Remb_ro_2022,0.9)))
+boxplot(clust11$Remb_ro_2022,ylim=c(0,quantile(clust11$Remb_ro_2022,0.9)))
+boxplot(clust12$Remb_ro_2022,ylim=c(0,quantile(clust12$Remb_ro_2022,0.9)))
+boxplot(clust13$Remb_ro_2022,ylim=c(0,quantile(clust13$Remb_ro_2022,0.9)))
+boxplot(clust14$Remb_ro_2022,ylim=c(0,quantile(clust14$Remb_ro_2022,0.9)))
+boxplot(clust15$Remb_ro_2022,ylim=c(0,quantile(clust15$Remb_ro_2022,0.9)))
+boxplot(clust16$Remb_ro_2022,ylim=c(0,quantile(clust16$Remb_ro_2022,0.9)))
+boxplot(clust17$Remb_ro_2022,ylim=c(0,quantile(clust17$Remb_ro_2022,0.9)))
 ```
 
 
 ### quantité acte
 ```{r}
-summary(clust1$Qte_acte_2022)
-summary(clust2$Qte_acte_2022)
-summary(clust3$Qte_acte_2022)
-summary(clust4$Qte_acte_2022)
+summary(clust11$Qte_acte_2022)
+summary(clust12$Qte_acte_2022)
+summary(clust13$Qte_acte_2022)
+summary(clust14$Qte_acte_2022)
+summary(clust15$Qte_acte_2022)
+summary(clust16$Qte_acte_2022)
+summary(clust17$Qte_acte_2022)
 par(mfrow=c(1,4))
-boxplot(clust1$Qte_acte_2022,ylim=c(0,quantile(clust1$Qte_acte_2022,0.9)))
-boxplot(clust2$Qte_acte_2022,ylim=c(0,quantile(clust2$Qte_acte_2022,0.9)))
-boxplot(clust3$Qte_acte_2022,ylim=c(0,quantile(clust3$Qte_acte_2022,0.9)))
-boxplot(clust4$Qte_acte_2022,ylim=c(0,quantile(clust4$Qte_acte_2022,0.9)))
+boxplot(clust11$Qte_acte_2022,ylim=c(0,quantile(clust11$Qte_acte_2022,0.9)))
+boxplot(clust12$Qte_acte_2022,ylim=c(0,quantile(clust12$Qte_acte_2022,0.9)))
+boxplot(clust13$Qte_acte_2022,ylim=c(0,quantile(clust13$Qte_acte_2022,0.9)))
+boxplot(clust14$Qte_acte_2022,ylim=c(0,quantile(clust14$Qte_acte_2022,0.9)))
+boxplot(clust15$Qte_acte_2022,ylim=c(0,quantile(clust15$Qte_acte_2022,0.9)))
+boxplot(clust16$Qte_acte_2022,ylim=c(0,quantile(clust16$Qte_acte_2022,0.9)))
+boxplot(clust17$Qte_acte_2022,ylim=c(0,quantile(clust17$Qte_acte_2022,0.9)))
 ```
 
 
@@ -545,104 +577,120 @@ boxplot(clust4$Qte_acte_2022,ylim=c(0,quantile(clust4$Qte_acte_2022,0.9)))
 ### PC_2022
 
 ```{r}
-summary(clust1$PC_2022)
-summary(clust2$PC_2022)
-summary(clust3$PC_2022)
-summary(clust4$PC_2022)
-par(mfrow=c(2,2))
-boxplot(clust1$PC_2022,ylim=c(quantile(clust1$PC_2022,0.1),quantile(clust1$PC_2022,0.9)))
-boxplot(clust2$PC_2022,ylim=c(quantile(clust2$PC_2022,0.1),quantile(clust2$PC_2022,0.9)))
-boxplot(clust3$PC_2022,ylim=c(quantile(clust3$PC_2022,0.1),quantile(clust3$PC_2022,0.9)))
-boxplot(clust4$PC_2022,ylim=c(quantile(clust4$PC_2022,0.1),quantile(clust4$PC_2022,0.9)))
+summary(clust11$PC_2022)
+summary(clust12$PC_2022)
+summary(clust13$PC_2022)
+summary(clust14$PC_2022)
+summary(clust15$PC_2022)
+summary(clust16$PC_2022)
+summary(clust17$PC_2022)
+par(mfrow=c(1,4))
+boxplot(clust11$PC_2022,ylim=c(0,quantile(clust11$PC_2022,0.9)))
+boxplot(clust12$PC_2022,ylim=c(0,quantile(clust12$PC_2022,0.9)))
+boxplot(clust13$PC_2022,ylim=c(0,quantile(clust13$PC_2022,0.9)))
+boxplot(clust14$PC_2022,ylim=c(0,quantile(clust14$PC_2022,0.9)))
+boxplot(clust15$PC_2022,ylim=c(0,quantile(clust15$PC_2022,0.9)))
+boxplot(clust16$PC_2022,ylim=c(0,quantile(clust16$PC_2022,0.9)))
+boxplot(clust17$PC_2022,ylim=c(0,quantile(clust17$PC_2022,0.9)))
 ```
 
 
 ### VAR_PC2221
 ```{r}
-summary(clust1$VAR_PC2221)
-summary(clust2$VAR_PC2221)
-summary(clust3$VAR_PC2221)
-summary(clust4$VAR_PC2221)
-par(mfrow=c(2,2))
-boxplot(clust1$VAR_PC2221,ylim=c(quantile(clust1$VAR_PC2221,0.1),quantile(clust1$VAR_PC2221,0.9)))
-boxplot(clust2$VAR_PC2221,ylim=c(quantile(clust2$VAR_PC2221,0.1),quantile(clust2$VAR_PC2221,0.9)))
-boxplot(clust3$VAR_PC2221,ylim=c(quantile(clust3$VAR_PC2221,0.1),quantile(clust3$VAR_PC2221,0.9)))
-boxplot(clust4$VAR_PC2221,ylim=c(quantile(clust4$VAR_PC2221,0.1),quantile(clust4$VAR_PC2221,0.9)))
+
+summary(clust11$VAR_PC2221)
+summary(clust12$VAR_PC2221)
+summary(clust13$VAR_PC2221)
+summary(clust14$VAR_PC2221)
+summary(clust15$VAR_PC2221)
+summary(clust16$VAR_PC2221)
+summary(clust17$VAR_PC2221)
+par(mfrow=c(1,4))
+boxplot(clust11$VAR_PC2221,ylim=c(0,quantile(clust11$VAR_PC2221,0.9)))
+boxplot(clust12$VAR_PC2221,ylim=c(0,quantile(clust12$VAR_PC2221,0.9)))
+boxplot(clust13$VAR_PC2221,ylim=c(0,quantile(clust13$VAR_PC2221,0.9)))
+boxplot(clust14$VAR_PC2221,ylim=c(0,quantile(clust14$VAR_PC2221,0.9)))
+boxplot(clust15$VAR_PC2221,ylim=c(0,quantile(clust15$VAR_PC2221,0.9)))
+boxplot(clust16$VAR_PC2221,ylim=c(0,quantile(clust16$VAR_PC2221,0.9)))
+boxplot(clust17$VAR_PC2221,ylim=c(0,quantile(clust17$VAR_PC2221,0.9)))
 ```
 
 
 ### Prest_PP_2022
 ```{r}
-summary(clust1$Prest_PP_2022)
-summary(clust2$Prest_PP_2022)
-summary(clust3$Prest_PP_2022)
-summary(clust4$Prest_PP_2022)
-par(mfrow=c(2,2))
-boxplot(clust1$Prest_PP_2022,ylim=c(quantile(clust1$Prest_PP_2022,0.1),quantile(clust1$Prest_PP_2022,0.9)))
-boxplot(clust2$Prest_PP_2022,ylim=c(quantile(clust2$Prest_PP_2022,0.1),quantile(clust2$Prest_PP_2022,0.9)))
-boxplot(clust3$Prest_PP_2022,ylim=c(quantile(clust3$Prest_PP_2022,0.1),quantile(clust3$Prest_PP_2022,0.9)))
-boxplot(clust4$Prest_PP_2022,ylim=c(quantile(clust4$Prest_PP_2022,0.1),quantile(clust4$Prest_PP_2022,0.9)))
+summary(clust11$Prest_PP_2022)
+summary(clust12$Prest_PP_2022)
+summary(clust13$Prest_PP_2022)
+summary(clust14$Prest_PP_2022)
+summary(clust15$Prest_PP_2022)
+summary(clust16$Prest_PP_2022)
+summary(clust17$Prest_PP_2022)
+par(mfrow=c(1,4))
+boxplot(clust11$Prest_PP_2022,ylim=c(0,quantile(clust11$Prest_PP_2022,0.9)))
+boxplot(clust12$Prest_PP_2022,ylim=c(0,quantile(clust12$Prest_PP_2022,0.9)))
+boxplot(clust13$Prest_PP_2022,ylim=c(0,quantile(clust13$Prest_PP_2022,0.9)))
+boxplot(clust14$Prest_PP_2022,ylim=c(0,quantile(clust14$Prest_PP_2022,0.9)))
+boxplot(clust15$Prest_PP_2022,ylim=c(0,quantile(clust15$Prest_PP_2022,0.9)))
+boxplot(clust16$Prest_PP_2022,ylim=c(0,quantile(clust16$Prest_PP_2022,0.9)))
+boxplot(clust17$Prest_PP_2022,ylim=c(0,quantile(clust17$Prest_PP_2022,0.9)))
 ```
 
 ### VAR_Pr2221
 ```{r}
-summary(clust1$VAR_Pr2221)
-summary(clust2$VAR_Pr2221)
-summary(clust3$VAR_Pr2221)
-summary(clust4$VAR_Pr2221)
-par(mfrow=c(2,2))
-boxplot(clust1$VAR_Pr2221,ylim=c(quantile(clust1$VAR_Pr2221,0.1),quantile(clust1$VAR_Pr2221,0.9)))
-boxplot(clust2$VAR_Pr2221,ylim=c(quantile(clust2$VAR_Pr2221,0.1),quantile(clust2$VAR_Pr2221,0.9)))
-boxplot(clust3$VAR_Pr2221,ylim=c(quantile(clust3$VAR_Pr2221,0.1),quantile(clust3$VAR_Pr2221,0.9)))
-boxplot(clust4$VAR_Pr2221,ylim=c(quantile(clust4$VAR_Pr2221,0.1),quantile(clust4$VAR_Pr2221,0.9)))
+summary(clust11$VAR_Pr2221)
+summary(clust12$VAR_Pr2221)
+summary(clust13$VAR_Pr2221)
+summary(clust14$VAR_Pr2221)
+summary(clust15$VAR_Pr2221)
+summary(clust16$VAR_Pr2221)
+summary(clust17$VAR_Pr2221)
+par(mfrow=c(1,4))
+boxplot(clust11$VAR_Pr2221,ylim=c(0,quantile(clust11$VAR_Pr2221,0.9)))
+boxplot(clust12$VAR_Pr2221,ylim=c(0,quantile(clust12$VAR_Pr2221,0.9)))
+boxplot(clust13$VAR_Pr2221,ylim=c(0,quantile(clust13$VAR_Pr2221,0.9)))
+boxplot(clust14$VAR_Pr2221,ylim=c(0,quantile(clust14$VAR_Pr2221,0.9)))
+boxplot(clust15$VAR_Pr2221,ylim=c(0,quantile(clust15$VAR_Pr2221,0.9)))
+boxplot(clust16$VAR_Pr2221,ylim=c(0,quantile(clust16$VAR_Pr2221,0.9)))
+boxplot(clust17$VAR_Pr2221,ylim=c(0,quantile(clust17$VAR_Pr2221,0.9)))
 ```
 
 
 ### Cot_PP_2022 
 ```{r}
-summary(clust1$Cot_PP_2022)
-summary(clust2$Cot_PP_2022)
-summary(clust3$Cot_PP_2022)
-summary(clust4$Cot_PP_2022)
-par(mfrow=c(2,2))
-boxplot(clust1$Cot_PP_2022,ylim=c(quantile(clust1$Cot_PP_2022,0.1),quantile(clust1$Cot_PP_2022,0.9)))
-boxplot(clust2$Cot_PP_2022,ylim=c(quantile(clust2$Cot_PP_2022,0.1),quantile(clust2$Cot_PP_2022,0.9)))
-boxplot(clust3$Cot_PP_2022,ylim=c(quantile(clust3$Cot_PP_2022,0.1),quantile(clust3$Cot_PP_2022,0.9)))
-boxplot(clust4$Cot_PP_2022,ylim=c(quantile(clust4$Cot_PP_2022,0.1),quantile(clust4$Cot_PP_2022,0.9)))
+summary(clust11$Cot_PP_2022)
+summary(clust12$Cot_PP_2022)
+summary(clust13$Cot_PP_2022)
+summary(clust14$Cot_PP_2022)
+summary(clust15$Cot_PP_2022)
+summary(clust16$Cot_PP_2022)
+summary(clust17$Cot_PP_2022)
+par(mfrow=c(1,4))
+boxplot(clust11$Cot_PP_2022,ylim=c(0,quantile(clust11$Cot_PP_2022,0.9)))
+boxplot(clust12$Cot_PP_2022,ylim=c(0,quantile(clust12$Cot_PP_2022,0.9)))
+boxplot(clust13$Cot_PP_2022,ylim=c(0,quantile(clust13$Cot_PP_2022,0.9)))
+boxplot(clust14$Cot_PP_2022,ylim=c(0,quantile(clust14$Cot_PP_2022,0.9)))
+boxplot(clust15$Cot_PP_2022,ylim=c(0,quantile(clust15$Cot_PP_2022,0.9)))
+boxplot(clust16$Cot_PP_2022,ylim=c(0,quantile(clust16$Cot_PP_2022,0.9)))
+boxplot(clust17$Cot_PP_2022,ylim=c(0,quantile(clust17$Cot_PP_2022,0.9)))
 ```
 
 ### VAR_Cot2221
 
 ```{r}
-summary(clust1$VAR_Cot2221)
-summary(clust2$VAR_Cot2221)
-summary(clust3$VAR_Cot2221)
-summary(clust4$VAR_Cot2221)
-par(mfrow=c(2,2))
-boxplot(clust1$VAR_Cot2221,ylim=c(quantile(clust1$VAR_Cot2221,0.1),quantile(clust1$VAR_Cot2221,0.9)))
-boxplot(clust2$VAR_Cot2221,ylim=c(quantile(clust2$VAR_Cot2221,0.1),quantile(clust2$VAR_Cot2221,0.9)))
-boxplot(clust3$VAR_Cot2221,ylim=c(quantile(clust3$VAR_Cot2221,0.1),quantile(clust3$VAR_Cot2221,0.9)))
-boxplot(clust4$VAR_Cot2221,ylim=c(quantile(clust4$VAR_Cot2221,0.1),quantile(clust4$VAR_Cot2221,0.9)))
+summary(clust11$VAR_Cot2221)
+summary(clust12$VAR_Cot2221)
+summary(clust13$VAR_Cot2221)
+summary(clust14$VAR_Cot2221)
+summary(clust15$VAR_Cot2221)
+summary(clust16$VAR_Cot2221)
+summary(clust17$VAR_Cot2221)
+par(mfrow=c(1,4))
+boxplot(clust11$VAR_Cot2221,ylim=c(quantile(clust11$VAR_Cot2221,0.1),quantile(clust11$VAR_Cot2221,0.9)))
+boxplot(clust12$VAR_Cot2221,ylim=c(quantile(clust12$VAR_Cot2221,0.1),quantile(clust12$VAR_Cot2221,0.9)))
+boxplot(clust13$VAR_Cot2221,ylim=c(quantile(clust13$VAR_Cot2221,0.1),quantile(clust13$VAR_Cot2221,0.9)))
+boxplot(clust14$VAR_Cot2221,ylim=c(quantile(clust14$VAR_Cot2221,0.1),quantile(clust14$VAR_Cot2221,0.9)))
+boxplot(clust15$VAR_Cot2221,ylim=c(quantile(clust15$VAR_Cot2221,0.1),quantile(clust15$VAR_Cot2221,0.9)))
+boxplot(clust16$VAR_Cot2221,ylim=c(quantile(clust16$VAR_Cot2221,0.1),quantile(clust16$VAR_Cot2221,0.9)))
+boxplot(clust17$VAR_Cot2221,ylim=c(quantile(clust17$VAR_Cot2221,0.1),quantile(clust17$VAR_Cot2221,0.9)))
 ```
-
-
-## Type de soins
-
-```{r}
-df1 = stack(clust1[,c(28:32)])
-df1=aggregate(df1[,1],list(df1[,2]),sum)
-df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
-ggplot(df1, aes(x="", y=x, fill=Group.1)) +
-  geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0)+
-    theme_void()+
-  geom_text(aes(label = percent),
-            position = position_stack(vjust = 0.8)) +
-   ggtitle("Type de soins")
-
-
-#essayer la cumsum  cumsum(col2)[-length(col2)]),
-```
-
-
 

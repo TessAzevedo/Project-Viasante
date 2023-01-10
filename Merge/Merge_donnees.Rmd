@@ -79,7 +79,7 @@ load(file = "../Donnees/Cotisations/Cotisations_modif.Rdata")
 
 ```{r}
 load(file = "../Donnees/Prestations/prestations2.Rdata")
-tab_prestations=tab
+
 ```
 
 ```{r recup presta, echo=TRUE}
@@ -185,7 +185,7 @@ dataset_total <- merge(tab_eff_freq[,-c(2,3)], tab_cotisations[,c(1,6,12:25)], b
 ```
 
 ```{r merge}
-dataset_total <- merge(dataset_total, tab_prestations[,c(1,11:50)], by = 'Lien_E')
+dataset_total <- merge(dataset_total, tab_remb[,c(1,11:50)], by = 'Lien_E')
 ```
 
 # Save
