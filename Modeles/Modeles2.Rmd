@@ -128,21 +128,21 @@ plot(inertie[1:12], type = "s", xlab = "Nombre de classes", ylab = "Inertie")
 plot(arbre, labels = FALSE, main = "Dendrogramme")
 
 ```
-Saut à 7 ou 5.
+Saut à 6
 
 ```{r}
-C = res.acp$var$coord[,1:4]
-C = res.acp$ind$coord[,1:4]
+C = res.acp$var$coord[,1:5]
+C = res.acp$ind$coord[,1:5]
 clust1_ACP = C
 ```
 # Clustering sur toutes les données
 
-## CAH avec 7 clusters
+## CAH avec 6 clusters
 ```{r}
-options(repr.plot.width = 4, repr.plot.height = 4)
-arbre_clust7 = cutree(arbre,k=7)
-plot(clust1_ACP, pch=20, asp=1, col=arbre_clust7)
-legend("topright",legend=c(1:7), col=1:7,lty=1)
+#options(repr.plot.width = 3, repr.plot.height = 3)
+arbre_clust6 = cutree(arbre,k=6)
+plot(clust1_ACP, pch=20, asp=1, col=arbre_clust6)
+legend("topright",legend=c(1:6), col=1:6,lty=1)
 ```
 
 
@@ -151,8 +151,8 @@ legend("topright",legend=c(1:7), col=1:7,lty=1)
 options(repr.plot.width = 20, repr.plot.height = 20)
 Sclust1_num=scale(clust1_num)
 par(mfrow=c(2,2))
-for (i in 1:7){
-    indice<-which(arbre_clust7==i)
+for (i in 1:6){
+    indice<-which(arbre_clust6==i)
     boxplot(Sclust1_num[indice,] ,main=i )
 }
  
@@ -161,20 +161,18 @@ for (i in 1:7){
 
 ## creation cluster
 ```{r}
-indice<-which(arbre_clust7==1)
-clust11=clust1[indice,]  #586 obs
-indice<-which(arbre_clust7==2) 
-clust12=clust1[indice,] #128 obs
-indice<-which(arbre_clust7==3)
-clust13=clust1[indice,] #52 obs
-indice<-which(arbre_clust7==4)
-clust14=clust1[indice,] #52 obs
-indice<-which(arbre_clust7==5)
-clust15=clust1[indice,]  #32 obs
-indice<-which(arbre_clust7==6) 
-clust16=clust1[indice,] #19 obs
-indice<-which(arbre_clust7==7)
-clust17=clust1[indice,] #7 obs
+indice<-which(arbre_clust6==1)
+clust11=clust1[indice,]  #587 obs
+indice<-which(arbre_clust6==2) 
+clust12=clust1[indice,] #130 obs
+indice<-which(arbre_clust6==3)
+clust13=clust1[indice,] #87 obs
+indice<-which(arbre_clust6==4)
+clust14=clust1[indice,] #37 obs
+indice<-which(arbre_clust6==5)
+clust15=clust1[indice,]  #29 obs
+indice<-which(arbre_clust6==6) 
+clust16=clust1[indice,] #6 obs
 ```
 
 ## qualitative variable
@@ -189,8 +187,8 @@ hist(clust13$Nb_pers_2022,breaks=1000,xlim=c(0,quantile(clust13$Nb_pers_2022,0.8
 hist(clust14$Nb_pers_2022,breaks=1000,xlim=c(0,quantile(clust14$Nb_pers_2022,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
 hist(clust15$Nb_pers_2022,breaks=1000,xlim=c(0,quantile(clust15$Nb_pers_2022,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
 hist(clust16$Nb_pers_2022,breaks=1000,xlim=c(0,quantile(clust16$Nb_pers_2022,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
-hist(clust17$Nb_pers_2022,breaks=1000,xlim=c(0,quantile(clust17$Nb_pers_2022,0.8)), xlab='Nombre de personnes par lien', ylab='Effectif', main='Histogramme')
 ```
+
 ```{r}
 summary(clust11$Nb_pers_2022)
 summary(clust12$Nb_pers_2022)
@@ -198,7 +196,6 @@ summary(clust13$Nb_pers_2022)
 summary(clust14$Nb_pers_2022)
 summary(clust15$Nb_pers_2022)
 summary(clust16$Nb_pers_2022)
-summary(clust17$Nb_pers_2022)
 ```
 
 
@@ -214,7 +211,6 @@ barplot(table(clust14[,"Regroup1"]))
 
 barplot(table(clust15[,"Regroup1"]))
 barplot(table(clust16[,"Regroup1"]))
-barplot(table(clust17[,"Regroup1"]))
 ```
 Ils ont le max au même endroit.
 
@@ -227,7 +223,6 @@ hist(clust13$Option_2022_p,breaks = 50)
 hist(clust14$Option_2022_p,breaks = 50)
 hist(clust15$Option_2022_p,breaks = 50)
 hist(clust16$Option_2022_p,breaks = 50)
-hist(clust17$Option_2022_p,breaks = 50)
 ```
 
 
@@ -269,8 +264,6 @@ ind15=garder(tab_eff_nb,clust15)
 c15=tab_eff_nb[ind15,c(1,4:6,77,78,80:96)]
 ind16=garder(tab_eff_nb,clust16)
 c16=tab_eff_nb[ind16,c(1,4:6,77,78,80:96)]
-ind17=garder(tab_eff_nb,clust17)
-c17=tab_eff_nb[ind17,c(1,4:6,77,78,80:96)]
 ```
 
 ### Code groupe ass
@@ -294,7 +287,6 @@ codegp(c13)
 codegp(c14)
 codegp(c15)
 codegp(c16)
-codegp(c17)
 ``` 
 
 ### Type ass
@@ -319,7 +311,6 @@ typeass(c13)
 typeass(c14)
 typeass(c15)
 typeass(c16)
-typeass(c17)
 ```
 
 ### RNR
@@ -343,7 +334,6 @@ rnr(c13)
 rnr(c14)
 rnr(c15)
 rnr(c16)
-rnr(c17)
 ```
 ### Sexe
 
@@ -367,7 +357,6 @@ sexe(c13)
 sexe(c14)
 sexe(c15)
 sexe(c16)
-sexe(c17)
 ```
 
 ### Index 2022
@@ -385,8 +374,6 @@ clust15$Index_2022.f=cut(clust15$Index_2022, include.lowest = FALSE, right = TRU
   breaks = c(0,0.05,0.1,0.2))
 clust16$Index_2022.f=cut(clust16$Index_2022, include.lowest = FALSE, right = TRUE,
   breaks = c(0,0.05,0.1,0.2))
-clust17$Index_2022.f=cut(clust17$Index_2022, include.lowest = FALSE, right = TRUE,
-  breaks = c(0,0.05,0.1,0.2))
 
 par(mfrow=c(4,2))
 barplot(table(clust11$Index_2022.f))
@@ -395,7 +382,6 @@ barplot(table(clust13$Index_2022.f))
 barplot(table(clust14$Index_2022.f))
 barplot(table(clust15$Index_2022.f))
 barplot(table(clust16$Index_2022.f))
-barplot(table(clust17$Index_2022.f))
 ```
 
 
@@ -415,8 +401,6 @@ clust15$Index_2023.f=cut(clust15$Index_2023, include.lowest = FALSE, right = TRU
   breaks = c(0,0.05,0.1,0.2))
 clust16$Index_2023.f=cut(clust16$Index_2023, include.lowest = FALSE, right = TRUE,
   breaks = c(0,0.05,0.1,0.2))
-clust17$Index_2023.f=cut(clust17$Index_2023, include.lowest = FALSE, right = TRUE,
-  breaks = c(0,0.05,0.1,0.2))
 
 par(mfrow=c(4,2))
 barplot(table(clust11$Index_2023.f))
@@ -425,7 +409,6 @@ barplot(table(clust13$Index_2023.f))
 barplot(table(clust14$Index_2023.f))
 barplot(table(clust15$Index_2023.f))
 barplot(table(clust16$Index_2023.f))
-barplot(table(clust17$Index_2023.f))
 ```
 
 
@@ -439,7 +422,6 @@ hist(clust13$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of th
 hist(clust14$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
 hist(clust15$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
 hist(clust16$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
-hist(clust17$Tps_adh_E_par_L_2022, breaks=15, xlab='Mean subscription time of the companies to the link in year', main='Histogramme')
 ```
 
 
@@ -456,8 +438,6 @@ clust15$Tps_adh_E_par_L_2022.f=cut(clust15$Tps_adh_E_par_L_2022, include.lowest 
   breaks = c(0,20,50,max(clust15$Tps_adh_E_par_L_2022)))
 clust16$Tps_adh_E_par_L_2022.f=cut(clust16$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
   breaks = c(0,20,50,max(clust16$Tps_adh_E_par_L_2022)))
-clust17$Tps_adh_E_par_L_2022.f=cut(clust17$Tps_adh_E_par_L_2022, include.lowest = FALSE, right = TRUE,
-  breaks = c(0,20,50,max(clust17$Tps_adh_E_par_L_2022)))
 ``` 
 
 
@@ -480,7 +460,6 @@ temps(clust13)
 temps(clust14)
 temps(clust15)
 temps(clust16)
-temps(clust17)
 
 ```
 
@@ -498,8 +477,6 @@ summary(clust13$Mnt_2022)
 summary(clust14$Mnt_2022)
 summary(clust15$Mnt_2022)
 summary(clust16$Mnt_2022)
-summary(clust17$Mnt_2022)
-
 par(mfrow=c(1,4))
 boxplot(clust11$Mnt_2022,ylim=c(0,quantile(clust11$Mnt_2022,0.9)))
 boxplot(clust12$Mnt_2022,ylim=c(0,quantile(clust12$Mnt_2022,0.9)))
@@ -507,7 +484,6 @@ boxplot(clust13$Mnt_2022,ylim=c(0,quantile(clust13$Mnt_2022,0.9)))
 boxplot(clust14$Mnt_2022,ylim=c(0,quantile(clust14$Mnt_2022,0.9)))
 boxplot(clust15$Mnt_2022,ylim=c(0,quantile(clust15$Mnt_2022,0.9)))
 boxplot(clust16$Mnt_2022,ylim=c(0,quantile(clust16$Mnt_2022,0.9)))
-boxplot(clust17$Mnt_2022,ylim=c(0,quantile(clust17$Mnt_2022,0.9)))
 ```
 
 
@@ -520,7 +496,6 @@ summary(clust13$Remb_rc_2022)
 summary(clust14$Remb_rc_2022)
 summary(clust15$Remb_rc_2022)
 summary(clust16$Remb_rc_2022)
-summary(clust17$Remb_rc_2022)
 par(mfrow=c(1,4))
 boxplot(clust11$Remb_rc_2022,ylim=c(0,quantile(clust11$Remb_rc_2022,0.9)))
 boxplot(clust12$Remb_rc_2022,ylim=c(0,quantile(clust12$Remb_rc_2022,0.9)))
@@ -528,7 +503,6 @@ boxplot(clust13$Remb_rc_2022,ylim=c(0,quantile(clust13$Remb_rc_2022,0.9)))
 boxplot(clust14$Remb_rc_2022,ylim=c(0,quantile(clust14$Remb_rc_2022,0.9)))
 boxplot(clust15$Remb_rc_2022,ylim=c(0,quantile(clust15$Remb_rc_2022,0.9)))
 boxplot(clust16$Remb_rc_2022,ylim=c(0,quantile(clust16$Remb_rc_2022,0.9)))
-boxplot(clust17$Remb_rc_2022,ylim=c(0,quantile(clust17$Remb_rc_2022,0.9)))
 ```
 
 ### remboursement ro
@@ -540,7 +514,6 @@ summary(clust13$Remb_ro_2022)
 summary(clust14$Remb_ro_2022)
 summary(clust15$Remb_ro_2022)
 summary(clust16$Remb_ro_2022)
-summary(clust17$Remb_ro_2022)
 par(mfrow=c(1,4))
 boxplot(clust11$Remb_ro_2022,ylim=c(0,quantile(clust11$Remb_ro_2022,0.9)))
 boxplot(clust12$Remb_ro_2022,ylim=c(0,quantile(clust12$Remb_ro_2022,0.9)))
@@ -548,7 +521,6 @@ boxplot(clust13$Remb_ro_2022,ylim=c(0,quantile(clust13$Remb_ro_2022,0.9)))
 boxplot(clust14$Remb_ro_2022,ylim=c(0,quantile(clust14$Remb_ro_2022,0.9)))
 boxplot(clust15$Remb_ro_2022,ylim=c(0,quantile(clust15$Remb_ro_2022,0.9)))
 boxplot(clust16$Remb_ro_2022,ylim=c(0,quantile(clust16$Remb_ro_2022,0.9)))
-boxplot(clust17$Remb_ro_2022,ylim=c(0,quantile(clust17$Remb_ro_2022,0.9)))
 ```
 
 
@@ -560,7 +532,6 @@ summary(clust13$Qte_acte_2022)
 summary(clust14$Qte_acte_2022)
 summary(clust15$Qte_acte_2022)
 summary(clust16$Qte_acte_2022)
-summary(clust17$Qte_acte_2022)
 par(mfrow=c(1,4))
 boxplot(clust11$Qte_acte_2022,ylim=c(0,quantile(clust11$Qte_acte_2022,0.9)))
 boxplot(clust12$Qte_acte_2022,ylim=c(0,quantile(clust12$Qte_acte_2022,0.9)))
@@ -568,7 +539,6 @@ boxplot(clust13$Qte_acte_2022,ylim=c(0,quantile(clust13$Qte_acte_2022,0.9)))
 boxplot(clust14$Qte_acte_2022,ylim=c(0,quantile(clust14$Qte_acte_2022,0.9)))
 boxplot(clust15$Qte_acte_2022,ylim=c(0,quantile(clust15$Qte_acte_2022,0.9)))
 boxplot(clust16$Qte_acte_2022,ylim=c(0,quantile(clust16$Qte_acte_2022,0.9)))
-boxplot(clust17$Qte_acte_2022,ylim=c(0,quantile(clust17$Qte_acte_2022,0.9)))
 ```
 
 
@@ -583,7 +553,6 @@ summary(clust13$PC_2022)
 summary(clust14$PC_2022)
 summary(clust15$PC_2022)
 summary(clust16$PC_2022)
-summary(clust17$PC_2022)
 par(mfrow=c(1,4))
 boxplot(clust11$PC_2022,ylim=c(0,quantile(clust11$PC_2022,0.9)))
 boxplot(clust12$PC_2022,ylim=c(0,quantile(clust12$PC_2022,0.9)))
@@ -591,7 +560,6 @@ boxplot(clust13$PC_2022,ylim=c(0,quantile(clust13$PC_2022,0.9)))
 boxplot(clust14$PC_2022,ylim=c(0,quantile(clust14$PC_2022,0.9)))
 boxplot(clust15$PC_2022,ylim=c(0,quantile(clust15$PC_2022,0.9)))
 boxplot(clust16$PC_2022,ylim=c(0,quantile(clust16$PC_2022,0.9)))
-boxplot(clust17$PC_2022,ylim=c(0,quantile(clust17$PC_2022,0.9)))
 ```
 
 
@@ -604,7 +572,6 @@ summary(clust13$VAR_PC2221)
 summary(clust14$VAR_PC2221)
 summary(clust15$VAR_PC2221)
 summary(clust16$VAR_PC2221)
-summary(clust17$VAR_PC2221)
 par(mfrow=c(1,4))
 boxplot(clust11$VAR_PC2221,ylim=c(0,quantile(clust11$VAR_PC2221,0.9)))
 boxplot(clust12$VAR_PC2221,ylim=c(0,quantile(clust12$VAR_PC2221,0.9)))
@@ -612,7 +579,6 @@ boxplot(clust13$VAR_PC2221,ylim=c(0,quantile(clust13$VAR_PC2221,0.9)))
 boxplot(clust14$VAR_PC2221,ylim=c(0,quantile(clust14$VAR_PC2221,0.9)))
 boxplot(clust15$VAR_PC2221,ylim=c(0,quantile(clust15$VAR_PC2221,0.9)))
 boxplot(clust16$VAR_PC2221,ylim=c(0,quantile(clust16$VAR_PC2221,0.9)))
-boxplot(clust17$VAR_PC2221,ylim=c(0,quantile(clust17$VAR_PC2221,0.9)))
 ```
 
 
@@ -624,7 +590,6 @@ summary(clust13$Prest_PP_2022)
 summary(clust14$Prest_PP_2022)
 summary(clust15$Prest_PP_2022)
 summary(clust16$Prest_PP_2022)
-summary(clust17$Prest_PP_2022)
 par(mfrow=c(1,4))
 boxplot(clust11$Prest_PP_2022,ylim=c(0,quantile(clust11$Prest_PP_2022,0.9)))
 boxplot(clust12$Prest_PP_2022,ylim=c(0,quantile(clust12$Prest_PP_2022,0.9)))
@@ -632,7 +597,6 @@ boxplot(clust13$Prest_PP_2022,ylim=c(0,quantile(clust13$Prest_PP_2022,0.9)))
 boxplot(clust14$Prest_PP_2022,ylim=c(0,quantile(clust14$Prest_PP_2022,0.9)))
 boxplot(clust15$Prest_PP_2022,ylim=c(0,quantile(clust15$Prest_PP_2022,0.9)))
 boxplot(clust16$Prest_PP_2022,ylim=c(0,quantile(clust16$Prest_PP_2022,0.9)))
-boxplot(clust17$Prest_PP_2022,ylim=c(0,quantile(clust17$Prest_PP_2022,0.9)))
 ```
 
 ### VAR_Pr2221
@@ -643,7 +607,6 @@ summary(clust13$VAR_Pr2221)
 summary(clust14$VAR_Pr2221)
 summary(clust15$VAR_Pr2221)
 summary(clust16$VAR_Pr2221)
-summary(clust17$VAR_Pr2221)
 par(mfrow=c(1,4))
 boxplot(clust11$VAR_Pr2221,ylim=c(0,quantile(clust11$VAR_Pr2221,0.9)))
 boxplot(clust12$VAR_Pr2221,ylim=c(0,quantile(clust12$VAR_Pr2221,0.9)))
@@ -651,7 +614,6 @@ boxplot(clust13$VAR_Pr2221,ylim=c(0,quantile(clust13$VAR_Pr2221,0.9)))
 boxplot(clust14$VAR_Pr2221,ylim=c(0,quantile(clust14$VAR_Pr2221,0.9)))
 boxplot(clust15$VAR_Pr2221,ylim=c(0,quantile(clust15$VAR_Pr2221,0.9)))
 boxplot(clust16$VAR_Pr2221,ylim=c(0,quantile(clust16$VAR_Pr2221,0.9)))
-boxplot(clust17$VAR_Pr2221,ylim=c(0,quantile(clust17$VAR_Pr2221,0.9)))
 ```
 
 
@@ -663,7 +625,6 @@ summary(clust13$Cot_PP_2022)
 summary(clust14$Cot_PP_2022)
 summary(clust15$Cot_PP_2022)
 summary(clust16$Cot_PP_2022)
-summary(clust17$Cot_PP_2022)
 par(mfrow=c(1,4))
 boxplot(clust11$Cot_PP_2022,ylim=c(0,quantile(clust11$Cot_PP_2022,0.9)))
 boxplot(clust12$Cot_PP_2022,ylim=c(0,quantile(clust12$Cot_PP_2022,0.9)))
@@ -671,7 +632,6 @@ boxplot(clust13$Cot_PP_2022,ylim=c(0,quantile(clust13$Cot_PP_2022,0.9)))
 boxplot(clust14$Cot_PP_2022,ylim=c(0,quantile(clust14$Cot_PP_2022,0.9)))
 boxplot(clust15$Cot_PP_2022,ylim=c(0,quantile(clust15$Cot_PP_2022,0.9)))
 boxplot(clust16$Cot_PP_2022,ylim=c(0,quantile(clust16$Cot_PP_2022,0.9)))
-boxplot(clust17$Cot_PP_2022,ylim=c(0,quantile(clust17$Cot_PP_2022,0.9)))
 ```
 
 ### VAR_Cot2221
@@ -683,7 +643,6 @@ summary(clust13$VAR_Cot2221)
 summary(clust14$VAR_Cot2221)
 summary(clust15$VAR_Cot2221)
 summary(clust16$VAR_Cot2221)
-summary(clust17$VAR_Cot2221)
 par(mfrow=c(1,4))
 boxplot(clust11$VAR_Cot2221,ylim=c(quantile(clust11$VAR_Cot2221,0.1),quantile(clust11$VAR_Cot2221,0.9)))
 boxplot(clust12$VAR_Cot2221,ylim=c(quantile(clust12$VAR_Cot2221,0.1),quantile(clust12$VAR_Cot2221,0.9)))
@@ -691,6 +650,5 @@ boxplot(clust13$VAR_Cot2221,ylim=c(quantile(clust13$VAR_Cot2221,0.1),quantile(cl
 boxplot(clust14$VAR_Cot2221,ylim=c(quantile(clust14$VAR_Cot2221,0.1),quantile(clust14$VAR_Cot2221,0.9)))
 boxplot(clust15$VAR_Cot2221,ylim=c(quantile(clust15$VAR_Cot2221,0.1),quantile(clust15$VAR_Cot2221,0.9)))
 boxplot(clust16$VAR_Cot2221,ylim=c(quantile(clust16$VAR_Cot2221,0.1),quantile(clust16$VAR_Cot2221,0.9)))
-boxplot(clust17$VAR_Cot2221,ylim=c(quantile(clust17$VAR_Cot2221,0.1),quantile(clust17$VAR_Cot2221,0.9)))
 ```
 

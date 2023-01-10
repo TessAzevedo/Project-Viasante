@@ -729,4 +729,26 @@ boxplot(clust3$VAR_Cot2221,ylim=c(quantile(clust3$VAR_Cot2221,0.1),quantile(clus
 boxplot(clust4$VAR_Cot2221,ylim=c(quantile(clust4$VAR_Cot2221,0.1),quantile(clust4$VAR_Cot2221,0.9)))
 ```
 
+### type soins
 
+```{r}
+soin<-function(data){
+df1 = stack(data[,c(28:32)])
+df1= subset(df1,values!=0)
+df1=aggregate(df1[,1],list(df1[,2]),sum)
+colnames(df1)[1]=c("Type_de_soins")
+df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
+ggplot(df1, aes(x="", y=x, fill=Type_de_soins)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()+
+  geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8)) +
+   ggtitle("Type de soins")
+}
+soin(clust1)
+soin(clust2)
+soin(clust3)
+soin(clust4)
+
+```
