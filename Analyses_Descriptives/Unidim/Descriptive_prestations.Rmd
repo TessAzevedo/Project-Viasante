@@ -23,7 +23,7 @@ library(data.table)
 
 # Récupération du jeu Effectifs_freeze.Rdata
 ```{r recup, echo=TRUE}
-prest <- read.csv2('../../Donnees/Prestations/Prestations_final.csv')
+prest <- read.csv2('../../Donnees/Prestations/Prestations_last.csv')
 ```
 
 ```{r}
@@ -173,6 +173,11 @@ boxplot(prest[,c("Remb_ro_2018","Remb_ro_2019","Remb_ro_2020","Remb_ro_2021","Re
 boxplot(prest[,c("Qte_acte_2018","Qte_acte_2019","Qte_acte_2020","Qte_acte_2021","Qte_acte_2022")],ylim = c(0,30000))
 ```
 
+
+
+
+
+
 ```{r}
 boxplot(prest[,c("Maladie_2018","Maladie_2019","Maladie_2020","Maladie_2021","Maladie_2022")], ylim = c(0, quantile(prest$Maladie_2021,0.9)))
 
@@ -187,5 +192,31 @@ boxplot(prest[,c("Hospitalisation_2018","Hospitalisation_2019","Hospitalisation_
 ```
 
 
+```{r recup, echo=TRUE}
+   #prest_remb <- read.csv2('../../Donnees/Prestations/Prestations_remb.csv')
+```
+
+```{r}
+load('../../Donnees/Prestations/prestations2.Rdata')
+```
 
 
+
+## Type de soins
+
+```{r}
+df1 = stack(tab_remb[,c(46,47,48,49,50)])
+df1= subset(df1,values!=0)
+df1=aggregate(df1[,1],list(df1[,2]),sum)
+colnames(df1)[1]=c("Type_de_soins")
+df1$percent=paste(as.character(round(df1$x/sum(df1$x)*100,2)),"%")
+ggplot(df1, aes(x="", y=x, fill=Type_de_soins)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0)+
+    theme_void()+
+  geom_text(aes(label = percent),
+            position = position_stack(vjust = 0.8)) +
+   ggtitle("Type de soins")
+
+
+```
